@@ -7,9 +7,9 @@
   </head>
 
   <body>
-	  <button name="subsystem" class="btn-login btn-login-subsystem"
-		  onclick="window.location.href='login.php?to=subsystem';">Login to Healthcare Data Subsystem</button>
-	  <button name="console" class="btn-login btn-login-console"
+    <button name="hcsystem" class="btn-login btn-login-hcsystem"
+		  onclick="window.location.href='login.php?to=hcsystem';">Login to Healthcare System</button>
+    <button name="console" class="btn-login btn-login-console"
 		  onclick="window.location.href='login.php?to=console';">Login to Management Console</button>
   </body>
 </html>
