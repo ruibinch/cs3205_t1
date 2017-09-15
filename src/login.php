@@ -31,8 +31,8 @@
       <?php if ($loginSystem == "Healthcare System") { ?>
         <form class="form-signin-testing" name="form-testing" method="post" action="main.php">
           <p><b>For testing</b></p>
-          <button name="user" value="patient" id="btn-login-patient" class="btn-login btn-login-patient">Login as Patient</button>
-          <button name="user" value="therapist" id="btn-login-therapist" class="btn-login btn-login-therapist">Login as Therapist</button>
+          <button name="userType" value="patient" id="btn-login-patient" class="btn-login btn-login-patient">Login as Patient</button>
+          <button name="userType" value="therapist" id="btn-login-therapist" class="btn-login btn-login-therapist">Login as Therapist</button>
         </form>
       <?php } ?>
     </div>

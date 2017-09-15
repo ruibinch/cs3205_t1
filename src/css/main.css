@@ -8,6 +8,42 @@ body {
   background-color: #ffffff;
 }
 
+h1 {
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 50px;
+}
+
+textarea {
+  resize: none;
+  width: 400px;
+  height: 200px;
+}
+
+
+/* Common table styles
+===================================================== 
+*/
+
+.tb-border, .tb-border th, .tb-border td {
+  border: 1px solid black;
+}
+
+/* Common row styles
+===================================================== 
+*/
+
+.fld {
+  width: 15%;
+}
+
+.val {
+  width: 35%;
+}
+
+  
 /* Index page
 ===================================================== 
 */
@@ -66,7 +102,10 @@ body {
   margin-top: 5px;
 }
 
-.form-signin-testing p, h1 {
+.form-signin-testing p {
   text-align: center;
 }
+
+
+
 
