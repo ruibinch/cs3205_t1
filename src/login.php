@@ -2,7 +2,7 @@
 
   $loginSystem = "Healthcare Data Subsystem";
   if (isset($_GET["to"])) {
- 	if ($_GET["to"] == "console") {
+ 	  if ($_GET["to"] == "console") {
   	  $loginSystem = "Management Console";
   	}
   }
@@ -31,7 +31,7 @@
   	  <?php if ($loginSystem == "Healthcare Data Subsystem") { ?>
   	    <form class="form-signin-testing" name="form-testing" method="post">
   	      <p><b>For testing</b></p>
-  	      <button name="user" value="user" id="btn-login-user" class="btn-login btn-login-user">Login as User</button>
+  	      <button name="patient" value="patient" id="btn-login-patient" class="btn-login btn-login-patient">Login as Patient</button>
   	      <button name="therapist" value="therapist" id="btn-login-therapist" class="btn-login btn-login-therapist">Login as Therapist</button>
   	    </form>
   	  <?php } ?>
