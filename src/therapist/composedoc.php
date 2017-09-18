@@ -2,7 +2,7 @@
 
   session_start();
 
-  $_SESSION["userType"] = "therapist";
+  $_SESSION["user_type"] = "therapist";
 
 ?>
 
@@ -14,25 +14,28 @@
   </head>
 
   <body>
-    <a href="../main.php">Home</a>
-    <h2>Compose Document</h2>
+    <?php include '../sidebar.php' ?>
 
-    <table width="60%">
-      <tr>
-        <td>Associated Patient:</td>
-        <td><input type="text"/>
-      </tr>
-      <tr>
-        <td>Notes:</td>
-        <td><textarea></textarea></td>
-      </tr>
-      <tr>
-        <td>Attach Records:</td>
-        <td><a href="">View Records</a></td>
-      </tr>
-    </table>
+    <div class="shifted">
+      <h2>Compose Document</h2>
 
-    <button style="margin-top:50px">Save</button>
-    <button onclick="window.location.href='../main.php'">Cancel</button>
+      <table width="80%">
+        <tr>
+          <td>Associated Patient:</td>
+          <td><input type="text"/>
+        </tr>
+        <tr>
+          <td>Notes:</td>
+          <td><textarea></textarea></td>
+        </tr>
+        <tr>
+          <td>Attach Records:</td>
+          <td><a href="">View Records</a></td>
+        </tr>
+      </table>
+
+      <button style="margin-top:50px">Save</button>
+      <button onclick="window.location.href='../main.php'">Cancel</button>
+    </div>
   </body>
 </html>

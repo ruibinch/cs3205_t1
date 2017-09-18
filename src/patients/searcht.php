@@ -11,7 +11,7 @@
   </head>
 
   <body>
-  	<?php include 'sidebar.php' ?>
+  	<?php include '../sidebar.php' ?>
 	<div class="shifted">
     <h1><?php echo $therapist ?></h1>
     <hr style="margin-top:-15px">

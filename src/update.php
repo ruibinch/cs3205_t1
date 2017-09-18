@@ -1,4 +1,7 @@
 <?php
+
+  session_start();
+  
 	$user = "User";
   $first_name = "First Name";
   $last_name = "Last Name";
