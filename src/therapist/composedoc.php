@@ -13,28 +13,33 @@
     <link href="../css/main.css" rel="stylesheet">
   </head>
 
-  <body>
+  <body class="newdoc">
     <?php include '../sidebar.php' ?>
 
     <div class="shifted">
-      <h2>Compose Document</h2>
+      <h1>Compose a document</h1>
+      <hr style="margin-top:-15px">
 
-      <table width="80%">
+      <table class="newdoc-table">
         <tr>
-          <td>Associated Patient:</td>
+          <td class="first-col">Associated Patient:</td>
           <td><input type="text"/>
         </tr>
         <tr>
-          <td>Notes:</td>
-          <td><textarea></textarea></td>
+          <td class="first-col">Title:</td>
+          <td><input type="text"/></td>
         </tr>
         <tr>
-          <td>Attach Records:</td>
+          <td class="first-col">Notes:</td>
+          <td><textarea class="newdoc-text"></textarea></td>
+        </tr>
+        <tr>
+          <td class="first-col">Attach Records:</td>
           <td><a href="">View Records</a></td>
         </tr>
       </table>
 
-      <button style="margin-top:50px">Save</button>
+      <button>Save</button>
       <button onclick="window.location.href='../main.php'">Cancel</button>
     </div>
   </body>
