@@ -5,6 +5,8 @@
     $user_type = $_SESSION["user_type"];
   }
 
+  echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">';
+
   // Checks if the current working directory is the therapist subfolder
   if (substr_compare(getcwd(), "therapist", -strlen("therapist")) === 0) {
   	$therapist_home = "../main.php";
@@ -22,33 +24,46 @@
   	$therapist_logout = "login.php";
   }
 
+  if (substr_compare(getcwd(), "patient", -strlen("patient")) === 0) {
+  	$patient_home = "../main.php";
+  	$patient_therapist_list = "therapists.php";
+  	$patient_documents = "viewdoc.php";
+  	$patient_profile = "../update.php";
+  	$patient_logout = "../login.php";
+  } else {
+  	$patient_home = "main.php";
+  	$patient_therapist_list = "patient/therapists.php";
+  	$patient_documents = "patient/viewdoc.php";
+  	$patient_profile = "update.php";
+  	$patient_logout = "login.php";
+  }
+  echo '';
   if ($user_type == "therapist") {
 		echo
 		'<div class="sidebar">
-			Menu<br>
-			<form>
-	  			<input type="text" name="search" placeholder="Search..">
-			</form>
-			<a href="'.$therapist_home.'" style="text-decoration:none">Home</a><br>
-			<a href="'.$therapist_patient_list.'" style="text-decoration:none">Patient List</a><br>
-			<a href="'.$therapist_compose_doc.'" style="text-decoration:none">Compose Document</a><br>
-			<a href="'.$therapist_manage_doc.'" style="text-decoration:none">Manage Documents</a><br>
-			<a href="'.$therapist_profile.'" style="text-decoration:none">Profile</a><br>
-			<a href="'.$therapist_logout.'" style="text-decoration:none">Logout</a><br>
+			<form class="sidebar-searchbar-form">
+	  			<span class="searchbar-icon"><i class=\'fa fa-search\'></i></span>
+	  			<input class="sidebar-searchbar" type="text" name="search" placeholder="Search..">
+			</form><br>
+			<a href="'.$therapist_home.'" style="text-decoration:none">Home</a><br><hr>
+			<a href="'.$therapist_patient_list.'" style="text-decoration:none">Patient</a><br><hr>
+			<a href="'.$therapist_compose_doc.'" style="text-decoration:none">Compose</a><br><hr>
+			<a href="'.$therapist_manage_doc.'" style="text-decoration:none">Documents</a><br><hr>
+			<a href="'.$therapist_profile.'" style="text-decoration:none">Profile</a><br><hr>
+			<a href="'.$therapist_logout.'" style="text-decoration:none">Logout</a><br><hr>
 		</div>';
 	} else if ($user_type == "patient") { 
 		echo
 		'<div class="sidebar">
-			Menu<br>
-			<form>
-	  			<input type="text" name="search" placeholder="Search..">
-			</form>
-			<a href="main.php" style="text-decoration:none">Home</a><br>
-			<a href="viewdoc.php" style="text-decoration:none">Records</a><br>
-			<a href="update.php" style="text-decoration:none">Profile</a><br>
-			<a href="managet.php" style="text-decoration:none">Therapists</a><br>
-			<a href="login.php" style="text-decoration:none">Logout</a><br>
-			<a href="searcht.php" style="text-decoration:none">Search</a><br>
+			<form class="sidebar-searchbar-form">
+	  			<span class="searchbar-icon"><i class=\'fa fa-search\'></i></span>
+	  			<input class="sidebar-searchbar" type="text" name="search" placeholder="Search..">
+			</form><br>
+			<a href="'.$patient_home.'" style="text-decoration:none">Home</a><br><hr>
+			<a href="'.$patient_documents.'" style="text-decoration:none">Records</a><br><hr>
+			<a href="'.$patient_profile.'" style="text-decoration:none">Profile</a><br><hr>
+			<a href="'.$patient_therapist_list.'" style="text-decoration:none">Therapists</a><br><hr>
+			<a href="'.$patient_logout.'" style="text-decoration:none">Logout</a><br><hr>
 		</div>';
 	}
 
