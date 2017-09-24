@@ -1,8 +1,9 @@
 <?php
 
   session_start();
-
   $_SESSION["user_type"] = "therapist";
+  $documents_list = array("Document1", "Document2", "Document3", "Document4", "Document5", "Document6");
+  $num_documents = count($documents_list);
 
 ?>
 
@@ -17,41 +18,28 @@
     <?php include '../sidebar.php' ?>
 
     <div class="shifted">
-      <h2>Manage Documents</h2>
+      <h1>You have <?php echo $num_documents ?> documents.</h1>  
+      <hr style="margin-top:-15px">
 
-      <table class="tb-border">
+      <table class="main-table">
         <tr>
-          <th>No.</th>
+          <th class="first-col">S/N</th>
           <th>Date</th>
           <th>Title</th>
-          <th>Associated Patient</th>
+          <th>Patient</th>
           <th>Owner</th>
-          <th>Actions</th>
+          <th class="last-col">Date</th>
         </tr>
-        <tr>
-          <td>1</td>
-          <td>13/09/2017</td>
-          <td>Report on lung condition</td>
-          <td>Jenny Teo</td>
-          <td>Self</td>
-          <td><a href="">View</a> <a href="">Share</a></td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>05/09/2017</td>
-          <td>Bad eating habits</td>
-          <td>Miranda Lee</td>
-          <td>Brad Tan</td>
-          <td><a href="">View</a></td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>02/09/2017</td>
-          <td>Patient's high cholesterol levels</td>
-          <td>Lee Seow Jay</td>
-          <td>Self</td>
-          <td><a href="">View</a> <a href="">Share</a></td>
-        </tr>
+        <?php for ($i = 0; $i < $num_documents; $i++) { ?>
+          <tr>
+            <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+            <td></td>
+            <td><?php echo $documents_list[$i] ?></td>
+            <td style="width:10%">.mp3</td>
+            <td></td>
+            <td></td>
+          </tr>
+        <?php } ?>
       </table>
     </div>
 
