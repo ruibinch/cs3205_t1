@@ -3,6 +3,8 @@
   session_start();
 
   $_SESSION["user_type"] = "therapist";
+  $patients_list = array("Katy Perry", "Nicki Minaj", "Ryan Reynolds", "Chris Hemsworth");
+  $num_patients = count($patients_list);
 
 ?>
 
@@ -17,39 +19,31 @@
     <?php include '../sidebar.php' ?>
 
     <div class="shifted">
-      <h2>Patient List</h2>
-
+      <h1>Patients you are assigned to (<?php echo $num_patients ?>):</h1>
+      <hr style="margin-top:-15px">
       <p>Search by name: <input type="text" id="searchbox" name="searchbox" style="width:30%"/></p>
-      <table class="tb-border" width="80%">
+      <table class="main-table">
         <tr>
-          <th>First Name</th>
-          <th>Last Name</th>
-          <th>Date of Birth</th>
-          <th>Primary Contact Number</th>
-          <th>Actions</th>
+          <th class = "first-col">S/N</th>
+          <th>Name</th>
+          <th>Contact Info</th>
+          <th>D.O.B</th>
         </tr>
-        <tr>
-          <td>Mario</td>
-          <td>Tan</td>
-          <td>17/9/1992</td>
-          <td>92382932</td>
-          <td><a href="managep.php">View Details</a></td>
-        </tr>
-        <tr>
-          <td>Ming Guan</td>
-          <td>Chua</td>
-          <td>7/7/1987</td>
-          <td>82371391</td>
-          <td><a href="managep.php">View Details</a></td>
-        </tr>
-        <tr>
-          <td>Spencer</td>
-          <td>Tay</td>
-          <td>1/2/1993</td>
-          <td>91295799</td>
-          <td><a href="managep.php">View Details</a></td>
-        </tr>
+        <?php for ($i = 0; $i < $num_patients; $i++) { ?>
+          <tr>
+            <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+            <td valign="bottom">
+              <form method="post" action="managep.php">
+                <input name="patient_search" value="<?php echo $patients_list[$i] ?>" type="hidden">
+                <button class="list-button"><?php echo $patients_list[$i] ?></button>
+              </form>
+            </td>
+            <td></td>
+            <td></td>
+          </tr>
+        <?php } ?>
       </table>
+
     </div>
 
   </body>
