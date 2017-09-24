@@ -1,7 +1,8 @@
 <?php
-
   session_start();
-
+  if (isset($_POST["patient_search"])) {
+    $patient = $_POST["patient_search"];
+  }
   $_SESSION["user_type"] = "therapist";
 
 ?>
@@ -17,10 +18,8 @@
     <?php include '../sidebar.php' ?>
 
     <div class="shifted">
-      <a href="patients.php">Back</a>
-      <h2 style="margin-bottom:50px">Patient Management</h2>
-
-      <h3>Patient Details</h3>
+      <h1><?php echo $patient ?></h1>
+      <hr style="margin-top:-15px">
       <table width="70%">
         <tr>
           <td>First Name:</td>
@@ -58,70 +57,6 @@
 
       <h3>Patient Records</h3>
       <p><i>(Link to viewdoc.php)</i></p>
-
-      <!--
-      <p>Filter by type:
-        <select>
-          <option></option>
-          <option>Documents</option>
-          <option>Images</option>
-          <option>Movies</option>
-          <option>Readings</option>
-          <option>Time series</option>
-        </select>
-      </p>
-      <table class="tb-border">
-        <tr>
-          <th>No.</th>
-          <th>Date</th>
-          <th>Type</th>
-          <th>Subtype</th>
-          <th>Title</th>
-          <th>Actions</th>
-        </tr>
-        <tr>
-          <td>1</td>
-          <td>12/08/2017</td>
-          <td>Readings</td>
-          <td>BP</td>
-          <td>Dizzy spell</td>
-          <td><a href="">View</a></td>
-        </tr>
-        <tr>
-          <td>2</td>
-          <td>12/08/2017</td>
-          <td>Images</td>
-          <td>MRI</td>
-          <td>LS spine S4</td>
-          <td><a href="">View</a></td>
-        </tr>
-        <tr>
-          <td>3</td>
-          <td>12/08/2017</td>
-          <td>Time series</td>
-          <td>Gait</td>
-          <td>Left foot rotation</td>
-          <td><a href="">View</a></td>
-        </tr>
-        <tr>
-          <td>4</td>
-          <td>12/08/2017</td>
-          <td>Movies</td>
-          <td>Gait</td>
-          <td>Assessment</td>
-          <td><a href="">View</a></td>
-        </tr>
-        <tr>
-          <td>5</td>
-          <td>12/08/2017</td>
-          <td>Documents</td>
-          <td>Report</td>
-          <td>Report on gait assessment</td>
-          <td><a href="">View</a></td>
-        </tr>
-      </table>
-      -->
-
     </div>
 
   </body>
