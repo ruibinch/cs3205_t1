@@ -1,0 +1,89 @@
+@font-face {
+	font-family: roboto;
+	src: url(../font/Roboto-Regular.woff);
+}
+
+a {
+	text-decoration: none;
+	color: #FFFFFF;
+}
+
+body {
+	background-color: #137a6a;
+	font-family: roboto;
+	color: #FFFFFF;
+}
+
+.nav {
+	font-size: 17px;
+	border-radius: 10px;
+	width: 13%;
+	height: 90%;
+	position:fixed!important;
+	z-index: 1;
+	overflow:auto;
+	padding: 1%;
+	background-color: #36373a;
+}
+
+.menu ul {
+	list-style: none;
+	padding: 0;
+	text-align: center;
+}
+
+.content {
+	margin-left: 16%;
+	height: 100%;
+	padding: 1%;
+	padding-top: 1%;
+	
+	z-index: 1;
+	overflow:auto;
+	padding: 1%;
+	background-color: #36373a;
+	border-radius: 10px;
+	text-align: center;
+}
+
+.header {
+	height: 150px;
+	text-align: center;
+}
+
+.menu li{
+	list-style: none;
+	padding: 10px;
+	min-height: 30px;
+	margin-top: 5px;
+}
+
+.menu li:hover{
+	background: #4A4A4A;
+	cursor: pointer;
+}
+
+.addUser {
+	margin: auto;
+	background-color: #A04800;
+	border-radius: 10px;
+	width: 75%;
+	text-align: center;
+}
+
+.container {
+	display: flex;
+}
+
+.left {
+	flex: 1;
+}
+
+.addUser table {
+	margin: auto;
+}
+
+.addUser td {
+	padding: 10px;
+}
+
