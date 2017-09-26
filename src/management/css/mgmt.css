@@ -19,9 +19,9 @@ body {
 	border-radius: 10px;
 	width: 13%;
 	height: 90%;
-	position:fixed!important;
+	position:fixed;
 	z-index: 1;
-	overflow:auto;
+	overflow: auto;
 	padding: 1%;
 	background-color: #36373a;
 }
@@ -59,8 +59,20 @@ body {
 }
 
 .menu li:hover{
-	background: #4A4A4A;
+	background: #A04800;
 	cursor: pointer;
+}
+
+.error {
+	margin: auto;
+	background-color: #A04800;
+	border-radius: 10px;
+	width: 75%;
+	text-align: center;
+}
+
+.error table {
+	margin: auto;
 }
 
 .addUser {
@@ -72,11 +84,12 @@ body {
 }
 
 .container {
-	display: flex;
+	display: -webkit-flex;
 }
 
 .left {
-	flex: 1;
+	-webkit-flex: 1;
+	overflow: auto;
 }
 
 .addUser table {
