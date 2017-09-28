@@ -1,4 +1,5 @@
 <?php
+
   if (isset($_POST["user_type"])) {
     $user_type = $_POST["user_type"];
   } else if (isset($_SESSION["user_type"])) {
@@ -32,8 +33,8 @@
   	$patient_logout = "../login.php";
   } else {
   	$patient_home = "main.php";
-  	$patient_therapist_list = "patient/therapists.php";
-  	$patient_documents = "patient/viewdoc.php";
+  	$patient_therapist_list = "patients/therapists.php";
+  	$patient_documents = "patients/viewdoc.php";
   	$patient_profile = "update.php";
   	$patient_logout = "login.php";
   }

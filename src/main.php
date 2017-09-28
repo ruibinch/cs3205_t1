@@ -1,4 +1,4 @@
-<?php_check_syntax(filename)
+<?php
   session_start();
   if (isset($_POST["user_type"])) {
     $user_type = $_POST["user_type"];
@@ -6,7 +6,12 @@
   } else if (isset($_SESSION["user_type"])) {
     $user_type = $_SESSION["user_type"];
   };
-  $user = "User";
+
+  if ($user_type == "patient") {
+    $user = "Patient";
+  } else if ($user_type == "therapist") {
+    $user = "Therapist";
+  }
   $therapists_list = array("John Smith", "Caitlyn Jenner", "Taylor Swift", "Robert Downey Jr.");
   $num_therapists = count($therapists_list);
   $documents_list = array("Document1", "Document2", "Document3", "Document4", "Document5", "Document6");
