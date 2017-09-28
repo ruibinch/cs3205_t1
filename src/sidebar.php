@@ -25,7 +25,7 @@
   	$therapist_logout = "login.php";
   }
 
-  if (substr_compare(getcwd(), "patient", -strlen("patient")) === 0) {
+  if (substr_compare(getcwd(), "patients", -strlen("patients")) === 0) {
   	$patient_home = "../main.php";
   	$patient_therapist_list = "therapists.php";
   	$patient_documents = "viewdoc.php";

@@ -1,5 +1,18 @@
 <?php
   session_start();
+  ini_set("allow_url_fopen", 1);
+
+  // Get JSON object of user, either from POST or SESSION
+  if (isset($_POST["username"])) {
+    $username = $_POST["username"];
+    $user_json = json_decode(file_get_contents('http://172.25.76.76:8080/api/team1/user/'.$username));
+    $_SESSION["user_json"] = $user_json;
+  }
+  if (isset($_SESSION["user_json"])) {
+    $user_json = $_SESSION["user_json"];
+  }
+
+  // Get user type
   if (isset($_POST["user_type"])) {
     $user_type = $_POST["user_type"];
     $_SESSION["user_type"] = $_POST["user_type"];
@@ -12,12 +25,15 @@
   } else if ($user_type == "therapist") {
     $user = "Therapist";
   }
+
+
   $therapists_list = array("John Smith", "Caitlyn Jenner", "Taylor Swift", "Robert Downey Jr.");
   $num_therapists = count($therapists_list);
   $documents_list = array("Document1", "Document2", "Document3", "Document4", "Document5", "Document6");
   $num_documents = count($documents_list);
   $notifications_list = array("Notification1", "Notification2", "Notification3", "Notification4", "Notification5", "Notification6");
   $num_notifications = count($notifications_list);
+
 
 ?>
 
@@ -32,7 +48,7 @@
   <body>
     <?php include 'sidebar.php' ?>
   <div class="shifted">
-    <h1>Welcome, <?php echo $user ?></h1>
+    <h1>Welcome, <?php echo (isset($user_json->firstname) ? $user_json->firstname : $user) ?></h1>
     <hr style="margin-top:-15px">
     <div class="tab">
       <button class="tablinks active" onclick="openTab(event, 'Notifications')">Notifications</button>
