@@ -1,0 +1,38 @@
+List of commands ran against remote server:
+su first, password same as sadm
+
+== Install HTTPD (Apache) ==
+yum clean all
+yum -y update
+yum -y install httpd
+
+== Allow Firewall ==
+firewall-cmd --permanent --add-port=443/tcp
+firewall-cmd --permanent --add-port=80/tcp
+firewall-cmd --reload
+
+== Start Service ==
+service httpd start
+servive httpd status (to verify)
+
+== Install PHP ==
+https://www.vultr.com/docs/how-to-update-centos-7-ubuntu-16-04-and-debian-8
+
+== Change Permission of html folder to sadm ==
+chown -R sadm:sadm /var/www/html
+
+== Inserted Redirect Rule @ /etc/httpd/conf/httpd.conf at end of file ==
+
+#RewriteEngine
+RewriteEngine On
+RewriteCond %{HTTP:X-Forwarded-Protocol} !https
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+== Permission Denied Error ==
+setsebool -P httpd_can_network_connect on
+
+== Install Composer ==
+yum -y update 
+curl -sS https://getcomposer.org/installer | php
+mv composer.phar /usr/local/bin/composer
+chmod +x /usr/local/bin/composer
