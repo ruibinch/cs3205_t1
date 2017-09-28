@@ -13,20 +13,19 @@
 <meta charset="utf-8">
 
   <head>
-    <title><?php echo $loginSystem ?></title>
+    <title>Login</title>
     <link href="css/main.css" rel="stylesheet">
   </head>
 
   <body class="login">
-    <!-- <h1 style="text-align:center">Login to <?php echo $loginSystem ?></h1> -->
     <h1>
       <font size="30px" face="Lucida Grande" color="white">CS3205 Team 1</font><br>
-      <font size="5px" face="Lucida Grande" color="white"><?php echo strtoupper($loginSystem) ?></font>
+      <font size="5px" face="Lucida Grande" color="white" id="loginsystem"></font>
     </h1>
     <div class="login-container">
       <div class="login-tab">
-        <button class="tablinks user-tab active" onclick="openTab(event, 'User')">User</button>
-        <button class="tablinks mgmt-tab" onclick="openTab(event, 'Management')">Management</button>
+        <button class="tablinks user-tab active" onclick="openTab(event, 'User'), toggleLoginSystem('User')">User</button>
+        <button class="tablinks mgmt-tab" onclick="openTab(event, 'Management'), toggleLoginSystem('Management')">Management</button>
 
         <div id="User" class="login-tabcontent" style="display: block;">
           <form class="login-form" id="form-user" name="form-user" method="post" action="main.php">
@@ -48,6 +47,11 @@
     </div>
 
     <script>
+
+    window.onload = function() {
+      document.getElementById("loginsystem").innerHTML = "<?php echo $loginSystem ?>";
+    }
+
     function openTab(evt, tabName) {
         var i, tabcontent, tablinks;
         tabcontent = document.getElementsByClassName("login-tabcontent");
@@ -60,6 +64,16 @@
         }
         document.getElementById(tabName).style.display = "block";
         evt.currentTarget.className += " active";
+    }
+
+    function toggleLoginSystem(tabName) {
+      if (tabName == "User") {
+        document.getElementById("loginsystem").innerHTML = "Healthcare System";
+        openTab(event, 'User');
+      } else if (tabName == "Management") {
+        document.getElementById("loginsystem").innerHTML = "Management Console";
+        openTab(event, 'Management');
+      }
     }
     </script>
 

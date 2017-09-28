@@ -7,9 +7,11 @@
   </head>
 
   <body>
-    <button name="hcsystem" class="btn-login btn-login-hcsystem"
-		  onclick="window.location.href='login.php?to=hcsystem';">Login to Healthcare System</button>
-    <button name="console" class="btn-login btn-login-console"
-		  onclick="window.location.href='login.php?to=console';">Login to Management Console</button>
+    <div class="index">
+      <button name="hcsystem" class="login-btn login-btn-hcsystem"
+  		  onclick="window.location.href='login.php';">Login to Healthcare System</button>
+      <button name="console" class="login-btn login-btn-console"
+  		  onclick="window.location.href='login.php?to=console';">Login to Management Console</button>
+    </div>
   </body>
 </html>
