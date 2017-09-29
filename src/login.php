@@ -37,11 +37,16 @@
         </div>
 
         <div id="Management" class="login-tabcontent">
-          <form class="login-form" name="form-mgmt" method="post">
+          <form class="login-form" name="form-mgmt" method="post" action="management/process.php">
             <input id="mgmt-username" name="mgmt-username" type="text" class="login-input" placeholder="Username" autofocus>
             <input id="mgmt-password" name="mgmt-password" type="password" class="login-input" placeholder="Password">
             <button id="btn-login" name="login" class="login-btn login-btn-mgmt">Login</button>
           </form>
+		  <?php
+			if (isset($_GET['err']) && $_GET['err'] === "1") {
+				echo '<br/><br/><h3 style="color: red;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Invalid username or password.</h3>' . "\n";
+			}
+		  ?>		  
         </div>
       </div>
     </div>
@@ -50,6 +55,15 @@
 
     window.onload = function() {
       document.getElementById("loginsystem").innerHTML = "<?php echo $loginSystem ?>";
+	  <?php
+		//test code to default to management tab if it is selected. feel free to remove if desired.
+		//small bug: dk how to change to active class for management..... javascript rusty liao. zz
+		//it is broken on firefox too... 
+		if ($loginSystem === "Management Console") {
+			echo 'openTab(event, \'Management\');' . "\n";
+			echo 'toggleLoginSystem(\'Management\');' . "\n";
+		}
+	  ?>
     }
 
     function openTab(evt, tabName) {

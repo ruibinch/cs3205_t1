@@ -1,3 +1,16 @@
+<?php
+	//add.php: add functionality of management console. accessible by php include only.
+
+	//Shitty way to prevent direct access.
+	debug_backtrace() OR die ("Direct Access Forbidden.");
+	
+	if (!isset($_SESSION['loggedin'])) {
+		header("HTTP/1.1 301 Moved Permanently");
+		header("Location: ../index.php");
+		exit();
+	}
+?>
+
 <h1>Add User</h1>
 <?php
 /*
@@ -11,93 +24,103 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 		</table>
 		<table>'."\n";
 			// Display Approrpiate errors as dictated by the session variables. Values set at validate.php
+			if (isset($_SESSION['invalidType']) && $_SESSION['invalidType']) {
+				echo "\t\t\t" . '<tr><td><b>Patient or Therapist:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+				unset($_SESSION['invalidType']);
+			}
+			
 			if (isset($_SESSION['usernameExists']) && $_SESSION['userNameExists']) {
-				echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Username exists.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Username exists.<br/></td></tr>' . "\n";
 				unset($_SESSION['usernameExists']);
 			}
 			
 			if (isset($_SESSION['usernameErr']) && $_SESSION['usernameErr']) {
-				echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Only alphanumeric characters allowed.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Only alphanumeric characters allowed.<br/></td></tr>' . "\n";
 				unset($_SESSION['usernameErr']);
 			}			
 			
 			if (isset($_SESSION['pwLengthErr']) && $_SESSION['pwLengthErr']) {
-				echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Minimum password length must be at least 8.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Minimum password length must be at least 8.<br/></td></tr>' . "\n";
 				unset($_SESSION['pwLengthErr']);
 			}
 			
 			if (isset($_SESSION['pwDiffErr']) && $_SESSION['pwDiffErr']) {
-				echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Password fields do not match.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Password fields do not match.<br/></td></tr>' . "\n";
 				unset($_SESSION['pwDiffErr']);
 			}
 			
 			if (isset($_SESSION['firstNameErr']) && $_SESSION['firstNameErr']) {
-				echo "\t\t\t" . '<tr><td><b>First Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>First Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['firstNameErr']);
 			}
 			
 			if (isset($_SESSION['lastNameErr']) && $_SESSION['lastNameErr']) {
-				echo "\t\t\t" . '<tr><td><b>Last Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Last Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['lastNameErr']);
 			}
 			
+			if (isset($_SESSION['invalidBlood']) && $_SESSION['invalidBlood']) {
+				echo "\t\t\t" . '<tr><td><b>Blood Type:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+				unset($_SESSION['invalidBlood']);
+			}
+			
 			if (isset($_SESSION['dobErr']) && $_SESSION['dobErr']) {
-				echo "\t\t\t" . '<tr><td><b>Date of Birth:</b>&emsp;Invalid birthdate, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Date of Birth:</b>&emsp;Invalid birthdate, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['dobErr']);
 			}
 			
 			if (isset($_SESSION['contact1Err']) && $_SESSION['contact1Err']) {
-				echo "\t\t\t" . '<tr><td><b>Main Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Main Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['contact1Err']);
 			}
 			
 			if (isset($_SESSION['contact2Err']) && $_SESSION['contact2Err']) {
-				echo "\t\t\t" . '<tr><td><b>Second Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Second Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['contact2Err']);
 			}
 			
 			if (isset($_SESSION['contact3Err']) && $_SESSION['contact3Err']) {
-				echo "\t\t\t" . '<tr><td><b>Third Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Third Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['contact3Err']);
 			}
 			
 			if (isset($_SESSION['addr1Err']) && $_SESSION['addr1Err']) {
-				echo "\t\t\t" . '<tr><td><b>Main Address:</b>&emsp;Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Main Address:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['addr1Err']);
 			}
 			
 			if (isset($_SESSION['addr2Err']) && $_SESSION['addr2Err']) {
-				echo "\t\t\t" . '<tr><td><b>Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['addr2Err']);
 			}
 			
 			if (isset($_SESSION['addr3Err']) && $_SESSION['addr3Err']) {
-				echo "\t\t\t" . '<tr><td><b>Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['addr3Err']);
 			}
 			
 			if (isset($_SESSION['zip1Err']) && $_SESSION['zip1Err']) {
-				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip1Err']);
 			}
 			
 			if (isset($_SESSION['zip1Err']) && $_SESSION['zip1Err']) {
-				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip1Err']);
 			}
 			
 			if (isset($_SESSION['zip2Err']) && $_SESSION['zip2Err']) {
-				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip2Err']);
 			}
 			
 			if (isset($_SESSION['zip3Err']) && $_SESSION['zip3Err']) {
-				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip3Err']);
 			}
 			
 			if (isset($_SESSION['emptyField']) && $_SESSION['emptyField']) {
-				echo "\t\t\t" . '<tr><td><b>Note:</b>&emsp;One or more required fields are empty. Ensure that they are filled up.<br/></td></tr>';
+				echo "\t\t\t" . '<tr><td><b>Note:</b>&emsp;One or more required fields are empty. Ensure that they are filled up.<br/></td></tr>' . "\n";
 				unset($_SESSION['emptyField']);
 			}
 			
@@ -115,6 +138,7 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 		$_SESSION['uname'] = '';
 		$_SESSION['fname'] = '';
 		$_SESSION['lname'] = '';
+		$_SESSION['btype'] = '';
 		$_SESSION['dob'] = '';
 		$_SESSION['c1'] = '';
 		$_SESSION['c2'] = '';
@@ -133,7 +157,7 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 <div class="addUser">
 	<form class="container" method="post" action="validate.php">
 		<div class="left">
-			<h2>Stage 1: Patient or Therapist</h2>
+			<h2><br/>Stage 1: Patient or Therapist</h2>
 			<input type="radio" name="usertype" value="Patient" <?php if ($_SESSION['type'] === "Patient") echo "checked";?> required>Patient&emsp;&emsp;&emsp;
 			<input type="radio" name="usertype" value="Therapist" <?php if ($_SESSION['type'] === "Therapist") echo "checked";?> >Therapist
 			<h2>Stage 2: Account Details</h2>
@@ -167,6 +191,33 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 					<td>Last Name:&emsp;</td>
 					<td>
 						<input type="text" name="lastname" <?php echo 'value="'.$_SESSION['lname'].'"';?> required>
+					</td>
+				</tr>
+				<tr>
+					<td>Blood Type:&emsp;</td>
+					<td>
+						<select name="bloodtype" required>
+						<?php
+							$bTypeArr = array("O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-");
+							$bType = "";
+							echo "\t";
+							
+							if (isset($_SESSION['btype']) && !(empty($_SESSION['btype']))) {
+								$bType = $_SESSION['btype'];
+								echo '<option value="">Select Blood Type</option>' . "\n";
+							} else {
+								echo '<option value="" selected>Select Blood Type</option>' . "\n";
+							}
+							
+							foreach ($bTypeArr as $value) {
+								echo "\t\t\t\t\t\t\t" . '<option value="' . $value . '"';
+								if ($value === $bType) {
+									echo ' selected';
+								}
+								echo '>' . $value . '</option>' . "\n";
+							}
+						?>
+						</select>
 					</td>
 				</tr>
 			</table>

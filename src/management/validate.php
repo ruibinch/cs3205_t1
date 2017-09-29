@@ -1,9 +1,20 @@
 <?php
 	//validate.php: Checks submitted form values.
 	//TODO: Clarify with team the maxlength of each field.
-
+	
+	session_start();	
+	if (!isset($_SESSION['loggedin'])) {
+		header("HTTP/1.1 301 Moved Permanently");
+		header("Location: ../index.php");
+		exit();
+	}
+	
 	//GLOBAL VARIABLES DECLARATION:
 	$errorsPresent = "NO"; //track whether are there any validation errors.
+	
+?>
+<?php
+	// THIS SECTION DEALS WITH THE VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
 	
 	/*
 		checkEmptyFields():
@@ -16,12 +27,29 @@
 	function checkEmptyFields() {
 		global $errorsPresent;
 		
-		if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+		if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 			$_SESSION['emptyField'] = TRUE; //failed check
 			$errorsPresent = "YES";
 		}
 	}
 	
+	/*
+		checkUserType():
+			FUNCTIONALITY: Perform user type check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
+			INPUT: NONE. Use $_POST['usertype'].
+			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
+			
+	*/	
+	
+	function checkUserType() {
+		global $errorsPresent;
+		
+		if (!($_POST['usertype'] === "Therapist" || $_POST['usertype'] === "Patient")) {
+			$_SESSION['invalidType'] = TRUE; //failed check
+			$errorsPresent = "YES"; //triggers the variable to true.
+		}
+	}
+		
 	/*
 		checkUserName():
 			FUNCTIONALITY: Performs the following check:
@@ -36,8 +64,8 @@
 		
 		// TO IMPLEMENT USERNAME EXISTS, SKIP THE NEXT CHECK IF ALREADY EXISTS!
 		if (preg_match("/[^A-Za-z0-9]/", $_POST['username'])) {
-			$_SESSION['usernameErr'] = TRUE; //failed check
-			$errorsPresent = "YES"; //triggers the variable to true.
+			$_SESSION['usernameErr'] = TRUE;
+			$errorsPresent = "YES";
 		}
 	}
 	
@@ -86,6 +114,23 @@
 			$_SESSION['lastNameErr'] = TRUE;
 			$errorsPresent = "YES";
 		} 
+	}
+	
+	/*
+		checkBloodType():
+			FUNCTIONALITY: Performs blood type check. Since this field has only 8 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
+			INPUT: NONE. Use $_POST['bloodtype'].
+			OUTPUT: Adds session variable $_SESSION['invalidBlood'] = TRUE if value is not in the dropdown list.
+	*/
+	function checkBloodType() {
+		global $errorsPresent;
+		
+		$bTypeArr = array("O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-");
+		
+		if (!in_array($_POST['bloodtype'], $bTypeArr, TRUE)) {
+			$_SESSION['invalidBlood'] = TRUE; //failed check
+			$errorsPresent = "YES";
+		}
 	}
 	
 	/*
@@ -250,6 +295,11 @@
 		}
 	}
 	
+?>
+
+<?php	
+	// THIS SECTION DEALS WITH THE ACTUAL POST REQUEST THAT ARRIVE
+
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		echo "Go home, you are drunk.";
 	}
@@ -266,76 +316,87 @@
 		header("location: console.php?navi=edit");
 		exit();
 		*/
-		echo $_POST['joker'];
+		echo password_hash($_POST['joker'], PASSWORD_BCRYPT);
 	}
 	
 	//IMPLEMENT HTTP_REFERER WITH WORKING SERVER - $_SERVER['HTTP_REFERER'];
 	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "add") {
-		session_start();
-		//Save previously entered values:
-		$_SESSION['type'] = $_POST['usertype'];
-		$_SESSION['uname'] = $_POST['username'];
-		$_SESSION['fname'] = $_POST['firstname'];
-		$_SESSION['lname'] = $_POST['lastname'];
-		$_SESSION['dob'] = $_POST['dob'];
-		$_SESSION['c1'] = $_POST['contact1'];
-		$_SESSION['c2'] = $_POST['contact2'];
-		$_SESSION['c3'] = $_POST['contact3'];
-		$_SESSION['a1'] = $_POST['address1'];
-		$_SESSION['a2'] = $_POST['address2'];
-		$_SESSION['a3'] = $_POST['address3'];
-		$_SESSION['z1'] = $_POST['zipcode1'];
-		$_SESSION['z2'] = $_POST['zipcode2'];
-		$_SESSION['z3'] = $_POST['zipcode3'];
 		
 		//Perform empty fields check
 		checkEmptyFields();
+		
+		if ($errorsPresent === "NO") {
+			//Perform usertype check
+			checkUserType();
+			
+			//Perform username check
+			checkUserName();
+		
+			//Perform password check
+			checkPassword();
+		
+			//Perform firstname check
+			checkFirstAndLastName();
+			
+			//Perform blood type check
+			checkBloodType();
+		
+			//Perform dob check
+			checkDOB();
+		
+			//Perform contact number checks
+			checkContactNumber();
+		
+			//Perform address checks
+			checkAddress();
+		
+			//Perform postal code checks
+			checkZip();
+		}
 				
-		//Perform username check
-		checkUserName();
-		
-		//Perform password check
-		checkPassword();
-		
-		//Perform firstname check
-		checkFirstAndLastName();
-		
-		//Perform dob check
-		checkDOB();
-		
-		//Perform contact number checks
-		checkContactNumber();
-		
-		//Perform address checks
-		checkAddress();
-		
-		//Perform postal code checks
-		checkZip();
-		
 		if ($errorsPresent === "YES") {
 			$_SESSION['errorsPresent'] = TRUE;
+			
+			//Save previously entered values:
+			$_SESSION['type'] = $_POST['usertype'];
+			$_SESSION['uname'] = $_POST['username'];
+			$_SESSION['fname'] = $_POST['firstname'];
+			$_SESSION['lname'] = $_POST['lastname'];
+			$_SESSION['btype'] = $_POST['bloodtype'];
+			$_SESSION['dob'] = $_POST['dob'];
+			$_SESSION['c1'] = $_POST['contact1'];
+			$_SESSION['c2'] = $_POST['contact2'];
+			$_SESSION['c3'] = $_POST['contact3'];
+			$_SESSION['a1'] = $_POST['address1'];
+			$_SESSION['a2'] = $_POST['address2'];
+			$_SESSION['a3'] = $_POST['address3'];
+			$_SESSION['z1'] = $_POST['zipcode1'];
+			$_SESSION['z2'] = $_POST['zipcode2'];
+			$_SESSION['z3'] = $_POST['zipcode3'];
+			
 			header("location: console.php?navi=add");
 			exit();
 		} else {
-			echo "Nothing Wrong... Ready to add into database. TODO.";
-			
 			//unset all user input values.
-			unset($_SESSION['usertype']);
-			unset($_SESSION['username']);
-			unset($_SESSION['firstname']);
-			unset($_SESSION['lastname']);
+			unset($_SESSION['type']);
+			unset($_SESSION['uname']);
+			unset($_SESSION['fname']);
+			unset($_SESSION['lname']);
+			unset($_SESSION['btype']);
 			unset($_SESSION['dob']);
-			unset($_SESSION['contact1']);
-			unset($_SESSION['contact2']);
-			unset($_SESSION['contact3']);
-			unset($_SESSION['address1']);
-			unset($_SESSION['address2']);
-			unset($_SESSION['address3']);
-			unset($_SESSION['zipcode1']);
-			unset($_SESSION['zipcode2']);
-			unset($_SESSION['zipcode3']);
+			unset($_SESSION['c1']);
+			unset($_SESSION['c2']);
+			unset($_SESSION['c3']);
+			unset($_SESSION['a1']);
+			unset($_SESSION['a2']);
+			unset($_SESSION['a3']);
+			unset($_SESSION['z1']);
+			unset($_SESSION['z2']);
+			unset($_SESSION['z3']);
 			unset($_SESSION['firstrun']);
+			
+			echo "Nothing Wrong... Ready to add into database. TODO.";
 		}
 		exit();
 	}

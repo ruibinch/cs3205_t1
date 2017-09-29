@@ -8,7 +8,15 @@
 			- Edit / Delete / Transaction / Validate
 			- Design (almost done..)
 	*/
+	
+	//console.php: management console's main page.
     session_start();
+	
+	if (!isset($_SESSION['loggedin'])) {
+		header("HTTP/1.1 301 Moved Permanently");
+		header("Location: ../index.php");
+		exit();
+	}
 ?>
 
 <html>
@@ -22,7 +30,7 @@
 				<div class="header">
 					<h1>Management Console</h1>
 					<br/>
-					<h3>Logged in as: Test User</h3>
+					<h3>Welcome, <br/><?php echo $_SESSION['loggedin']?></h3>
 				</div>
 				<div class="menu">
 					<br/><br/><br/>
@@ -32,7 +40,7 @@
 						<a href="console.php?navi=delete"><li>Delete User</li></a>
 						<a href="console.php?navi=txhistory"><li>Server Transactions</li></a>
 						<br/>
-						<a href="console.php?navi=logout"><li>Logout</li></a>
+						<a href="logout.php"><li>Logout</li></a>
 					</ul>
 				</div>
 			</nav>
@@ -52,7 +60,7 @@
 							include "txhistory.php";
 							break;
 						default:
-							echo "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.";
+							echo '<h1><---- Select one of the options on the menu bar to continue.</h1>';
 							break;
 					}
 				?>

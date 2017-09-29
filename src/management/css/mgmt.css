@@ -9,7 +9,7 @@ a {
 }
 
 body {
-	background-color: #137a6a;
+	background-color: #4C586F;
 	font-family: roboto;
 	color: #FFFFFF;
 }
@@ -59,8 +59,9 @@ body {
 }
 
 .menu li:hover{
-	background: #A04800;
+	background: #A2AAB0;
 	cursor: pointer;
+	border-radius: 10px;
 }
 
 .error {
@@ -77,20 +78,25 @@ body {
 
 .addUser {
 	margin: auto;
-	background-color: #A04800;
+	background-color: #A2AAB0;
 	border-radius: 10px;
 	width: 75%;
 	text-align: center;
+	color: black;
 }
 
+/*
 .container {
 	display: -webkit-flex;
 }
+*/
 
+/*
 .left {
 	-webkit-flex: 1;
 	overflow: auto;
 }
+*/
 
 .addUser table {
 	margin: auto;

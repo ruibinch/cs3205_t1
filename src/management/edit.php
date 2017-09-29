@@ -1,9 +1,22 @@
+<?php
+	//edit.php: edit functionality of management console. accessible by php include only.
+
+	//Shitty way to prevent direct access.
+	debug_backtrace() OR die ("Direct Access Forbidden.");
+	
+	if (!isset($_SESSION['loggedin'])) {
+		header("HTTP/1.1 301 Moved Permanently");
+		header("Location: ../index.php");
+		exit();
+	}
+?>
 <h1>Edit User</h1>
 <h3>This page is a stub. Intention is to search patient by username / id.</h3>
-<h3>Meanwhile, will use it to test validate.php validate/redirect functionality.</h3>
+<h3>Meanwhile, will use it to test other functionality.</h3>
+
 
 <form action="validate.php" method="post">
-	Joker: <input type="date" name="joker" required>
+	Joker: <input type="password" name="joker" required>
 	<br/><br/>
 	<input type="submit">
 	<input type="hidden" name="action" value="edit">
@@ -12,6 +25,7 @@
 <br/><br/>
 
 <?php
+	/*
 	if (isset($_SESSION['editfield'])) {
 		echo "You have entered " . $_SESSION['editfield'] . " previously.\n";
 		unset($_SESSION['editfield']);
@@ -22,4 +36,5 @@
 			echo "Failed.";
 		}
 	}
+	*/
 ?>
