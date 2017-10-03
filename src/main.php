@@ -3,19 +3,14 @@
     session_start();
     ini_set("allow_url_fopen", 1); // allow connection to DB server
 
-
-    // Get JSON object of user, either from existing JSON object or from the DB if it is a new login
-    if (isset($_SESSION["user_json"])) {
-        $user_json = $_SESSION["user_json"];
-    } else if (isset($_SESSION['username'])) {
-        $username = $_SESSION['username'];
-        $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/'.$username));
-        $_SESSION["user_json"] = $user_json;
+    // Get JSON object of user
+    if (isset($_SESSION['user_json'])) {
+        $user_json = $_SESSION['user_json'];
     }
 
     // Get user type
-    if (isset($_SESSION["user_type"])) {
-        $user_type = $_SESSION["user_type"];
+    if (isset($_SESSION['user_type'])) {
+        $user_type = $_SESSION['user_type'];
     };
     if ($user_type === "patient") {
         $user = "Patient";
@@ -30,7 +25,6 @@
     $num_documents = count($documents_list);
     $notifications_list = array("Notification1", "Notification2", "Notification3", "Notification4", "Notification5", "Notification6");
     $num_notifications = count($notifications_list);
-
 
 ?>
 

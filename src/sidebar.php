@@ -23,7 +23,7 @@
         $therapist_logout = "login.php";
     }
 
-    if (substr_compare(getcwd(), "patients", -strlen("patients")) === 0) {
+    if (substr_compare(getcwd(), "patient", -strlen("patient")) === 0) {
         $patient_home = "../main.php";
         $patient_therapist_list = "therapists.php";
         $patient_documents = "viewdoc.php";
@@ -31,8 +31,8 @@
         $patient_logout = "../login.php";
     } else {
         $patient_home = "main.php";
-        $patient_therapist_list = "patients/therapists.php";
-        $patient_documents = "patients/viewdoc.php";
+        $patient_therapist_list = "patient/therapists.php";
+        $patient_documents = "patient/viewdoc.php";
         $patient_profile = "update.php";
         $patient_logout = "login.php";
     }

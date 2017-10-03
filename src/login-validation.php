@@ -3,18 +3,33 @@
 
     session_start();
 
-    // TODO - update from DB API    
-    $username = "team1";
-	$password = '$2y$10$NHpcPdotapEtq5t2HR.iV.OVHzV8oCymH9n3Fwhnh0CYP9xGE6oG6';  //plaintext: corgi
-	
-	if ($_POST['hc-username'] === $username && password_verify($_POST['hc-password'], $password)) {
-        $_SESSION['username'] = $username;
+    // dummy data
+    $dummy_username = "team1";
+	$dummy_password = '$2y$10$NHpcPdotapEtq5t2HR.iV.OVHzV8oCymH9n3Fwhnh0CYP9xGE6oG6';  //plaintext: corgi
+
+    $input_username = $_POST['hc-username'];
+    $input_password = $_POST['hc-password'];
+    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/'.$input_username));
+
+    if (isset($user_json)) {
+        if (password_verify($input_password, $user_json->password)) {
+            $_SESSION['user_json'] = $user_json;
+            $_SESSION['user_type'] = $_POST['user_type'];
+            header("location: main.php");
+            exit();
+        } else {
+            session_destroy();
+            header("location: login.php?err=1");
+        }
+    } else if ($_POST['hc-username'] === $dummy_username && password_verify($_POST['hc-password'], $dummy_password)) {
+        // FOR EASE OF TESTING, TO BE REMOVED
         $_SESSION['user_type'] = $_POST['user_type'];
 		header("location: main.php");
 		exit();
-	} else {
+    } else {
         session_destroy();
         header("location: login.php?err=1");
     }
+
 
 ?>
