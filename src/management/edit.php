@@ -16,7 +16,7 @@
 
 
 <form action="validate.php" method="post">
-	Joker: <input type="password" name="joker" required>
+	Joker: <input type="name" name="NRIC" required>
 	<br/><br/>
 	<input type="submit">
 	<input type="hidden" name="action" value="edit">

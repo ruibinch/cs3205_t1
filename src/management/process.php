@@ -7,10 +7,22 @@
 	session_start();
 	
 	$username = "team1";
-	$password = '$2y$10$NHpcPdotapEtq5t2HR.iV.OVHzV8oCymH9n3Fwhnh0CYP9xGE6oG6';  //plaintext: corgi
+	$password = '$2y$10$ysODL/dUnmJaSHqLp4gz.uVQLFmExwWi1yRO/DYA4S6SxHg6Y0L7u';  //plaintext: mainecoon
 	
+	//Local login without DB.. will remove it... soon.
 	if ($_POST['mgmt-username'] === $username && password_verify($_POST['mgmt-password'], $password)) {
 		$_SESSION['loggedin'] = $username;
+		header("location: console.php");
+		exit();
+	}
+	
+	//DB Login..
+	$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/admin/' . $_POST['mgmt-username']);
+	
+	$decode = json_decode($result);
+	
+	if (isset($decode->username) && password_verify($_POST['mgmt-password'], $decode->password)) {
+		$_SESSION['loggedin'] = $decode->username;
 		header("location: console.php");
 		exit();
 	} else {

@@ -27,7 +27,7 @@
 	function checkEmptyFields() {
 		global $errorsPresent;
 		
-		if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+		if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 			$_SESSION['emptyField'] = TRUE; //failed check
 			$errorsPresent = "YES";
 		}
@@ -53,19 +53,34 @@
 	/*
 		checkUserName():
 			FUNCTIONALITY: Performs the following check:
-				1) Whether username already exists in database (NOTE: NOT IMEPLEMETED YET).
-				2) Ensure that username only contains alphanumeric characters.
+				1) Ensure that username only contains alphanumeric characters.
+				2) Whether username already exists in database (NOTE: NOT IMEPLEMETED YET).
 			INPUT: NONE. Use $_POST['username'].
 			OUTPUT: Adds session variable $_SESSION['usernameErr'] = TRUE if it contains other characters.
 					Session variable NOT PRESENT if username only contains alphanumeric characters.
+					
+					If 1) passes and 2) fails, adds session variable $_SESSION['usernameExists'] = TRUE if username exists in database. Session variable NOT PRESENT if username does not exist.
 	*/	
 	function checkUserName() {
 		global $errorsPresent;
 		
-		// TO IMPLEMENT USERNAME EXISTS, SKIP THE NEXT CHECK IF ALREADY EXISTS!
+		//Invalid username check. If flagged, skip next check.
 		if (preg_match("/[^A-Za-z0-9]/", $_POST['username'])) {
 			$_SESSION['usernameErr'] = TRUE;
 			$errorsPresent = "YES";
+		}
+		
+		//Check whether username exists in DB.
+		if (!isset($_SESSION['usernameErr'])) {
+			$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+			
+			$decode = json_decode($result);
+			
+			//strcasecmp: compare string in a case insenstive manner. 0 means equal.
+			if (isset($decode->username) && strcasecmp($decode->username, $_POST['username']) == 0) {
+				$_SESSION['usernameExists'] = TRUE;
+				$errorsPresent = "YES";
+			}
 		}
 	}
 	
@@ -95,6 +110,62 @@
 	}
 	
 	/*
+		checkNRIC():
+			FUNCTIONALITY: Performs the following check:
+				1) NRIC/FIN entered is valid (syntax wise).
+				2) Not reused (Not implemented. To be decided)
+			INPUT: NONE. Use $_POST['NRIC'].
+			OUTPUT: Adds session variable $_SESSION['nricInvalid'] = TRUE if NRIC/FIN not valid.
+					If that check passes, adds session variable $_SESSION['nricExists'] = TRUE if NRIC/FIN already exists in database (NOT IMPLEMENTED)
+					Session variables NOT PRESENT if it passes the checks.
+	*/
+	function checkNRIC() {
+		global $errorsPresent;
+		$nric = $_POST['NRIC'];
+		
+		
+		//Use this site to enter correct NRIC value: https://nric.biz/
+		//Validation taken from: https://pgmmer.blogspot.sg/2009/12/singapore-nric-check.html with slight modfications
+		
+		// Invalid NRIC Check. If this fails, skip next check 
+		$errorDetected = FALSE;
+		$check = "";
+		if ( preg_match('/^[ST][0-9]{7}[JZIHGFEDCBA]$/', $nric) ) { // NRIC
+			$check = "JZIHGFEDCBA";
+		} else if ( preg_match('/^[FG][0-9]{7}[XWUTRQPNMLK]$/', $nric) ) { // FIN
+			$check = "XWUTRQPNMLK";
+		} else {
+			$errorDetected = TRUE;
+		}
+		
+		if (!$errorDetected) {
+			$total = $nric[1]*2 
+						+ $nric[2]*7 
+						+ $nric[3]*6 
+						+ $nric[4]*5 
+						+ $nric[5]*4 
+						+ $nric[6]*3 
+						+ $nric[7]*2;
+
+			if ( $nric[0] == "T" OR $nric[0] == "G" ) {
+				// shift 4 places for after year 2000
+				$total = $total + 4;
+			}
+			
+			if (! ($nric[8] == $check[$total % 11]) ) {
+				$errorDetected = TRUE;
+			}
+		}
+		
+		if ($errorDetected) {
+			$_SESSION['nricInvalid'] = TRUE;
+			$errorsPresent = "YES";
+		}
+		
+		//TODO? : Duplicate NRIC Check. Not possible as no API call as of now.
+	}
+	
+	/*
 		checkFirstAndLastName():
 			FUNCTIONALITY: Performs the following check:
 				1) First and Last Name String complies with the following regex: /^[\p{L}\s'.-]+$/
@@ -114,6 +185,23 @@
 			$_SESSION['lastNameErr'] = TRUE;
 			$errorsPresent = "YES";
 		} 
+	}
+	
+	/*
+		checkGender():
+			FUNCTIONALITY: Perform user type check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
+			INPUT: NONE. Use $_POST['usertype'].
+			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
+			
+	*/	
+	
+	function checkGender() {
+		global $errorsPresent;
+		
+		if (!($_POST['gender'] === "M" || $_POST['gender'] === "F")) {
+			$_SESSION['invalidGender'] = TRUE;
+			$errorsPresent = "YES";
+		}
 	}
 	
 	/*
@@ -304,6 +392,51 @@
 		echo "Go home, you are drunk.";
 	}
 	
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete") {
+		//Attempt to retrieve user from database
+		$validForDeletion = FALSE;
+		$resultDel = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+		echo "$resultDel";
+		
+		$decodeDel = json_decode($resultDel);
+		
+		if (isset($decodeDel->username)) {
+			$validForDeletion = TRUE;
+		}
+		
+		if ($validForDeletion) {
+			$_SESSION['validForDeletion'] = TRUE;
+			$_SESSION['delUserName'] = $decodeDel->username;
+			$_SESSION['delUserID'] = $decodeDel->uid;  //for delete2 usage.
+		} else {
+			$_SESSION['validForDeletion'] = FALSE;
+		}
+		
+		$_SESSION['printSecondArea'] = TRUE;
+		header("location: console.php?navi=delete");
+		exit();
+		
+	}
+	
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete2") {
+		
+		//Note: Have not implemented server side checking for ticked box 
+		
+		$resultDel2 = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' . $_SESSION['delUserID']);
+		
+				
+		$decodeDel2 = json_decode($resultDel2);
+		if ($decodeDel2 -> result === 1) { //deletion successful
+			$_SESSION['successfulDeletion'] = TRUE;
+		} else {
+			$_SESSION['successfulDeletion'] = FALSE;
+		}
+				
+		$_SESSION['printThirdArea'] = TRUE;
+		header("location: console.php?navi=delete");
+		exit();
+	}
+		
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "edit") {
 		/*
 		session_start();
@@ -316,7 +449,52 @@
 		header("location: console.php?navi=edit");
 		exit();
 		*/
-		echo password_hash($_POST['joker'], PASSWORD_BCRYPT);
+		
+		//echo password_hash($_POST['joker'], PASSWORD_BCRYPT);
+		
+		global $errorsPresent;	
+		
+		//Use this site to enter correct NRIC value: https://nric.biz/
+		//Validation taken from: https://pgmmer.blogspot.sg/2009/12/singapore-nric-check.html with slight modfications
+		
+		// Invalid NRIC Check. If this fails, skip next check 
+		$errorDetected = FALSE;
+		$check = "";
+		
+		$nric = $_POST['NRIC'];
+		if ( preg_match('/^[ST][0-9]{7}[JZIHGFEDCBA]$/', $nric) ) { // NRIC
+			$check = "JZIHGFEDCBA";
+		} else if ( preg_match('/^[FG][0-9]{7}[XWUTRQPNMLK]$/', $nric) ) { // FIN
+			$check = "XWUTRQPNMLK";
+		} else {
+			$errorDetected = TRUE;
+		}
+		
+		if (!$errorDetected) {
+			$total = $nric[1]*2 
+						+ $nric[2]*7 
+						+ $nric[3]*6 
+						+ $nric[4]*5 
+						+ $nric[5]*4 
+						+ $nric[6]*3 
+						+ $nric[7]*2;
+
+			if ( $nric[0] == "T" OR $nric[0] == "G" ) {
+				// shift 4 places for after year 2000
+				$total = $total + 4;
+			}
+			
+			if (! ($nric[8] == $check[$total % 11]) ) {
+				$errorDetected = TRUE;
+			}
+		}
+		
+		if ($errorDetected) {
+			$_SESSION['nricInvalid'] = TRUE;
+			$errorsPresent = "YES";
+		}
+		
+		echo $errorsPresent;
 	}
 	
 	//IMPLEMENT HTTP_REFERER WITH WORKING SERVER - $_SERVER['HTTP_REFERER'];
@@ -336,8 +514,14 @@
 			//Perform password check
 			checkPassword();
 		
+			//Perform NRIC check
+			checkNRIC();
+			
 			//Perform firstname check
 			checkFirstAndLastName();
+			
+			//Perform gender field check
+			checkGender();
 			
 			//Perform blood type check
 			checkBloodType();
@@ -361,8 +545,10 @@
 			//Save previously entered values:
 			$_SESSION['type'] = $_POST['usertype'];
 			$_SESSION['uname'] = $_POST['username'];
+			$_SESSION['NRIC'] = $_POST['NRIC'];
 			$_SESSION['fname'] = $_POST['firstname'];
 			$_SESSION['lname'] = $_POST['lastname'];
+			$_SESSION['gender'] = $_POST['gender'];
 			$_SESSION['btype'] = $_POST['bloodtype'];
 			$_SESSION['dob'] = $_POST['dob'];
 			$_SESSION['c1'] = $_POST['contact1'];
@@ -381,8 +567,10 @@
 			//unset all user input values.
 			unset($_SESSION['type']);
 			unset($_SESSION['uname']);
+			unset($_SESSION['NRIC']);
 			unset($_SESSION['fname']);
 			unset($_SESSION['lname']);
+			unset($_SESSION['gender']);
 			unset($_SESSION['btype']);
 			unset($_SESSION['dob']);
 			unset($_SESSION['c1']);
@@ -395,8 +583,91 @@
 			unset($_SESSION['z2']);
 			unset($_SESSION['z3']);
 			unset($_SESSION['firstrun']);
+				
+			// {username}/{password}/{fname}/{lname}/{nric}/{dob}/{gender}/{phone1}/{phone2}/{phone3}/{addr1}/{addr2}/{addr3}/{zip1}/{zip2}/{zip3}/{qualify}/{bloodtype}/{nfcid}
 			
-			echo "Nothing Wrong... Ready to add into database. TODO.";
+			/*
+			http://172.25.76.76/api/team1/user/create/Salompas/pass123/Salompas/Rose/S2121222A/1991-10-22/F/122/-/-/orchard/somerset/dhoby ghaut/549494/0/0/1/B+/-/ */
+			
+			$hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);			
+			$URLstring = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create/';
+			
+			//Concat username, password, firstname, lastname, nric, dob, gender
+			$URLstring = $URLstring . $_POST['username'] . '/' . $hashedPassword . '/' . $_POST['firstname'] . '/' . $_POST['lastname'] . '/' . $_POST['NRIC'] . '/' . $_POST['dob'] . '/' . $_POST['gender'] . '/';
+			
+			//Concat phone1, phone2, phone3
+			$URLstring = $URLstring . $_POST['contact1'] . '/';
+			
+			if (!empty(trim($_POST['contact2']))) {
+				$URLstring = $URLstring . $_POST['contact2'] . '/';
+			} else {
+				$URLstring = $URLstring . '-' . '/';
+			}
+			
+			if (!empty(trim($_POST['contact3']))) {
+				$URLstring = $URLstring . $_POST['contact3'] . '/';
+			} else {
+				$URLstring = $URLstring . '-' . '/';
+			}
+			
+			//Concat addr1, addr2, addr3
+			$URLstring = $URLstring . $_POST['address1'] . '/';
+			
+			if (!empty(trim($_POST['address2']))) {
+				$URLstring = $URLstring . $_POST['address2'] . '/';
+			} else {
+				$URLstring = $URLstring . '-' . '/';
+			}
+			
+			if (!empty(trim($_POST['address2']))) {
+				$URLstring = $URLstring . $_POST['address2'] . '/';
+			} else {
+				$URLstring = $URLstring . '-' . '/';
+			}
+			
+			//Concat zip1, zip2, zip3
+			$URLstring = $URLstring . $_POST['zipcode1'] . '/';
+			
+			if (!empty(trim($_POST['zipcode2']))) {
+				$URLstring = $URLstring . $_POST['zipcode2'] . '/';
+			} else {
+				$URLstring = $URLstring . '0' . '/';
+			}
+			
+			if (!empty(trim($_POST['zipcode3']))) {
+				$URLstring = $URLstring . $_POST['zipcode3'] . '/';
+			} else {
+				$URLstring = $URLstring . '0' . '/';
+			}
+			
+			//Concat usertype
+			if ($_POST['usertype'] === "Therapist" ) {
+				$URLstring = $URLstring . '1' . '/';
+			} else {
+				$URLstring = $URLstring . '0' . '/';
+			}
+			
+			//Concat bloodtype, nfcid (which is empty)			
+			$URLstring = $URLstring . $_POST['bloodtype'] . '/' . '-'. '/';
+			
+			echo $URLstring;
+			
+			/*
+			//Add into database.
+			$resultAdd = file_get_contents($URLstring);
+			$decodeAdd = json_decode($resultAdd);
+			
+			$_SESSION['addUserSuccess'] = FALSE;
+			
+			if ($decodeAdd->result === 1) {
+				$_SESSION['addUserSuccess'] = TRUE;
+			}
+			
+			$_SESSION['generateAddStatus'] = TRUE;
+			
+			header("location: console.php?navi=add");
+			exit();
+			*/
 		}
 		exit();
 	}

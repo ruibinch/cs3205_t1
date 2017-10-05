@@ -97,6 +97,13 @@ body {
 	overflow: auto;
 }
 */
+.required {
+	color: red;
+}
+
+.errorDel {
+	color: #7a1d0b;
+}
 
 .addUser table {
 	margin: auto;
