@@ -45,7 +45,7 @@
                 </div>
 
                 <?php
-                    if (isset($_GET['err']) && $_GET['err'] === "1") {
+                    if (isset($_GET['err']) && ($_GET['err'] === "1" || $_GET['err'] === "2")) {
                         echo '<br/><br/><h3 style="color: red;">&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;Invalid username or password.</h3>' . "\n";
                     }
                 ?>	
