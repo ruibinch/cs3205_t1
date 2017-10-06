@@ -650,24 +650,29 @@
 			//Concat bloodtype, nfcid (which is empty)			
 			$URLstring = $URLstring . $_POST['bloodtype'] . '/' . '-'. '/';
 			
-			echo $URLstring;
+			echo $URLstring; //for debugging purposes
 			
-			/*
+			
 			//Add into database.
-			$resultAdd = file_get_contents($URLstring);
-			$decodeAdd = json_decode($resultAdd);
 			
+			$URLstring = str_replace(" ", "%20", $URLstring); //remove all instances of spaces and replace them with %20
+			$resultAdd = file_get_contents('' . $URLstring);
+			$decodeAdd = json_decode($resultAdd);
+					
 			$_SESSION['addUserSuccess'] = FALSE;
 			
-			if ($decodeAdd->result === 1) {
+			if ($decodeAdd->result == 1) {
 				$_SESSION['addUserSuccess'] = TRUE;
 			}
 			
 			$_SESSION['generateAddStatus'] = TRUE;
+			echo "<br/><br/>" . $decodeAdd->result;
+			
 			
 			header("location: console.php?navi=add");
 			exit();
-			*/
+			
+			
 		}
 		exit();
 	}
