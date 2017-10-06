@@ -18,8 +18,8 @@ class OneTimeToken
         curl_setopt($curl, CURLOPT_PORT, 80);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = json_decode(curl_exec($curl));
-        if ($result->result == 0)
-            throw new Exception('Fail to generate token');
+        if ($result->result === false)
+            return generateToken($uid, $filePath, $CSRFToken);
         return $string;
     }
 

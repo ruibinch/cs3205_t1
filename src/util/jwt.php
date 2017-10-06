@@ -102,11 +102,14 @@ class WebToken
     static function getSecret($uid)
     {
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl."api/team1/user/secret/3");
+        curl_setopt($curl, CURLOPT_URL, self::$serverurl."api/team1/user/secret/".$uid);
         curl_setopt($curl, CURLOPT_PORT , 80);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = json_decode(curl_exec($curl));
-        return $result->secret;
+        if (isset($result->secret))
+            return $result->secret;
+        else 
+            return null;
     }
 }
 ?>
