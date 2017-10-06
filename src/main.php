@@ -170,7 +170,7 @@
                 $('#acceptTreatmentReq').click(function() {
                     $.ajax({
                         type: "POST",
-                        url: "ajax-process.php",
+                        url: "util/ajax-process.php",
                         data: { "acceptTreatmentId": $(this).val() }
                     }).done(function(response) {
                         if (response == 1) {
@@ -185,7 +185,7 @@
                 $('#rejectTreatmentReq').click(function() {
                     $.ajax({
                         type: "POST",
-                        url: "ajax-process.php",
+                        url: "util/ajax-process.php",
                         data: { "rejectTreatmentId": $(this).val() }
                     }).done(function(response) {
                         if (response == 1) {

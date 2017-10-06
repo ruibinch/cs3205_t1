@@ -17,28 +17,28 @@
             if ($_POST['user_type'] === "therapist") { 
                 if ($user_json->qualify === 1) { // check that a user qualifies to be a therapist
                     $_SESSION['user_type'] = "therapist";
-                    header("location: main.php");
+                    header("location: ../main.php");
                 } else {
                     session_destroy();
-                    header("location: login.php?err=1");
+                    header("location: ../login.php?err=1");
                 }
             } else {
                 $_SESSION['user_type'] = $_POST['user_type'];
-                header("location: main.php");
+                header("location: ../main.php");
                 exit();
             }
         } else {
             session_destroy();
-            header("location: login.php?err=1");
+            header("location: ../login.php?err=1");
         }
     } else if ($_POST['hc-username'] === $dummy_username && password_verify($_POST['hc-password'], $dummy_password)) {
         // FOR EASE OF TESTING, TO BE REMOVED
         $_SESSION['user_type'] = $_POST['user_type'];
-		header("location: main.php");
+		header("location: ../main.php");
 		exit();
     } else {
         session_destroy();
-        header("location: login.php?err=2");
+        header("location: ../login.php?err=2");
     }
 
 ?>

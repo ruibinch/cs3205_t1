@@ -28,7 +28,7 @@
                 <button class="tablinks mgmt-tab" onclick="openTab(event, 'Management'), toggleLoginSystem('Management')">Management</button>
 
                 <div id="User" class="login-tabcontent" style="display: block;">
-                    <form class="login-form" id="form-user" name="form-user" method="post" action="login-validation.php">
+                    <form class="login-form" id="form-user" name="form-user" method="post" action="util/login-validation.php">
                         <input id="hc-username" name="hc-username" type="text" class="login-input" placeholder="Username" autofocus>
                         <input id="hc-password" name="hc-password" type="password" class="login-input" placeholder="Password">
                         <button name="user_type" value="patient" id="btn-login-patient" class="login-btn login-btn-patient">Login as Patient</button>

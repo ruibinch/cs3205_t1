@@ -1,7 +1,7 @@
 <?php
 
     session_start();
-
+    
     $_SESSION['user_type'] = "therapist";
     if (isset($_SESSION['patients_list'])) {
         $patients_list = $_SESSION['patients_list'];
