@@ -28,9 +28,9 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-            <h1>Patient<?php if ($num_patients > 1) { ?>s<?php } ?> you are assigned to (<?php echo $num_patients ?>):</h1>
+            <h1>Patient<?php if ($num_patients != 1) { ?>s<?php } ?> you are assigned to (<?php echo $num_patients ?>):</h1>
             <hr style="margin-top:-15px">
-            <p>Search by name: <input type="text" id="searchbox" name="searchbox" style="width:30%"/></p>
+            <p>Search by name: <input type="text" id="searchbox" name="searchbox" style="width:30%"/></p> <!-- TODO - search function -->
             <table class="main-table">
                 <tr>
                     <th class = "first-col">S/N</th>
@@ -41,17 +41,15 @@
                 <?php for ($i = 0; $i < $num_patients; $i++) { 
                     $patient_json = getJsonFromUid($patients_list[$i]->patientId);
                     $patient_name = $patient_json->firstname." ".$patient_json->lastname; ?>
-                    <tr>
-                        <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                        <td valign="bottom">
-                            <form method="post" action="managep.php">
-                                <input name="patient_search" value="<?php echo $patients_list[$i]->patientId ?>" type="hidden">
-                                <button class="list-button"><?php echo $patient_name ?></button>
-                            </form>
-                        </td>
-                        <td></td>
-                        <td></td>
-                    </tr>
+                    <form method="post" action="managep.php">
+                        <input name="patient_search" value="<?php echo $patients_list[$i]->patientId ?>" type="hidden">
+                        <tr>
+                            <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                            <td><button class="list-button"><?php echo $patient_name ?></button></td>
+                            <td><?php echo $patient_json->phone[0] ?></td>
+                            <td><?php echo $patient_json->dob ?></td>
+                        </tr>
+                    </form>
                 <?php } ?>
             </table>
         </div>

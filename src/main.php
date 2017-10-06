@@ -16,12 +16,15 @@
         $user = "Patient";
     } else if ($user_type === "therapist") {
         $user = "Therapist";
-        // Populate notifications list; TODO - include notifications for documents
         $treatment_reqs_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/false'));
         if (isset($treatment_reqs_json->treatments)) { // there are pending treatment requests
             $treatment_reqs = $treatment_reqs_json->treatments;
         }
-        $num_notifications = count($treatment_reqs);
+        if (isset($treatment_reqs)) {
+            $num_notifications = count($treatment_reqs); 
+        } else {
+            $num_notifications = 0;
+        }
 
         // Populate patients list
         $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'));
@@ -44,6 +47,8 @@
         return $user_json_tmp;
     }
 
+
+
 ?>
 
 <html>
@@ -52,6 +57,7 @@
     <head>
         <title>Healthcare System</title>
         <link href="css/main.css" rel="stylesheet">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
 
     <body>
@@ -70,14 +76,15 @@
                 </div>
 
                 <div id="Notifications" class="tabcontent" style="display: block;">
-                    <h3>You have <?php echo $num_notifications ?> notification<?php if ($num_notifications > 1) { ?>s<?php } ?>.</h3>
+                    <h3>You have <?php echo $num_notifications ?> notification<?php if ($num_notifications != 1) { ?>s<?php } ?>.</h3>
                     <table class="main-table">
                         <?php if ($user_type === "therapist" && isset($treatment_reqs)) {
                             for ($i = 0; $i < count($treatment_reqs); $i++) {
                                 $patient_json = getJsonFromUid($treatment_reqs[$i]->patientId); ?>
                                 <tr>
                                     <td><?php echo "Treatment request from ".$patient_json->firstname." ".$patient_json->lastname ?></td>
-                                    <td class="last-col">X</td>
+                                    <td class="last-col"><button id="acceptTreatmentReq" value="<?php echo $treatment_reqs[$i]->id ?>">Accept</button></td>
+                                    <td class="last-col"><button id="rejectTreatmentReq" value="<?php echo $treatment_reqs[$i]->id ?>">Reject</button></td>
                                 </tr>
                             <?php } 
                         } ?>
@@ -85,7 +92,7 @@
                 </div>
 
                 <div id="Therapist" class="tabcontent">
-                    <h3>You are assigned to <?php echo $num_therapists ?> therapist<?php if ($num_therapists > 1) { ?>s<?php } ?>.</h3>
+                    <h3>You are assigned to <?php echo $num_therapists ?> therapist<?php if ($num_therapists != 1) { ?>s<?php } ?>.</h3>
                     <table class="main-table">
                         <?php for ($i = 0; $i < $num_therapists; $i++) { ?>
                             <tr>
@@ -97,7 +104,7 @@
                 </div>
 
                 <div id="Patient" class="tabcontent">
-                    <h3>You are assigned to <?php echo $num_patients ?> patient<?php if ($num_patients > 1) { ?>s<?php } ?>.</h3>
+                    <h3>You are assigned to <?php echo $num_patients ?> patient<?php if ($num_patients != 1) { ?>s<?php } ?>.</h3>
                     <ul class="main-list main-list-hoverable">
                         <?php
                             for ($i = 0; $i < $num_patients; $i++) {
@@ -132,6 +139,40 @@
         </div>
 
         <script>
+
+            $(document).ready(function () {
+
+                $('#acceptTreatmentReq').click(function() {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax-process.php",
+                        data: { "acceptTreatmentId": $(this).val() }
+                    }).done(function(response) {
+                        if (response == 1) {
+                            alert("Treatment request accepted"); // TODO - change this to a nicer dialog box
+                        } else {
+                            alert("Error in processing treatment request");
+                        }
+                        location.reload();
+                    });
+                });
+
+                $('#rejectTreatmentReq').click(function() {
+                    $.ajax({
+                        type: "POST",
+                        url: "ajax-process.php",
+                        data: { "rejectTreatmentId": $(this).val() }
+                    }).done(function(response) {
+                        if (response == 1) {
+                            alert("Treatment request rejected");
+                        } else {
+                            alert("Error in processing treatment request");
+                        }
+                        location.reload();
+                    });
+                });
+            });
+
             function openTab(evt, tabName) {
                 var i, tabcontent, tablinks;
                 tabcontent = document.getElementsByClassName("tabcontent");
@@ -145,6 +186,7 @@
                 document.getElementById(tabName).style.display = "block";
                 evt.currentTarget.className += " active";
             }
+
         </script>
 
     </body>
