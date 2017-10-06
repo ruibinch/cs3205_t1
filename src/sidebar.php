@@ -59,9 +59,9 @@
 	  			<input class="sidebar-searchbar" type="text" name="search" placeholder="Search..">
 			</form><br>
 			<a href="'.$patient_home.'" style="text-decoration:none">Home</a><br><hr>
+			<a href="'.$patient_therapist_list.'" style="text-decoration:none">Therapists</a><br><hr>
 			<a href="'.$patient_documents.'" style="text-decoration:none">Records</a><br><hr>
 			<a href="'.$patient_profile.'" style="text-decoration:none">Profile</a><br><hr>
-			<a href="'.$patient_therapist_list.'" style="text-decoration:none">Therapists</a><br><hr>
 			<a href="'.$patient_logout.'" style="text-decoration:none">Logout</a><br><hr>
 		</div>';
 	}
