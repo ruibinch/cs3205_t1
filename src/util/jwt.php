@@ -84,7 +84,10 @@ class WebToken
      */
     static function refreshSecret($uid)
     {
+        $secret = self::getSecret($uid);
         $string = bin2hex(random_bytes(20));
+        while ($secret && strcmp($secret, $string) == 0)
+            $string = bin2hex(random_bytes(20));
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/set/" . $uid . "/" . $string);
         curl_setopt($curl, CURLOPT_PORT, 80);
