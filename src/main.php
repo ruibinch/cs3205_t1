@@ -11,20 +11,38 @@
     // Get user type
     if (isset($_SESSION['user_type'])) {
         $user_type = $_SESSION['user_type'];
-    };
+    }
     if ($user_type === "patient") {
         $user = "Patient";
     } else if ($user_type === "therapist") {
         $user = "Therapist";
-    }
+        // Populate notifications list; TODO - include notifications for documents
+        $treatment_reqs_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/false'));
+        if (isset($treatment_reqs_json->treatments)) { // there are pending treatment requests
+            $treatment_reqs = $treatment_reqs_json->treatments;
+        }
+        $num_notifications = count($treatment_reqs);
 
+        // Populate patients list
+        $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'));
+        $patients_list = $patients_list_json->treatments;
+        $_SESSION['patients_list'] = $patients_list;
+        $num_patients = count($patients_list);
+    }
+    
     // TODO - update from DB API
     $therapists_list = array("John Smith", "Caitlyn Jenner", "Taylor Swift", "Robert Downey Jr.");
     $num_therapists = count($therapists_list);
     $documents_list = array("Document1", "Document2", "Document3", "Document4", "Document5", "Document6");
     $num_documents = count($documents_list);
-    $notifications_list = array("Notification1", "Notification2", "Notification3", "Notification4", "Notification5", "Notification6");
-    $num_notifications = count($notifications_list);
+
+
+
+    // Retrieves the user JSON object based on the uid
+    function getJsonFromUid($uid) {
+        $user_json_tmp = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/'.$uid));
+        return $user_json_tmp;
+    }
 
 ?>
 
@@ -52,23 +70,26 @@
                 </div>
 
                 <div id="Notifications" class="tabcontent" style="display: block;">
-                    <h3>You have <?php echo $num_notifications ?> notification(s).</h3>
+                    <h3>You have <?php echo $num_notifications ?> notification<?php if ($num_notifications > 1) { ?>s<?php } ?>.</h3>
                     <table class="main-table">
-                        <?php for ($i = 0; $i < $num_notifications; $i++) { ?>
-                            <tr>
-                                <td><?php echo $notifications_list[$i] ?></td>
-                                <td class="last-col">X</td>
-                            </tr>
-                        <?php } ?>
+                        <?php if ($user_type === "therapist" && isset($treatment_reqs)) {
+                            for ($i = 0; $i < count($treatment_reqs); $i++) {
+                                $patient_json = getJsonFromUid($treatment_reqs[$i]->patientId); ?>
+                                <tr>
+                                    <td><?php echo "Treatment request from ".$patient_json->firstname." ".$patient_json->lastname ?></td>
+                                    <td class="last-col">X</td>
+                                </tr>
+                            <?php } 
+                        } ?>
                     </table>
                 </div>
 
                 <div id="Therapist" class="tabcontent">
-                    <h3>You are assigned to <?php echo $num_therapists ?> therapist(s).</h3>
+                    <h3>You are assigned to <?php echo $num_therapists ?> therapist<?php if ($num_therapists > 1) { ?>s<?php } ?>.</h3>
                     <table class="main-table">
                         <?php for ($i = 0; $i < $num_therapists; $i++) { ?>
                             <tr>
-                                <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                                <td class="first-col"><?php echo ($i + 1)."." ?></td>
                                 <td><?php echo $therapists_list[$i] ?></td>
                             </tr>
                         <?php } ?>
@@ -76,11 +97,12 @@
                 </div>
 
                 <div id="Patient" class="tabcontent">
-                    <h3>You are assigned to <?php echo $num_therapists ?> patient(s).</h3>
+                    <h3>You are assigned to <?php echo $num_patients ?> patient<?php if ($num_patients > 1) { ?>s<?php } ?>.</h3>
                     <ul class="main-list main-list-hoverable">
                         <?php
-                            for ($i = 0; $i < $num_therapists; $i++) {
-                                echo "<li>" . $therapists_list[$i] . "</li>";
+                            for ($i = 0; $i < $num_patients; $i++) {
+                                $patient_json = getJsonFromUid($patients_list[$i]->patientId);
+                                echo "<li>".$patient_json->firstname." ".$patient_json->lastname."</li>";
                             }
                         ?>
                     </ul>
@@ -98,7 +120,7 @@
                         </tr>
                         <?php for ($i = 0; $i < $num_documents; $i++) { ?>
                             <tr>
-                                <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                                <td class="first-col"><?php echo ($i + 1)."." ?></td>
                                 <td><?php echo $documents_list[$i] ?></td>
                                 <td style="width:10%">.mp3</td>
                                 <td></td>
