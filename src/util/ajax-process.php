@@ -6,6 +6,7 @@
         echo rejectTreatmentReq($_POST['rejectTreatmentId']);
     }
 
+    //TODO: add CSRF validation
     function acceptTreatmentReq($treatmentId) {
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/update/'.$treatmentId));
         return $response->result;

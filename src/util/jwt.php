@@ -1,5 +1,5 @@
 <?php
-require '../composer/vendor/autoload.php';
+require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
 
 class WebToken
@@ -11,19 +11,20 @@ class WebToken
      * @param $uid
      * @param $key - secret key
      */
-    static function getToken($uid, $key)
+    static function getToken($uid, $istherapist, $key)
     {
         if (self::refreshSecret($uid)) {
             $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, self::$serverurl."api/team1/user/secret/".$uid);
-            curl_setopt($curl, CURLOPT_PORT , 80);
+            curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/" . $uid);
+            curl_setopt($curl, CURLOPT_PORT, 80);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
             $secret = json_decode(curl_exec($curl))->secret;
             $token = array(
                 "exp" => time() + 3600,
                 "secret" => $secret,
                 "data" => array(
-                    "uid" => $uid
+                    "uid" => $uid,
+                    "istherapist" => $istherapist // bool
                 )
             );
             return JWT::encode($token, $key);
@@ -40,7 +41,7 @@ class WebToken
     {
         if ($token) {
             try {
-                $decoded = JWT::decode($token, "dummy_key", array(
+                $decoded = JWT::decode($token, $key, array(
                     'HS256'
                 ));
                 if ($decoded->exp < time()) {
@@ -59,13 +60,14 @@ class WebToken
                         header("Location: /login.php?error=2");
                         die();
                     }
-                    return json_encode($decoded->data);
+                    return $decoded->data;
                 }
             } catch (Exception $e) {
                 /*
                  * This token cannot be decoded.
                  * The signature cannot be verified.
                  */
+                echo $e;
                 header("Location: /login.php?error=3");
                 die();
             }
@@ -98,17 +100,17 @@ class WebToken
         else
             return false;
     }
-    
+
     static function getSecret($uid)
     {
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl."api/team1/user/secret/".$uid);
-        curl_setopt($curl, CURLOPT_PORT , 80);
+        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/" . $uid);
+        curl_setopt($curl, CURLOPT_PORT, 80);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = json_decode(curl_exec($curl));
         if (isset($result->secret))
             return $result->secret;
-        else 
+        else
             return null;
     }
 }
