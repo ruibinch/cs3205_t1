@@ -1,14 +1,17 @@
 <?php
 
     session_start();
-
     $_SESSION['user_type'] = "patient";
-    if (isset($_SESSION['therapists_list'])) {
-        $therapists_list = $_SESSION['therapists_list'];
-    }
 
-    $therapists_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/1/true'));
-    $num_therapists = count($therapists_list);
+    $therapists_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/1/true'));
+    if (isset($therapists_list_json->treatments)) {
+        $therapists_list = $therapists_list_json->treatments;
+    }
+    if (isset($therapists_list)) {
+        $num_therapists = count($therapists_list);
+    } else {
+        $num_therapists = 0;
+    }
 
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid) {
@@ -23,6 +26,7 @@
     <head>
         <title>Therapist List</title>
         <link href="../css/main.css" rel="stylesheet">
+        <script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     </head>
 
     <body>
@@ -36,35 +40,56 @@
                     <th class = "first-col">S/N</th>
                     <th>Name</th>
                     <th>Contact Info</th>
-                    <th>D.O.B</th>
-                    <th class="last-col">Remove</th>
+                    <th class="last-col">Actions</th>
                 </tr>
                 <?php for ($i = 0; $i < $num_therapists; $i++) {
-                    $therapist_json = getJsonFromUid($therapists_list[$i]->therapistId);
-                    $therapist_name = $therapist_json->firstname." ".$therapist_json->lastname; ?>
-                    <form method="post" action="managet.php">
-                        <input name="therapist_search" value="<?php echo $therapists_list[$i]->therapistId ?>" type="hidden">
-                        <tr>
+                    $therapist_id = $therapists_list[$i]->therapistId;
+                    $therapist_json = getJsonFromUid($therapist_id);
+                    $therapist_name = $therapist_json->firstname . " " . $therapist_json->lastname; ?>
+                    <tr>
+                        <form method="post" action="managet.php">
+                            <input name="therapist_search" value="<?php echo $therapist_id ?>" type="hidden">
                             <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                            <td valign="bottom"><button class="list-button"><?php echo $therapist_name ?></button></td>
+                            <td><button class="list-button"><?php echo $therapist_name ?></button></td>
                             <td><?php echo $therapist_json->phone[0] ?></td>
-                            <td><?php echo $therapist_json->dob ?></td>
-                            <td class="last-col"><button onclick="remove_therapist()" style="padding:0; border:none; background:none;">X</button></td>
-                        </tr>
-                    </form>
+                        </form>
+                        <td class="last-col">
+                            <button id="removeTherapist" value="<?php echo $therapists_list[$i]->id ?>">Remove</button>
+                        </td>
+                    </tr>
                 <?php } ?>
             </table>
 
-            <!--<button style="margin-top:30px" onclick="location.href='searcht.php'">Search All Therapists</button>-->
+            <button id="searchAllTherapists" class="login-btn" style="margin-top:80px">Search All Therapists</button>
 
 	    </div>
 
-    <script>
-        function remove_therapist() {
-            confirm("Are you sure you want to stop seeing this therapist?\nHe / She will no longer have access to your medical records.");
-        }
-    </script>
-  </body>
+        <script>
 
+            $(document).ready(function() {
 
+                $('#removeTherapist').click(function() {
+                    $.ajax({
+                        type: "POST",
+                        url: "../util/ajax-process.php",
+                        data: { "removeTreatmentId": $(this).val() }
+                    }).done(function(response) {
+                        if (response == 1) {
+                            alert("Therapist removed");
+                        } else {
+                            alert("Error in removing therapist");
+                        }
+                        location.reload();
+                    });
+                });
+
+                $('#searchAllTherapists').click(function() {
+                    location.href='searcht.php';
+                });
+
+            });
+            
+        </script>
+
+    </body>
 </html>
