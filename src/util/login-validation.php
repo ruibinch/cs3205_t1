@@ -37,7 +37,7 @@ if (isset($user_json->password)) {
         }
         //TODO: change the dummy key here to the real key; change $secure to true
         setcookie("jwt", WebToken::getToken($user_json->uid, $_POST['user_type'] === "therapist", $dummy_key), 
-            time()+3600, "/", null, false, true);
+            time()+3600, "/", null, true, true);
         header("location: ../main.php");
         exit();
     } else {
