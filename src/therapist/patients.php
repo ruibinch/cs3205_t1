@@ -1,17 +1,16 @@
 <?php
-
-    session_start();
+    include_once '../util/jwt.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
     
-    $_SESSION['user_type'] = "therapist";
-    if (isset($_SESSION['patients_list'])) {
-        $patients_list = $_SESSION['patients_list'];
-    }
-
+    // Gets the list of patients under the specified therapist
+    $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/' . $result->uid . '/true'));
+    $patients_list = $patients_list_json->treatments;
     $num_patients = count($patients_list);
+    $user_type = $result->istherapist ? "therapist" : "patient";
 
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid) {
-        $user_json_tmp = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/'.$uid));
+        $user_json_tmp = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $uid));
         return $user_json_tmp;
     }
 

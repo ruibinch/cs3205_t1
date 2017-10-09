@@ -1,12 +1,11 @@
 <?php
-    session_start();
     
-    $_SESSION['user_type'] = "therapist";
+    $user_type = "therapist";
     
     if (isset($_POST['patient_search'])) {
         $patientId = $_POST['patient_search'];
     }
-    $patient_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/'.$patientId));;
+    $patient_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $patientId));
 
 ?>
 
