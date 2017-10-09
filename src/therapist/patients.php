@@ -4,8 +4,14 @@
     
     // Gets the list of patients under the specified therapist
     $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/' . $result->uid . '/true'));
-    $patients_list = $patients_list_json->treatments;
-    $num_patients = count($patients_list);
+    if (isset($patients_list_json->treatments)) {
+        $patients_list = $patients_list_json->treatments;
+    }
+    if (isset($patients_list)) {
+        $num_patients = count($patients_list);
+    } else {
+        $num_patients = 0;
+    }
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     // Retrieves the user JSON object based on the uid

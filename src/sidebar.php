@@ -1,13 +1,9 @@
 <?php
-
-    if (isset($_SESSION["user_type"])) {
-        $user_type = $_SESSION["user_type"];
-    }
-
     echo '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">';
 
     // Checks if the current working directory is the therapist subfolder
     if (substr_compare(getcwd(), "therapist", -strlen("therapist")) === 0) {
+        $jwt_link = "../util/jwt.php";
         $therapist_home = "../main.php";
         $therapist_patient_list = "patients.php";
         $therapist_compose_doc = "composedoc.php";
@@ -15,6 +11,7 @@
         $therapist_profile = "../update.php";
         $therapist_logout = "../login.php";
     } else {
+        $jwt_link = "util/jwt.php";
         $therapist_home = "main.php";
         $therapist_patient_list = "therapist/patients.php";
         $therapist_compose_doc = "therapist/composedoc.php";
@@ -24,19 +21,26 @@
     }
 
     if (substr_compare(getcwd(), "patient", -strlen("patient")) === 0) {
+        $jwt_link = "../util/jwt.php";
         $patient_home = "../main.php";
         $patient_therapist_list = "therapists.php";
         $patient_documents = "viewdoc.php";
         $patient_profile = "../update.php";
         $patient_logout = "../login.php";
     } else {
+        $jwt_link = "util/jwt.php";
         $patient_home = "main.php";
         $patient_therapist_list = "patient/therapists.php";
         $patient_documents = "patient/viewdoc.php";
         $patient_profile = "update.php";
         $patient_logout = "login.php";
     }
-    echo '';
+
+    include_once $jwt_link;
+    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $user_type = $result->istherapist ? "therapist" : "patient";
+
+
     if ($user_type === "therapist") {
 		echo
 		'<div class="sidebar">

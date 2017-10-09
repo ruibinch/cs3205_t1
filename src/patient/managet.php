@@ -1,12 +1,12 @@
 <?php
-    session_start();
-
-    $_SESSION['user_type'] = "patient";
+    include_once '../util/jwt.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $user_type = $result->istherapist ? "therapist" : "patient";
 
     if (isset($_POST["therapist_search"])) {
         $therapistId = $_POST["therapist_search"];
     }
-    $therapist_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/'.$therapistId));;
+    $therapist_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $therapistId));;
     
 ?>
 
@@ -21,7 +21,7 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-            <h1><?php echo $therapist_json->firstname." ".$therapist_json->lastname ?></h1>
+            <h1><?php echo $therapist_json->firstname . " " . $therapist_json->lastname ?></h1>
             <hr style="margin-top:-15px">
             <table width="70%">
                 <th>

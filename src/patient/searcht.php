@@ -1,6 +1,7 @@
 <?php
-
-    session_start();
+    include_once '../util/jwt.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $patient_id = $result->uid;
 
     $therapists_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/therapists'));
     $therapists_list = $therapists_list_json->users; 
@@ -54,9 +55,8 @@
                     $.ajax({
                         type: "POST",
                         url: "../util/ajax-process.php",
-                        data: { "patientId": 1, "therapistId": $(this).val() } // TODO - change this
+                        data: { "patientId": '<?php echo $patient_id ?>', "therapistId": $(this).val() }
                     }).done(function(response) {
-                        console.log(response);
                         if (response == 1) {
                             alert("Treatment request sent");
                         } else {
