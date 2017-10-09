@@ -7,6 +7,7 @@
         $therapists_list = $_SESSION['therapists_list'];
     }
 
+    $therapists_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/1/true'));
     $num_therapists = count($therapists_list);
 
     // Retrieves the user JSON object based on the uid
@@ -53,6 +54,8 @@
                     </form>
                 <?php } ?>
             </table>
+
+            <!--<button style="margin-top:30px" onclick="location.href='searcht.php'">Search All Therapists</button>-->
 
 	    </div>
 
