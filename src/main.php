@@ -37,7 +37,6 @@
         $therapists_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/' . $user_json->uid . '/true'));
         if (isset($therapists_list_json->treatments)) {
             $therapists_list = $therapists_list_json->treatments;
-            //$_SESSION['therapists_list'] = $therapists_list;
         }
         if (isset($therapists_list)) {
             $num_therapists = count($therapists_list);
@@ -59,9 +58,14 @@
         
         // Populate patients list
         $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/' . $user_json->uid . '/true'));
-        $patients_list = $patients_list_json->treatments;
-        $_SESSION['patients_list'] = $patients_list;
-        $num_patients = count($patients_list);
+        if (isset($patients_list_json->treatments)) {
+            $patients_list = $patients_list_json->treatments;
+        }
+        if (isset($patients_list)) {
+            $num_patients = count($patients_list);
+        } else {
+            $num_patients = 0;
+        }
     }
 
     // TODO - update from DB API

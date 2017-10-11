@@ -9,7 +9,7 @@
         $therapist_compose_doc = "composedoc.php";
         $therapist_manage_doc = "managedoc.php";
         $therapist_profile = "../update.php";
-        $therapist_logout = "../login.php";
+        $therapist_logout = "../logout.php";
     } else {
         $jwt_link = "util/jwt.php";
         $therapist_home = "main.php";
@@ -17,7 +17,7 @@
         $therapist_compose_doc = "therapist/composedoc.php";
         $therapist_manage_doc = "therapist/managedoc.php";
         $therapist_profile = "update.php";
-        $therapist_logout = "login.php";
+        $therapist_logout = "logout.php";
     }
 
     if (substr_compare(getcwd(), "patient", -strlen("patient")) === 0) {
