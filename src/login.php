@@ -68,12 +68,8 @@
                         url: "util/ajax-process.php",
                         data: { "input_username": $('#hc-username').val() }
                     }).done(function(response) {
-                        if (response == 0) {
-                            window.location = "login.php?err=1"; // no such user exists
-                        } else {
-                            obj = JSON.parse(response);
-                            computeResponse(obj);
-                        }
+                        obj = JSON.parse(response);
+                        computeResponse(obj);
                     });
                 });
 

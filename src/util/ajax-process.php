@@ -25,33 +25,35 @@
     // ===============================================================================
             
     function getChallengeAndSalt($input_username) {
-        $_SESSION['input_username'] = $input_username;
         $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $input_username));
+        $_SESSION['user_json'] = $user_json;
         $challenge = mt_rand(); // random number
         $_SESSION['challenge'] = $challenge;
         if (isset($user_json->salt)) {
             $response = array('challenge' => $challenge, 'salt' => $user_json->salt);
-            return json_encode($response);
-        } else {
-            return 0;
+        } else { // user does not exist
+            $fake_salt = substr(password_hash(strval(mt_rand()), PASSWORD_DEFAULT), 0, 29);
+            $response = array('challenge' => $challenge, 'salt' => $fake_salt);
         }
+        return json_encode($response);
     }
 
     function verifyResponse($challenge_response) {
-        $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_SESSION['input_username']));
-        $user_pwhash = $user_json->password;
-
-        $sha_pw_with_challenge = hash("sha256", $user_pwhash . $_SESSION['challenge']); // H(hash,challenge)
-        $sha_pw_with_challenge_binary = hexToBinary($sha_pw_with_challenge); // H(hash, challenge), in binary
-        $check = doXOR($sha_pw_with_challenge_binary, $challenge_response); // H(hash,challenge) XOR response, in binary
-        $check_char = binaryToChar($check); // binary to ASCII char
-        $sha_check_char = hash("sha256", $check_char); // H(H(hash,challenge) XOR response)
-        
-        if (strcmp($sha_check_char, $user_pwhash) === 0) {
-            return 1;
-        } else {
-            return 0;
+        $user_json = $_SESSION['user_json'];
+        if (isset($user_json->password)) {
+            $user_pwhash = $user_json->password;
+            
+            $sha_pw_with_challenge = hash("sha256", $user_pwhash . $_SESSION['challenge']); // H(hash,challenge)
+            $sha_pw_with_challenge_binary = hexToBinary($sha_pw_with_challenge); // H(hash, challenge), in binary
+            $check = doXOR($sha_pw_with_challenge_binary, $challenge_response); // H(hash,challenge) XOR response, in binary
+            $check_char = binaryToChar($check); // binary to ASCII char
+            $sha_check_char = hash("sha256", $check_char); // H(H(hash,challenge) XOR response)
+            
+            if (strcmp($sha_check_char, $user_pwhash) === 0) {
+                return 1;
+            }
         }
+        return 0;
     }
 
     // ===============================================================================
