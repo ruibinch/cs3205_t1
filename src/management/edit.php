@@ -9,6 +9,9 @@
 		header("Location: ../index.php");
 		exit();
 	}
+	
+	//Set Navigation Session Variable
+	$_SESSION['latestAction'] = "EDIT";
 ?>
 <h1>Edit User</h1>
 <h3>This page is a stub. Intention is to search patient by username / id.</h3>

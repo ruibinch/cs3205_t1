@@ -9,6 +9,9 @@
 		header("Location: ../index.php");
 		exit();
 	}
+	
+	//Set Navigation Session Variable
+	$_SESSION['latestAction'] = "DELETE";
 ?>
 
 <h1>Delete User</h1>
@@ -18,7 +21,7 @@
 		if ($_SESSION['successfulDeletion']) {
 			echo 'User Account Deleted. Farewell.';
 		} else {
-			echo 'Failed to delete the username.';
+			echo 'Action Failed. Ensure that you do not have multiple delete tabs opened.';
 		}
 		echo '</h3>' . "\n";
 		
@@ -28,7 +31,7 @@
 ?>
 <h3>Enter username of user.</h3>
 <div class="addUser">
-	<form class="container" method="post" action="validate.php">
+	<form class="container" method="post" action="/management/validate.php">
 		<div class="left">
 			<table>
 				<tr>
@@ -48,10 +51,11 @@
 	if (isset($_SESSION['printSecondArea']) && $_SESSION['printSecondArea']) {
 		echo '<div class="addUser">' . "\n<br/>";		
 		if ($_SESSION['validForDeletion']) {
-			echo "\t" . '<h3 class="errorDel">CONFIRM USER DELETION: ' . $_SESSION['delUserName'] . '.</h3>' . "\n";
+			echo "\t" . '<h3 class="errorDel">CONFIRM USER DELETION: ' . htmlspecialchars($_SESSION['delUserName']) . '.</h3>' . "\n";
 			echo "\t" . '<form method="post" action="validate.php">' . "\n";
 			echo "\t\t" . '<input type="checkbox" name="cfmDelete" required>Yes, I wish to delete the following user.' . "\n<br/><br/>";
-			echo "\t\t" . '<input type="Submit" value="Confirm Deletion">' . "\n";
+			echo "\t\t" . '<input type="Submit" value="Confirm Deletion">' . "\n";			
+			echo "\t\t" . '<input type="hidden" name="cfmUserName" value="'. htmlspecialchars($_SESSION['delUserName']) .'">' . "\n";
 			echo "\t\t" . '<input type="hidden" name="action" value="delete2">' . "\n";
 			echo "\t" . '</form>' . "\n";
 		} else {

@@ -1,6 +1,5 @@
 <?php
 	//validate.php: Checks submitted form values.
-	//TODO: Clarify with team the maxlength of each field.
 	
 	session_start();	
 	if (!isset($_SESSION['loggedin'])) {
@@ -40,7 +39,6 @@
 			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
 			
 	*/	
-	
 	function checkUserType() {
 		global $errorsPresent;
 		
@@ -392,23 +390,32 @@
 	}
 	
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete") {
+		
+		//Navigation Session Check
+		if ($_SESSION['latestAction'] !== "DELETE") {
+			$_SESSION['naviError'] = TRUE;
+			header("location: console.php");
+			exit();
+		}		
+		
 		//Attempt to retrieve user from database
 		$validForDeletion = FALSE;
 		$resultDel = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
-		echo "$resultDel";
-		
 		$decodeDel = json_decode($resultDel);
 		
-		if (isset($decodeDel->username)) {
+		if (isset($decodeDel->uid)) {
 			$validForDeletion = TRUE;
 		}
 		
 		if ($validForDeletion) {
 			$_SESSION['validForDeletion'] = TRUE;
-			$_SESSION['delUserName'] = $decodeDel->username;
+			$_SESSION['delUserName'] = $_POST['username'];
 			$_SESSION['delUserID'] = $decodeDel->uid;  //for delete2 usage.
 		} else {
 			$_SESSION['validForDeletion'] = FALSE;
+			//remove in the case of multiple delete tabs opened.
+			unset($_SESSION['delUserID']);
+			unset($_SESSION['delUserName']);
 		}
 		
 		$_SESSION['printSecondArea'] = TRUE;
@@ -418,25 +425,57 @@
 	}
 	
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete2") {
+		$readyToDelete = FALSE;
+		
+		//Navigation Session Check
+		if ($_SESSION['latestAction'] !== "DELETE") {
+			$_SESSION['naviError'] = TRUE;
+			header("location: console.php");
+			exit();
+		}
 		
 		//Note: Have not implemented server side checking for ticked box 
 		
-		$resultDel2 = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' . $_SESSION['delUserID']);
+		//Simple validation to ensure that it is really the selected user.
+		//Also helps if multiple queried delete tabs are opened. Delete will fail if different users are queried.
+		$cfmDel = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['cfmUserName']);
+		$cfmDelResult = json_decode($cfmDel);
 		
+		if (isset($cfmDelResult->uid) && ($cfmDelResult->uid === $_SESSION['delUserID'])) {
+			$readyToDelete = TRUE;
+		}
+		
+		if ($readyToDelete) {
+			//Perform User Deletion
+			$resultDel2 = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' 
+				. $_SESSION['delUserID']);		
 				
-		$decodeDel2 = json_decode($resultDel2);
-		if ($decodeDel2 -> result === 1) { //deletion successful
-			$_SESSION['successfulDeletion'] = TRUE;
+			$decodeDel2 = json_decode($resultDel2);
+			if ($decodeDel2 -> result === 1) { //deletion successful
+				$_SESSION['successfulDeletion'] = TRUE;
+			} else {
+				$_SESSION['successfulDeletion'] = FALSE;
+			}
 		} else {
+			//Illegal Action Detected
 			$_SESSION['successfulDeletion'] = FALSE;
 		}
-				
+		
+		unset($_SESSION['delUserID']);
 		$_SESSION['printThirdArea'] = TRUE;
 		header("location: console.php?navi=delete");
 		exit();
 	}
 		
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "edit") {
+		
+		//Navigation Session Check
+		if ($_SESSION['latestAction'] !== "EDIT") {
+			$_SESSION['naviError'] = TRUE;
+			header("location: console.php");
+			exit();
+		}
+		
 		/*
 		session_start();
 		if (preg_match("/[^A-Za-z0-9]/", $_POST['joker'])) {
@@ -494,11 +533,18 @@
 		}
 		
 		echo $errorsPresent;
+		echo $_SESSION['latestAction'];
 	}
 	
-	//IMPLEMENT HTTP_REFERER WITH WORKING SERVER - $_SERVER['HTTP_REFERER'];
-	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE
+	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE (UPDATE: HANDLED)
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "add") {
+		
+		//Navigation Session Check
+		if ($_SESSION['latestAction'] !== "ADD") {
+			$_SESSION['naviError'] = TRUE;
+			header("location: console.php");
+			exit();
+		}		
 		
 		//Perform empty fields check
 		checkEmptyFields();

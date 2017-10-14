@@ -9,6 +9,9 @@
 		header("Location: ../index.php");
 		exit();
 	}
+	
+	//Set Navigation Session Variable
+	$_SESSION['latestAction'] = "ADD";
 ?>
 
 <h1>Add User</h1>

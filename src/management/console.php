@@ -14,9 +14,20 @@
 	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: ../index.php");
+		header("Location: /index.php");
 		exit();
 	}
+	
+	/*
+		Navigation Session Variable: $_SESSION['latestAction']
+		PURPOSE: Reduce the attack surface due to cross-submitting form data from different pages (Example: Add User form data submitted to Edit User's validation section). Only records Add, Edit or Delete User.
+		
+		There are 4 possible values: "NONE", "ADD", "EDIT", "DELETE"
+		
+		Note that this still does not prevent multiple instances of same pages. Those will be handled separately.
+	*/
+	$_SESSION['latestAction'] = "NONE";
+	
 ?>
 
 <html>
@@ -60,7 +71,13 @@
 							include "txhistory.php";
 							break;
 						default:
-							echo '<h1><---- Select one of the options on the menu bar to continue.</h1>';
+							echo '<h1><---- Select one of the options on the menu bar to continue.</h1>' . "\n";
+							echo "\t\t\t\t" . '<h2 class="required">WARNING: To prevent tampering, only the LATEST INSTANCE of {Add, Edit, Delete} User is considered a valid request to the server.</h2>' . "\n";
+							if (isset($_SESSION['naviError'])) {
+								echo "\t\t\t\t" . '<div class="error">' . "\n\t\t\t\t\t" . '<br/><h1>ERROR: Invalid action detected.<br/>Ensure that you do not use multiple windows/tabs for User Modifiations.</h1><br/>' . "\n\t\t\t\t" . '</div>' . "\n";
+								$_SESSION['latestAction'] = "NONE";
+								unset($_SESSION['naviError']);
+							}
 							break;
 					}
 				?>
