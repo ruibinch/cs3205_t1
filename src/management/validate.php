@@ -5,7 +5,7 @@
 	session_start();	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: ../index.php");
+		header("Location: /index.php");
 		exit();
 	}
 	
@@ -194,7 +194,6 @@
 			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
 			
 	*/	
-	
 	function checkGender() {
 		global $errorsPresent;
 		
@@ -584,95 +583,105 @@
 			unset($_SESSION['z3']);
 			unset($_SESSION['firstrun']);
 				
-			// {username}/{password}/{fname}/{lname}/{nric}/{dob}/{gender}/{phone1}/{phone2}/{phone3}/{addr1}/{addr2}/{addr3}/{zip1}/{zip2}/{zip3}/{qualify}/{bloodtype}/{nfcid}
+			//Separate salt from password, perform SHA256 on bcrypt hash too.
+			$hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
+			$salt = substr($hashedPassword, 0, 29); //first 29 characters of bcrypt hash is the salt.
+			$hashedPassword = hash('SHA256', $hashedPassword); //finally, SHA256 the bcrypt string.
 			
-			/*
-			http://172.25.76.76/api/team1/user/create/Salompas/pass123/Salompas/Rose/S2121222A/1991-10-22/F/122/-/-/orchard/somerset/dhoby ghaut/549494/0/0/1/B+/-/ */
-			
-			$hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);			
-			$URLstring = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create/';
-			
-			//Concat username, password, firstname, lastname, nric, dob, gender
-			$URLstring = $URLstring . $_POST['username'] . '/' . $hashedPassword . '/' . $_POST['firstname'] . '/' . $_POST['lastname'] . '/' . $_POST['NRIC'] . '/' . $_POST['dob'] . '/' . $_POST['gender'] . '/';
-			
-			//Concat phone1, phone2, phone3
-			$URLstring = $URLstring . $_POST['contact1'] . '/';
+			//Set up array of phone numbers (Handle empty fields too)
+			$phoneNumbers = array($_POST['contact1']);
 			
 			if (!empty(trim($_POST['contact2']))) {
-				$URLstring = $URLstring . $_POST['contact2'] . '/';
+				array_push($phoneNumbers, $_POST['contact2']);
 			} else {
-				$URLstring = $URLstring . '-' . '/';
+				array_push($phoneNumbers, NULL);
 			}
 			
 			if (!empty(trim($_POST['contact3']))) {
-				$URLstring = $URLstring . $_POST['contact3'] . '/';
+				array_push($phoneNumbers, $_POST['contact3']);
 			} else {
-				$URLstring = $URLstring . '-' . '/';
+				array_push($phoneNumbers, NULL);
 			}
 			
-			//Concat addr1, addr2, addr3
-			$URLstring = $URLstring . $_POST['address1'] . '/';
+			//Set up array of addresses (Handle empty fields too)
+			$addresses = array($_POST['address1']);
 			
 			if (!empty(trim($_POST['address2']))) {
-				$URLstring = $URLstring . $_POST['address2'] . '/';
+				array_push($addresses, $_POST['address2']);
 			} else {
-				$URLstring = $URLstring . '-' . '/';
+				array_push($addresses, NULL);
 			}
 			
-			if (!empty(trim($_POST['address2']))) {
-				$URLstring = $URLstring . $_POST['address2'] . '/';
+			if (!empty(trim($_POST['address3']))) {
+				array_push($addresses, $_POST['address3']);
 			} else {
-				$URLstring = $URLstring . '-' . '/';
+				array_push($addresses, NULL);
 			}
 			
-			//Concat zip1, zip2, zip3
-			$URLstring = $URLstring . $_POST['zipcode1'] . '/';
+			//Set up array of zip codes (Handle empty fields too)
+			$zipcodes = array($_POST['zipcode1']);
 			
 			if (!empty(trim($_POST['zipcode2']))) {
-				$URLstring = $URLstring . $_POST['zipcode2'] . '/';
+				array_push($zipcodes, $_POST['zipcode2']);
 			} else {
-				$URLstring = $URLstring . '0' . '/';
+				array_push($zipcodes, NULL);
 			}
 			
 			if (!empty(trim($_POST['zipcode3']))) {
-				$URLstring = $URLstring . $_POST['zipcode3'] . '/';
+				array_push($zipcodes, $_POST['zipcode3']);
 			} else {
-				$URLstring = $URLstring . '0' . '/';
+				array_push($zipcodes, NULL);
 			}
 			
-			//Concat usertype
+			//Check therapist value. 1 = TRUE, 0 = FALSE.
+			$isTherapist = 0;
+			
 			if ($_POST['usertype'] === "Therapist" ) {
-				$URLstring = $URLstring . '1' . '/';
-			} else {
-				$URLstring = $URLstring . '0' . '/';
+				$isTherapist = 1;
 			}
 			
-			//Concat bloodtype, nfcid (which is empty)			
-			$URLstring = $URLstring . $_POST['bloodtype'] . '/' . '-'. '/';
+			//POST METHOD 
+			$addToDB = array (
+				"username"	=> $_POST['username'],
+				"password"	=> $hashedPassword,
+				"salt" 		=> $salt,
+				"firstName"	=> $_POST['firstname'], //case sensitive
+				"lastName"	=> $_POST['lastname'],	//case sensitive
+				"nric"		=> $_POST['NRIC'],
+				"dob"		=> $_POST['dob'],
+				"gender"	=> $_POST['gender'],
+				"phone"		=> $phoneNumbers,
+				"address"	=> $addresses,
+				"zipcode"	=> $zipcodes,
+				"qualify"	=> $isTherapist,		//this is NOT a string value.
+				"bloodtype"	=> $_POST['bloodtype'],
+				"secret"	=> "someSecretLUL",		//Stub. Will update this.
+				"nfcid"		=> NULL					//Stub(?)
+			);
 			
-			echo $URLstring; //for debugging purposes
+			$addToDB_json = json_encode($addToDB);
+			$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create');
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                              
+			curl_setopt($ch, CURLOPT_POSTFIELDS, $addToDB_json);
+			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+				'Content-Type: application/json',
+				'Content-Length: ' . strlen($addToDB_json))
+			);
 			
+			//Establish connection to DB server and get result.
+			$decodeAdd = curl_exec($ch);
 			
-			//Add into database.
-			
-			$URLstring = str_replace(" ", "%20", $URLstring); //remove all instances of spaces and replace them with %20
-			$resultAdd = file_get_contents('' . $URLstring);
-			$decodeAdd = json_decode($resultAdd);
-					
-			$_SESSION['addUserSuccess'] = FALSE;
-			
+			//Result Handling
+			$_SESSION['addUserSuccess'] = FALSE;			
 			if ($decodeAdd->result == 1) {
 				$_SESSION['addUserSuccess'] = TRUE;
-			}
-			
+			}			
 			$_SESSION['generateAddStatus'] = TRUE;
-			echo "<br/><br/>" . $decodeAdd->result;
-			
+			echo "<br/><br/>" . $decodeAdd->result;			
 			
 			header("location: console.php?navi=add");
-			exit();
-			
-			
+			exit();			
 		}
 		exit();
 	}

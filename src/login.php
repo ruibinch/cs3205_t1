@@ -40,7 +40,7 @@
                 </div>
 
                 <div id="Management" class="login-tabcontent">
-                    <form class="login-form" name="form-mgmt" method="post" action="management/process.php">
+                    <form class="login-form" name="form-mgmt" method="post" action="util/login-validation-admin.php">
                         <input id="mgmt-username" name="mgmt-username" type="text" class="login-input" placeholder="Username" autofocus>
                         <input id="mgmt-password" name="mgmt-password" type="password" class="login-input" placeholder="Password">
                         <button id="btn-login" name="login" class="login-btn login-btn-mgmt">Login</button>

@@ -202,7 +202,7 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 				<tr>
 					<td>Username:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" name="username" placeholder="Alphanumeric Only" <?php echo 'value="'.$_SESSION['uname'].'"';?> required>
+						<input type="text" name="username" placeholder="Alphanumeric Only" <?php echo 'value="'.htmlspecialchars($_SESSION['uname']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
@@ -221,19 +221,19 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 				<tr>
 					<td>NRIC/FIN:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" name="NRIC" placeholder="S0000000I" size="10" maxlength="9"<?php echo 'value="'.$_SESSION['NRIC'].'"';?> required>
+						<input type="text" name="NRIC" placeholder="S0000000I" size="10" maxlength="9"<?php echo 'value="'.htmlspecialchars($_SESSION['NRIC']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
 					<td>First Name:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" name="firstname" <?php echo 'value="'.$_SESSION['fname'].'"';?> required>
+						<input type="text" name="firstname" <?php echo 'value="'.htmlspecialchars($_SESSION['fname']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
 					<td>Last Name:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" name="lastname" <?php echo 'value="'.$_SESSION['lname'].'"';?> required>
+						<input type="text" name="lastname" <?php echo 'value="'.htmlspecialchars($_SESSION['lname']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
@@ -282,25 +282,25 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 				<tr>
 					<td>Date of Birth:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="date" name="dob" placeholder="For Firefox: 2000-12-31" <?php echo 'value="'.$_SESSION['dob'].'"';?> required>
+						<input type="date" name="dob" placeholder="For Firefox: 2000-12-31" <?php echo 'value="'.htmlspecialchars($_SESSION['dob']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
 					<td>Main Contact Number:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" name="contact1" placeholder="91234567" size="8" maxlength="8" <?php echo 'value="'.$_SESSION['c1'].'"';?> required>
+						<input type="text" name="contact1" placeholder="91234567" size="8" maxlength="8" <?php echo 'value="'.htmlspecialchars($_SESSION['c1']).'"';?> required>
 						</td>
 					</tr>
 				<tr>
 					<td>Second Contact Number:&emsp;</td>
 					<td>
-						<input type="text" name="contact2" size="8" maxlength="8" <?php echo 'value="'.$_SESSION['c2'].'"';?>>
+						<input type="text" name="contact2" size="8" maxlength="8" <?php echo 'value="'.htmlspecialchars($_SESSION['c2']).'"';?>>
 					</td>
 				</tr>
 				<tr>
 					<td>Third Contact Number:&emsp;</td>
 					<td>
-						<input type="text" name="contact3" size="8" maxlength="8" <?php echo 'value="'.$_SESSION['c3'].'"';?>>
+						<input type="text" name="contact3" size="8" maxlength="8" <?php echo 'value="'.htmlspecialchars($_SESSION['c3']).'"';?>>
 					</td>
 				</tr>
 			</table>
@@ -308,30 +308,30 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 				<tr>
 					<td>Main Address:<span class="required">*</span>&nbsp;</td>
 					<td>
-						<input type="text" size="35" name="address1" placeholder="Block 666 Underground Road #B18-6666" <?php echo 'value="'.$_SESSION['a1'].'"';?> required></td><td>Zipcode:<span class="required">*</span>&nbsp;
+						<input type="text" size="35" name="address1" placeholder="Block 666 Underground Road #B18-6666" <?php echo 'value="'.htmlspecialchars($_SESSION['a1']).'"';?> required></td><td>Zipcode:<span class="required">*</span>&nbsp;
 					</td>
 					<td>
-						<input type="text" size="6" name="zipcode1" maxlength="6" placeholder="666666" <?php echo 'value="'.$_SESSION['z1'].'"';?> required>
+						<input type="text" size="6" name="zipcode1" maxlength="6" placeholder="666666" <?php echo 'value="'.htmlspecialchars($_SESSION['z1']).'"';?> required>
 					</td>
 				</tr>
 				<tr>
 					<td>Addr 2:&nbsp;</td>
 					<td>
-						<input type="text" size="35" name="address2" <?php echo 'value="'.$_SESSION['a2'].'"';?>>
+						<input type="text" size="35" name="address2" <?php echo 'value="'.htmlspecialchars($_SESSION['a2']).'"';?>>
 					</td>
 					<td>Zipcode:&nbsp;</td>
 					<td>
-						<input type="text" size="6" name="zipcode2" maxlength="6" <?php echo 'value="'.$_SESSION['z2'].'"';?>>
+						<input type="text" size="6" name="zipcode2" maxlength="6" <?php echo 'value="'.htmlspecialchars($_SESSION['z2']).'"';?>>
 					</td>
 				</tr>
 				<tr>
 					<td>Addr 3:&nbsp;</td>
 					<td>
-						<input type="text" size="35" name="address3" <?php echo 'value="'.$_SESSION['a3'].'"';?>>
+						<input type="text" size="35" name="address3" <?php echo 'value="'.htmlspecialchars($_SESSION['a3']).'"';?>>
 					</td>
 					<td>Zipcode:&nbsp;</td>
 					<td>
-						<input type="text" size="6" name="zipcode3" maxlength="6" <?php echo 'value="'.$_SESSION['z3'].'"';?>>
+						<input type="text" size="6" name="zipcode3" maxlength="6" <?php echo 'value="'.htmlspecialchars($_SESSION['z3']).'"';?>>
 					</td>
 				</tr>
 			</table>
@@ -342,9 +342,14 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 		<input type="hidden" name="action" value="add">
 	</form>
 </div>
+
+<?php
+/*
 <div>
 	<h2>Batch Adding:</h2>
 	This section is a stub. It is intended for administrators to batch add by uploading a file. Exact implementation details are not confirmed.
 	<br/><br/>
 	Upload file here: Stub..
 </div>
+*/
+?>

@@ -28,7 +28,7 @@
 		<div>
 			<nav class="nav">
 				<div class="header">
-					<h1>Management Console</h1>
+					<h2>Management Console</h2>
 					<br/>
 					<h3>Welcome, <br/><?php echo $_SESSION['loggedin']?></h3>
 				</div>
