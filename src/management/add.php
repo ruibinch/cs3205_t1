@@ -194,7 +194,7 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 ?>
 <h3>Enter the relevant details into the fields, click "Submit" to continue:</h3>
 <h4 class="required">All fields are required except alternate contact numbers and addresses.</h4>
-<div class="addUser">
+<div class="contentField">
 	<form class="container" method="post" action="validate.php">
 		<div class="left">
 			<h2><br/>Stage 1: Patient or Therapist<span class="required">*</span></h2>

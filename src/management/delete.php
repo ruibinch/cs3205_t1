@@ -29,8 +29,8 @@
 		unset($_SESSION['printThirdArea']);
 	}
 ?>
-<h3>Enter username of user.</h3>
-<div class="addUser">
+<h3>Enter username.</h3>
+<div class="contentField">
 	<form class="container" method="post" action="/management/validate.php">
 		<div class="left">
 			<table>
@@ -49,7 +49,7 @@
 <br/><br/>
 <?php
 	if (isset($_SESSION['printSecondArea']) && $_SESSION['printSecondArea']) {
-		echo '<div class="addUser">' . "\n<br/>";		
+		echo '<div class="contentField">' . "\n<br/>";		
 		if ($_SESSION['validForDeletion']) {
 			echo "\t" . '<h3 class="errorDel">CONFIRM USER DELETION: ' . htmlspecialchars($_SESSION['delUserName']) . '.</h3>' . "\n";
 			echo "\t" . '<form method="post" action="validate.php">' . "\n";

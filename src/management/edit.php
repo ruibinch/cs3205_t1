@@ -14,21 +14,67 @@
 	$_SESSION['latestAction'] = "EDIT";
 ?>
 <h1>Edit User</h1>
-<h3>This page is a stub. Intention is to search patient by username / id.</h3>
-<h3>Meanwhile, will use it to test other functionality.</h3>
+<h3>Enter username to begin.</h3>
 
-
-<form action="validate.php" method="post">
-	Joker: <input type="name" name="NRIC" required>
-	<br/><br/>
-	<input type="submit">
-	<input type="hidden" name="action" value="edit">
-</form>
+<div class="contentField">
+	<form id="formEdit" class="container">
+		<div class="left">
+			<table>
+				<tr>
+					<td>Username:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="text" id="editUserName" required>
+					</td>
+				</tr>
+				<tr><td colspan="2"><input type="Submit" value="Submit"></td></tr>
+			</table>
+		</div>
+		<input type="hidden" name="action" value="edit1">
+	</form>	
+</div>
 
 <br/><br/>
 
+<div class="contentField" id="resultDiv">
+	<br/>
+	<div class="loader" id="loader"></div>
+	<br/>
+</div>
+
+
+<!-- Consider making a separate js file-->
+<script>
+	$(document).ready(function(){
+		$('#formEdit').on('submit', function(e){
+			$("#loader").show();
+			$("#resultDiv").show();
+			e.preventDefault();
+			var username = $('#editUserName').val();
+			$.ajax({
+				type: 'POST',
+				url: '/management/validate.php',
+				data: $(this).serialize(),
+				cache: false,
+				success: function(result) {
+					$("#loader").hide();
+					$("#resultDiv").html(result);
+				}
+			});
+		});
+	});
+</script>
 <?php
 	/*
+	
+	<form action="validate.php" method="post">
+		Joker: <input type="name" name="NRIC" required>
+		<br/><br/>
+		<input type="submit">
+		<input type="hidden" name="action" value="edit">
+	</form>
+
+<br/><br/>
+	
 	if (isset($_SESSION['editfield'])) {
 		echo "You have entered " . $_SESSION['editfield'] . " previously.\n";
 		unset($_SESSION['editfield']);

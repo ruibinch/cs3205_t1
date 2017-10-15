@@ -13,7 +13,7 @@
 	
 ?>
 <?php
-	// THIS SECTION DEALS WITH THE VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
+	// THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
 	
 	/*
 		checkEmptyFields():
@@ -467,7 +467,7 @@
 		exit();
 	}
 		
-	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "edit") {
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "edit1") {
 		
 		//Navigation Session Check
 		if ($_SESSION['latestAction'] !== "EDIT") {
@@ -475,65 +475,9 @@
 			header("location: console.php");
 			exit();
 		}
-		
-		/*
-		session_start();
-		if (preg_match("/[^A-Za-z0-9]/", $_POST['joker'])) {
-			$_SESSION['namecheck'] = FALSE; //failed check
-		} else {
-			$_SESSION['namecheck'] = TRUE; //passed check
-		}
-		$_SESSION['editfield'] = $_POST['joker'];
-		header("location: console.php?navi=edit");
-		exit();
-		*/
-		
-		//echo password_hash($_POST['joker'], PASSWORD_BCRYPT);
-		
-		global $errorsPresent;	
-		
-		//Use this site to enter correct NRIC value: https://nric.biz/
-		//Validation taken from: https://pgmmer.blogspot.sg/2009/12/singapore-nric-check.html with slight modfications
-		
-		// Invalid NRIC Check. If this fails, skip next check 
-		$errorDetected = FALSE;
-		$check = "";
-		
-		$nric = $_POST['NRIC'];
-		if ( preg_match('/^[ST][0-9]{7}[JZIHGFEDCBA]$/', $nric) ) { // NRIC
-			$check = "JZIHGFEDCBA";
-		} else if ( preg_match('/^[FG][0-9]{7}[XWUTRQPNMLK]$/', $nric) ) { // FIN
-			$check = "XWUTRQPNMLK";
-		} else {
-			$errorDetected = TRUE;
-		}
-		
-		if (!$errorDetected) {
-			$total = $nric[1]*2 
-						+ $nric[2]*7 
-						+ $nric[3]*6 
-						+ $nric[4]*5 
-						+ $nric[5]*4 
-						+ $nric[6]*3 
-						+ $nric[7]*2;
-
-			if ( $nric[0] == "T" OR $nric[0] == "G" ) {
-				// shift 4 places for after year 2000
-				$total = $total + 4;
-			}
-			
-			if (! ($nric[8] == $check[$total % 11]) ) {
-				$errorDetected = TRUE;
-			}
-		}
-		
-		if ($errorDetected) {
-			$_SESSION['nricInvalid'] = TRUE;
-			$errorsPresent = "YES";
-		}
-		
-		echo $errorsPresent;
-		echo $_SESSION['latestAction'];
+		// sleep for 3 seconds
+		sleep(3);
+		echo '<br/><b>Value</b> received.<br/><br/>';
 	}
 	
 	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE (UPDATE: HANDLED)

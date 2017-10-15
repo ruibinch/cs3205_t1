@@ -18,6 +18,10 @@
 		exit();
 	}
 	
+	if (!isset($_GET['navi'])) {
+		$_GET['navi'] = NULL;
+	}
+	
 	/*
 		Navigation Session Variable: $_SESSION['latestAction']
 		PURPOSE: Reduce the attack surface due to cross-submitting form data from different pages (Example: Add User form data submitted to Edit User's validation section). Only records Add, Edit or Delete User.
@@ -34,6 +38,7 @@
 	<head>
 		<title>Skeleton Management Page</title>
 		<link rel="stylesheet" type="text/css" href="css/mgmt.css" />
+		<script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	</head>
 	<body>
 		<div>
@@ -46,10 +51,10 @@
 				<div class="menu">
 					<br/><br/><br/>
 					<ul>
-						<a href="console.php?navi=add"><li>Add User</li></a>
-						<a href="console.php?navi=edit"><li>Edit User</li></a>
-						<a href="console.php?navi=delete"><li>Delete User</li></a>
-						<a href="console.php?navi=txhistory"><li>Server Transactions</li></a>
+						<a href="console.php?navi=add"><li<?php if ($_GET['navi'] === "add") echo ' class="selectedNavi"';?>>Add User</li></a>
+						<a href="console.php?navi=edit"><li<?php if ($_GET['navi'] === "edit") echo ' class="selectedNavi"';?>>Edit User</li></a>
+						<a href="console.php?navi=delete"><li<?php if ($_GET['navi'] === "delete") echo ' class="selectedNavi"';?>>Delete User</li></a>
+						<a href="console.php?navi=txhistory"><li<?php if ($_GET['navi'] === "txhistory") echo ' class="selectedNavi"';?>>Server Transactions</li></a>
 						<br/>
 						<a href="logout.php"><li>Logout</li></a>
 					</ul>

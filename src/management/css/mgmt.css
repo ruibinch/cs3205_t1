@@ -64,6 +64,11 @@ body {
 	border-radius: 10px;
 }
 
+.selectedNavi {
+	border-radius: 10px;
+	background: #A2AAB0;
+}
+
 .error {
 	margin: auto;
 	background-color: #A04800;
@@ -76,7 +81,7 @@ body {
 	margin: auto;
 }
 
-.addUser {
+.contentField {
 	margin: auto;
 	background-color: #A2AAB0;
 	border-radius: 10px;
@@ -105,11 +110,38 @@ body {
 	color: #7a1d0b;
 }
 
-.addUser table {
+.contentField table {
 	margin: auto;
 }
 
-.addUser td {
+.contentField td {
 	padding: 10px;
 }
 
+.loader {
+	position: relative;
+	top: 50%;
+	margin: 0 auto;
+	border: 4px solid #f3f3f3;
+	border-radius: 50%;
+	border-top: 4px solid blue;
+	border-bottom: 4px solid blue;
+	width: 40px;
+	height: 40px;
+	-webkit-animation: spin 2s linear infinite;
+	animation: spin 2s linear infinite;
+}
+
+@-webkit-keyframes spin {
+	0% { -webkit-transform: rotate(0deg); }
+	100% { -webkit-transform: rotate(360deg); }
+}
+
+@keyframes spin {
+	0% { transform: rotate(0deg); }
+	100% { transform: rotate(360deg); }
+}
+
+div#resultDiv {
+	display: none;
+}
