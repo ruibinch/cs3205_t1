@@ -69,14 +69,7 @@
     }
 
     // TODO - update from DB API
-    $documents_list = array(
-        "Document1",
-        "Document2",
-        "Document3",
-        "Document4",
-        "Document5",
-        "Document6"
-    );
+    $documents_list = array();
     $num_documents = count($documents_list);
 
     // Retrieves the user JSON object based on the uid

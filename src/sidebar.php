@@ -24,14 +24,14 @@
         $jwt_link = "../util/jwt.php";
         $patient_home = "../main.php";
         $patient_therapist_list = "therapists.php";
-        $patient_documents = "viewdoc.php";
+        $patient_documents = "records.php";
         $patient_profile = "../update.php";
         $patient_logout = "../logout.php";
     } else {
         $jwt_link = "util/jwt.php";
         $patient_home = "main.php";
         $patient_therapist_list = "patient/therapists.php";
-        $patient_documents = "patient/viewdoc.php";
+        $patient_documents = "patient/records.php";
         $patient_profile = "update.php";
         $patient_logout = "logout.php";
     }
