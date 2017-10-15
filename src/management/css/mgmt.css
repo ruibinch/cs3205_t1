@@ -145,3 +145,7 @@ body {
 div#resultDiv {
 	display: none;
 }
+
+div#loaderDiv {
+	display: none;
+}

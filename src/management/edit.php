@@ -23,7 +23,7 @@
 				<tr>
 					<td>Username:<span class="required">*</span>&emsp;</td>
 					<td>
-						<input type="text" id="editUserName" required>
+						<input type="text" name="editUserName" required>
 					</td>
 				</tr>
 				<tr><td colspan="2"><input type="Submit" value="Submit"></td></tr>
@@ -36,27 +36,29 @@
 <br/><br/>
 
 <div class="contentField" id="resultDiv">
+</div>
+
+<div class="contentField" id="loaderDiv">
 	<br/>
 	<div class="loader" id="loader"></div>
 	<br/>
 </div>
 
-
 <!-- Consider making a separate js file-->
 <script>
 	$(document).ready(function(){
 		$('#formEdit').on('submit', function(e){
-			$("#loader").show();
-			$("#resultDiv").show();
+			$("#resultDiv").hide();
+			$("#loaderDiv").show();
 			e.preventDefault();
-			var username = $('#editUserName').val();
 			$.ajax({
 				type: 'POST',
 				url: '/management/validate.php',
-				data: $(this).serialize(),
+				data: $('#formEdit').serialize(),
 				cache: false,
 				success: function(result) {
-					$("#loader").hide();
+					$("#loaderDiv").hide();
+					$("#resultDiv").show();
 					$("#resultDiv").html(result);
 				}
 			});

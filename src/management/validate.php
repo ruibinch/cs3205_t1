@@ -475,9 +475,9 @@
 			header("location: console.php");
 			exit();
 		}
-		// sleep for 3 seconds
-		sleep(3);
-		echo '<br/><b>Value</b> received.<br/><br/>';
+		// sleep for 2 seconds
+		sleep(2);
+		echo '<br/><b>Value</b> received: ' . $_POST['editUserName'] . '<br/><br/>';
 	}
 	
 	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE (UPDATE: HANDLED)
