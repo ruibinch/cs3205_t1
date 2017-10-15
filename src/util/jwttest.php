@@ -13,7 +13,7 @@ $result = WebToken::getSecret(7);
 echo 'secret after for uid 7: ' . $result . "<br>\n";
 
 // test generate
-$token = WebToken::getToken(3, false, "dummy_key");
+$token = WebToken::getToken(5, false, "dummy_key");
 echo "jwt is: " . $token . "<br>\n";
 echo "verified token: " . WebToken::verifyToken($token, "dummy_key") . "<br>\n";
 
