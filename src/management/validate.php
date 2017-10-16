@@ -609,18 +609,18 @@
 			}
 			
 			//Set up array of zip codes (Handle empty fields too)
-			$zipcodes = array($_POST['zipcode1']);
+			$zipcodes = array(intval($_POST['zipcode1']));
 			
 			if (!empty(trim($_POST['zipcode2']))) {
-				array_push($zipcodes, $_POST['zipcode2']);
+				array_push($zipcodes, intval($_POST['zipcode2']));
 			} else {
-				array_push($zipcodes, NULL);
+				array_push($zipcodes, 0);
 			}
 			
 			if (!empty(trim($_POST['zipcode3']))) {
-				array_push($zipcodes, $_POST['zipcode3']);
+				array_push($zipcodes, intval($_POST['zipcode3']));
 			} else {
-				array_push($zipcodes, NULL);
+				array_push($zipcodes, 0);
 			}
 			
 			//Check therapist value. 1 = TRUE, 0 = FALSE.
