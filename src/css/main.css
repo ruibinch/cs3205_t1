@@ -392,3 +392,7 @@ div.tab button.active {
 .list-button:hover {
     background-color: #8b9dc3;
 }
+
+.error-message {
+    color: red;
+}
