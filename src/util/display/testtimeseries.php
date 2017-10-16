@@ -3,8 +3,7 @@
 <?php 
 global $fileurl;
 global $jsonurl;
-global $divid;
-$fileurl = "/tmp/RawData_2015.12.16_09.55.28.csv";
-$jsonurl = "/tmp/RawData_2015.12.16_09.55.28.json";
+$fileurl = "/util/display/display.php?ott=1111";
+$jsonurl = "/util/display/display.php?ott=2222";
 include 'timeseries.php';
 ?>
