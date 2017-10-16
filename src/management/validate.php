@@ -74,8 +74,7 @@
 			
 			$decode = json_decode($result);
 			
-			//strcasecmp: compare string in a case insenstive manner. 0 means equal.
-			if (isset($decode->username) && strcasecmp($decode->username, $_POST['username']) == 0) {
+			if (isset($decode->uid)) {
 				$_SESSION['usernameExists'] = TRUE;
 				$errorsPresent = "YES";
 			}
@@ -660,7 +659,7 @@
 			);
 			
 			//Establish connection to DB server and get result.
-			$decodeAdd = curl_exec($ch);
+			$decodeAdd = json_decode(curl_exec($ch));
 			
 			//Result Handling
 			$_SESSION['addUserSuccess'] = FALSE;			
@@ -668,7 +667,9 @@
 				$_SESSION['addUserSuccess'] = TRUE;
 			}			
 			$_SESSION['generateAddStatus'] = TRUE;
-			echo "<br/><br/>" . $decodeAdd->result;			
+			
+			//echo $addToDB_json;
+			//echo "<br/><br/>" . $decodeAdd->result;			
 			
 			header("location: console.php?navi=add");
 			exit();			
