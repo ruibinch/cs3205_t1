@@ -36,7 +36,6 @@
                     <th>Last Modified</th>
                     <th>Type</th>
                     <th>Title</th>
-                    <th>Content</th>
                     <th class="last-col">Actions</th>
                 </tr>
                 <?php for ($i = 0; $i < $num_records; $i++) {
@@ -47,8 +46,7 @@
                         <td><?php echo $record->modifieddate ?></button></td>
                         <td><?php echo $record->type ?></td>
                         <td><?php echo $record->title ?></td>
-                        <td><?php echo $record->content ?></td>
-                        <td></td>
+                        <td><a href="" style="color:blue">View</a></td>
                     </tr>
                 <?php } ?>
             </table>
