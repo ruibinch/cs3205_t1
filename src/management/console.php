@@ -28,7 +28,7 @@
 		
 		There are 4 possible values: "NONE", "ADD", "EDIT", "DELETE"
 		
-		Note that this still does not prevent multiple instances of same pages. Those will be handled separately.
+		Note that this still does not prevent multiple instances of same page.
 	*/
 	$_SESSION['latestAction'] = "NONE";
 	

@@ -75,6 +75,7 @@ body {
 	border-radius: 10px;
 	width: 75%;
 	text-align: center;
+	color: white;
 }
 
 .error table {
@@ -147,5 +148,13 @@ div#resultDiv {
 }
 
 div#loaderDiv {
+	display: none;
+}
+
+div#errorDiv {
+	display: none;
+}
+
+div#loaderDiv2 {
 	display: none;
 }

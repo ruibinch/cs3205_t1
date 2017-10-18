@@ -10,13 +10,18 @@
 		exit();
 	}
 	
+	//Remove editUserID session if "Edit User" page is clicked on again.
+	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+		unset($_SESSION['editUserID']);
+	}
+	
 	//Set Navigation Session Variable
 	$_SESSION['latestAction'] = "EDIT";
 ?>
 <h1>Edit User</h1>
-<h3>Enter username to begin.</h3>
-
 <div class="contentField">
+<br/>
+<h2>Enter username to begin.</h2>
 	<form id="formEdit" class="container">
 		<div class="left">
 			<table>
@@ -31,6 +36,7 @@
 		</div>
 		<input type="hidden" name="action" value="edit1">
 	</form>	
+	<br/>
 </div>
 
 <br/><br/>
@@ -60,6 +66,9 @@
 					$("#loaderDiv").hide();
 					$("#resultDiv").show();
 					$("#resultDiv").html(result);
+				},
+				error: function() {
+					alert('Warning: Server may be unavailable at this point in time.');
 				}
 			});
 		});

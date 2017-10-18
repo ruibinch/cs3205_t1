@@ -29,8 +29,9 @@
 		unset($_SESSION['printThirdArea']);
 	}
 ?>
-<h3>Enter username.</h3>
 <div class="contentField">
+	<br/>
+	<h2>Enter username to begin.</h2>
 	<form class="container" method="post" action="/management/validate.php">
 		<div class="left">
 			<table>
@@ -45,6 +46,7 @@
 		</div>
 	<input type="hidden" name="action" value="delete">
 	</form>
+	<br/>
 </div>
 <br/><br/>
 <?php

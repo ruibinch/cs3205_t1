@@ -1,5 +1,5 @@
 <?php
-	//validate.php: Checks submitted form values.
+	//validate.php: Checks submitted form values and react accordingly.
 	
 	session_start();	
 	if (!isset($_SESSION['loggedin'])) {
@@ -11,6 +11,11 @@
 	//GLOBAL VARIABLES DECLARATION:
 	$errorsPresent = "NO"; //track whether are there any validation errors.
 	
+	//FOR EDIT USER:
+	$emptyField = FALSE;
+	$usernameErr = FALSE;
+	$usernameExists = FALSE;
+	
 ?>
 <?php
 	// THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
@@ -19,17 +24,28 @@
 		checkEmptyFields():
 			FUNCTIONALITY: Performs the following check:
 				1) Ensure that all the required fields are filled in.
-			INPUT: NONE. Use all POST data that are required
+			INPUT: $mode, Determine whether is it adding or editing. Also check all POST data fields that are required.
 			OUTPUT: Adds session variable $_SESSION['emptyField'] = TRUE if it contains other characters.
 					Session variable NOT PRESENT if required fields are filled in.
 	*/	
-	function checkEmptyFields() {
+	function checkEmptyFields($mode) {
 		global $errorsPresent;
 		
-		if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
-			$_SESSION['emptyField'] = TRUE; //failed check
-			$errorsPresent = "YES";
+		$emptyField = FALSE; //For edit.
+		
+		if ($mode === "add") {
+			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+				$_SESSION['emptyField'] = TRUE; //failed check
+				$errorsPresent = "YES";
+			}
 		}
+		
+		if ($mode === "edit") {
+			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+				$emptyField = TRUE;
+				$errorsPresent = "YES";
+			}
+		} 
 	}
 	
 	/*
@@ -53,29 +69,39 @@
 			FUNCTIONALITY: Performs the following check:
 				1) Ensure that username only contains alphanumeric characters.
 				2) Whether username already exists in database (NOTE: NOT IMEPLEMETED YET).
-			INPUT: NONE. Use $_POST['username'].
+			INPUT: $mode. Also use $_POST['username'].
 			OUTPUT: Adds session variable $_SESSION['usernameErr'] = TRUE if it contains other characters.
 					Session variable NOT PRESENT if username only contains alphanumeric characters.
 					
 					If 1) passes and 2) fails, adds session variable $_SESSION['usernameExists'] = TRUE if username exists in database. Session variable NOT PRESENT if username does not exist.
 	*/	
-	function checkUserName() {
+	function checkUserName($mode) {
 		global $errorsPresent;
+		global $usernameErr;
+		global $usernameExists;
 		
 		//Invalid username check. If flagged, skip next check.
 		if (preg_match("/[^A-Za-z0-9]/", $_POST['username'])) {
-			$_SESSION['usernameErr'] = TRUE;
+			if ($mode === "add") {
+				$_SESSION['usernameErr'] = TRUE;
+			} else if ($mode === "edit") {
+				$usernameErr = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		//Check whether username exists in DB.
-		if (!isset($_SESSION['usernameErr'])) {
+		if (!isset($_SESSION['usernameErr']) || $usernameErr) {
 			$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
 			
 			$decode = json_decode($result);
 			
 			if (isset($decode->uid)) {
-				$_SESSION['usernameExists'] = TRUE;
+				if ($mode === "add") {
+					$_SESSION['usernameExists'] = TRUE;
+				}  else if ($mode === "edit") {
+					$usernameExists = TRUE;
+				}
 				$errorsPresent = "YES";
 			}
 		}
@@ -474,9 +500,66 @@
 			header("location: console.php");
 			exit();
 		}
-		// sleep for 2 seconds
-		sleep(2);
-		echo '<br/><b>Value</b> received: ' . $_POST['editUserName'] . '<br/><br/>';
+		// sleep for 1 second
+		sleep(1);
+				
+		//Double-check from DB
+		$result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['editUserName']));
+		
+		//value received, php include 2nd form if user exists...
+		if (isset($result->uid)) {
+			$_SESSION['editUserID'] = $result->uid;
+			include "edit-form.php";
+		} else {
+			echo '<br/><h3 class="errorDel">ERROR: username not found.</h3><br/>';
+		}
+		
+		exit();
+	}
+	
+	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "edit2") {
+		
+		//Navigation Session Check
+		if ($_SESSION['latestAction'] !== "EDIT") {
+			$_SESSION['naviError'] = TRUE;
+			header("location: console.php");
+			exit();
+		}
+		// sleep for 1 second
+		sleep(1);				
+		
+		// FORM data will be here. Perform validation
+		
+		//Perform empty fields check. $emptyField
+		checkEmptyFields('edit');
+		
+		if ($errorsPresent === "NO") {
+			//Perform usertype check
+			//checkUserType(); UNCOMMENT THIS LATER. HANDLE THAT METHOD TOO.
+			
+			//Perform username check. $usernameErr, $usernameExists
+			checkUserName('edit');
+		}
+		
+		// ERROR Table, perform if-else to generate.
+		if ($errorsPresent === "YES") {
+			echo '
+	<div class="error">
+		<table>
+			<tr><td><img src="img/error.png" height="40" width="40"></td><td>Fix The Following Fields:</td></tr>
+		</table>
+		<table>'."\n";
+	
+		if ($usernameErr) {
+			echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Only alphanumeric characters allowed.<br/></td></tr>' . "\n";
+		}			
+		
+		echo '</table></div><br/>';
+		
+		} else {
+			echo 'Ready!';
+		}
+		exit();
 	}
 	
 	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE (UPDATE: HANDLED)
@@ -490,14 +573,14 @@
 		}		
 		
 		//Perform empty fields check
-		checkEmptyFields();
+		checkEmptyFields('add');
 		
 		if ($errorsPresent === "NO") {
 			//Perform usertype check
 			checkUserType();
 			
 			//Perform username check
-			checkUserName();
+			checkUserName('add');
 		
 			//Perform password check
 			checkPassword();
@@ -676,4 +759,10 @@
 		}
 		exit();
 	}
+	
+	//This line should not be reached unless form tampering is detected.
+	//TODO: Log Transaction.....
+	$_SESSION['naviError'] = TRUE;
+	header("location: console.php");
+	exit();	
 ?>
