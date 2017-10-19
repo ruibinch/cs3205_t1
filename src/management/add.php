@@ -122,12 +122,7 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip1Err']);
 			}
-			
-			if (isset($_SESSION['zip1Err']) && $_SESSION['zip1Err']) {
-				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
-				unset($_SESSION['zip1Err']);
-			}
-			
+						
 			if (isset($_SESSION['zip2Err']) && $_SESSION['zip2Err']) {
 				echo "\t\t\t" . '<tr><td><b>Zipcode for Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['zip2Err']);

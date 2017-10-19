@@ -11,95 +11,123 @@
 	//GLOBAL VARIABLES DECLARATION:
 	$errorsPresent = "NO"; //track whether are there any validation errors.
 	
-	//FOR EDIT USER:
+	//EDIT USER ERROR VARIABLE:
 	$emptyField = FALSE;
+	$invalidType = FALSE;
 	$usernameErr = FALSE;
 	$usernameExists = FALSE;
+	$pwLengthErr = FALSE;
+	$pwDiffErr = FALSE;
+	$nricInvalid = FALSE;
+	$firstNameErr = FALSE;
+	$lastNameErr = FALSE;
+	$invalidGender = FALSE;
+	$invalidBlood = FALSE;
+	$dobErr = FALSE;
+	$contact1Err = FALSE;
+	$contact2Err = FALSE;
+	$contact3Err = FALSE;
+	$addr1Err = FALSE;
+	$addr2Err = FALSE;
+	$addr3Err = FALSE;
+	$zip1Err = FALSE;
+	$zip2Err = FALSE;
+	$zip3Err = FALSE;
 	
 ?>
 <?php
 	// THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
 	
 	/*
-		checkEmptyFields():
+		checkEmptyFields($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) Ensure that all the required fields are filled in.
-			INPUT: $mode, Determine whether is it adding or editing. Also check all POST data fields that are required.
-			OUTPUT: Adds session variable $_SESSION['emptyField'] = TRUE if it contains other characters.
-					Session variable NOT PRESENT if required fields are filled in.
+			INPUT: $isAdd, Determine whether is it adding or editing.
+					Also check all POST data fields that are required.
+			OUTPUT: isAdd = TRUE: 
+					Adds session variable $_SESSION['emptyField'] = TRUE if it contains other characters. Session variable NOT PRESENT if required fields are filled in.
+					
+					isAdd = FALSE:
+					Use global variable $emptyField = TRUE instead of creating session variable.
 	*/	
-	function checkEmptyFields($mode) {
+	function checkEmptyFields($isAdd) {
 		global $errorsPresent;
+		global $emptyField;
 		
-		$emptyField = FALSE; //For edit.
-		
-		if ($mode === "add") {
+		if ($isAdd) {
 			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 				$_SESSION['emptyField'] = TRUE; //failed check
 				$errorsPresent = "YES";
 			}
-		}
-		
-		if ($mode === "edit") {
+		} else { //similar statement, but exclude password fields.
 			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 				$emptyField = TRUE;
 				$errorsPresent = "YES";
 			}
-		} 
+		}
 	}
 	
 	/*
-		checkUserType():
+		checkUserType($isAdd):
 			FUNCTIONALITY: Perform user type check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
-			INPUT: NONE. Use $_POST['usertype'].
-			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
-			
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['usertype'].
+			OUTPUT: $isAdd = TRUE: 
+					Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
+					
+					isAdd = FALSE:
+					Use global variable $invalidType = TRUE instead of creating session variable.
 	*/	
-	function checkUserType() {
+	function checkUserType($isAdd) {
 		global $errorsPresent;
+		global $invalidType;
 		
 		if (!($_POST['usertype'] === "Therapist" || $_POST['usertype'] === "Patient")) {
-			$_SESSION['invalidType'] = TRUE; //failed check
 			$errorsPresent = "YES"; //triggers the variable to true.
+			if ($isAdd) {
+				$_SESSION['invalidType'] = TRUE;
+			} else {
+				$invalidType = TRUE;
+			}
 		}
 	}
 		
 	/*
-		checkUserName():
+		checkUserName($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) Ensure that username only contains alphanumeric characters.
 				2) Whether username already exists in database (NOTE: NOT IMEPLEMETED YET).
-			INPUT: $mode. Also use $_POST['username'].
-			OUTPUT: Adds session variable $_SESSION['usernameErr'] = TRUE if it contains other characters.
-					Session variable NOT PRESENT if username only contains alphanumeric characters.
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['username'].
+			OUTPUT: $isAdd = TRUE: 
+					Adds session variable $_SESSION['usernameErr'] = TRUE if it contains other characters. Session variable NOT PRESENT if username only contains alphanumeric characters. If 1) passes and 2) fails, adds session variable $_SESSION['usernameExists'] = TRUE if username exists in database. Session variable NOT PRESENT if username does not exist.
 					
-					If 1) passes and 2) fails, adds session variable $_SESSION['usernameExists'] = TRUE if username exists in database. Session variable NOT PRESENT if username does not exist.
+					isAdd = FALSE: 
+					Use global variables $usernameErr = TRUE and $usernameExists = TRUE instead of creating session variable.
 	*/	
-	function checkUserName($mode) {
+	function checkUserName($isAdd) {
 		global $errorsPresent;
 		global $usernameErr;
 		global $usernameExists;
 		
 		//Invalid username check. If flagged, skip next check.
 		if (preg_match("/[^A-Za-z0-9]/", $_POST['username'])) {
-			if ($mode === "add") {
+			if ($isAdd) {
 				$_SESSION['usernameErr'] = TRUE;
-			} else if ($mode === "edit") {
+			} else {
 				$usernameErr = TRUE;
 			}
 			$errorsPresent = "YES";
 		}
 		
 		//Check whether username exists in DB.
-		if (!isset($_SESSION['usernameErr']) || $usernameErr) {
+		if (!isset($_SESSION['usernameErr']) || !$usernameErr) {
 			$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
 			
 			$decode = json_decode($result);
 			
 			if (isset($decode->uid)) {
-				if ($mode === "add") {
+				if ($isAdd) {
 					$_SESSION['usernameExists'] = TRUE;
-				}  else if ($mode === "edit") {
+				}  else {
 					$usernameExists = TRUE;
 				}
 				$errorsPresent = "YES";
@@ -112,22 +140,36 @@
 			FUNCTIONALITY: Performs the following check:
 				1) Password length is at least 8 characters.
 				2) Password is entered correctly (check with 'confirm password' field).
-			INPUT: NONE. Use $_POST['password'] AND $_POST['cfmPassword'].
-			OUTPUT: Adds session variable $_SESSION['pwLengthErr'] = TRUE if pw length < 8 char.
-					If that passes, adds session variable $_SESSION['pwDiffErr'] = TRUE if pw does not match.
-					Session variables NOT PRESENT if it passes the checks.
+			INPUT: $isAdd. Determines add or edit action, 
+					also make use of $_POST['password'] AND $_POST['cfmPassword'].
+			OUTPUT: isAdd = TRUE: 
+					Adds session variable $_SESSION['pwLengthErr'] = TRUE if pw length < 8 char.
+					If that passes, adds session variable $_SESSION['pwDiffErr'] = TRUE if pw does not match. Session variables NOT PRESENT if it passes the checks.
+					
+					isAdd = FALSE: 
+					Use global variables $pwLengthErr = TRUE and $pwDiffErr = TRUE instead of creating session variable.
 	*/
-	function checkPassword() {
+	function checkPassword($isAdd) {
 		global $errorsPresent;
+		global $pwLengthErr;
+		global $pwDiffErr;
 		
 		if (strlen($_POST['password']) < 8) {
-			$_SESSION['pwLengthErr'] = TRUE;
+			if ($isAdd) {				
+				$_SESSION['pwLengthErr'] = TRUE;
+			} else {
+				$pwLengthErr = TRUE;
+			}
 			$errorsPresent = "YES";
 			return;
 		}
 		
 		if ($_POST['password'] != $_POST['cfmPassword']) {
-			$_SESSION['pwDiffErr'] = TRUE;
+			if ($isAdd) {				
+				$_SESSION['pwDiffErr'] = TRUE;
+			} else {
+				$pwDiffErr = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 	}
@@ -137,13 +179,20 @@
 			FUNCTIONALITY: Performs the following check:
 				1) NRIC/FIN entered is valid (syntax wise).
 				2) Not reused (Not implemented. To be decided)
-			INPUT: NONE. Use $_POST['NRIC'].
-			OUTPUT: Adds session variable $_SESSION['nricInvalid'] = TRUE if NRIC/FIN not valid.
+			INPUT: $isAdd. Determines add or edit action, 
+					also make use of $_POST['NRIC'].
+			OUTPUT: isAdd = TRUE:			
+					Adds session variable $_SESSION['nricInvalid'] = TRUE if NRIC/FIN not valid.
 					If that check passes, adds session variable $_SESSION['nricExists'] = TRUE if NRIC/FIN already exists in database (NOT IMPLEMENTED)
 					Session variables NOT PRESENT if it passes the checks.
+					
+					isAdd = FALSE:
+					Use global variables $nricInvalid = TRUE instead of creating session variable.
 	*/
-	function checkNRIC() {
+	function checkNRIC($isAdd) {
 		global $errorsPresent;
+		global $nricInvalid;
+		
 		$nric = $_POST['NRIC'];
 		
 		
@@ -181,7 +230,11 @@
 		}
 		
 		if ($errorDetected) {
-			$_SESSION['nricInvalid'] = TRUE;
+			if ($isAdd) {
+				$_SESSION['nricInvalid'] = TRUE;
+			} else {
+				$nricInvalid = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
@@ -193,72 +246,114 @@
 			FUNCTIONALITY: Performs the following check:
 				1) First and Last Name String complies with the following regex: /^[\p{L}\s'.-]+$/
 				For explanation of regex, see https://regex101.com/r/rT1exI/1
-			INPUT: NONE. Use $_POST['firstname'] AND $_POST['lastname'].
-			OUTPUT: Adds session variable $_SESSION['[first(AND|OR)last]NameErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+			INPUT: $isAdd. Determines add or edit action, 
+					also make use of $_POST['firstname'] AND $_POST['lastname'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['[first(AND|OR)last]NameErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use global variables $[first(AND|OR)last]NameErr = TRUE instead of creating session variable.
 	*/
-	function checkFirstAndLastName() {
+	function checkFirstAndLastName($isAdd) {
 		global $errorsPresent;
+		global $firstNameErr;
+		global $lastNameErr;
 		
 		if (!preg_match("/^[\p{L}\s'.-]+$/", $_POST['firstname'])) {
-			$_SESSION['firstNameErr'] = TRUE;
+			if ($isAdd) {
+				$_SESSION['firstNameErr'] = TRUE;
+			} else {
+				$firstNameErr = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if (!preg_match("/^[\p{L}\s'.-]+$/", $_POST['lastname'])) {
-			$_SESSION['lastNameErr'] = TRUE;
+			if ($isAdd) {
+				$_SESSION['lastNameErr'] = TRUE;
+			} else {
+				$lastNameErr = TRUE;
+			}
 			$errorsPresent = "YES";
 		} 
 	}
 	
 	/*
-		checkGender():
-			FUNCTIONALITY: Perform user type check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
-			INPUT: NONE. Use $_POST['usertype'].
-			OUTPUT: Adds session variable $_SESSION['invalidType'] = TRUE if value is neither 'Patient' nor 'Therapist'.
+		checkGender($isAdd):
+			FUNCTIONALITY: Perform gender value check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['gender'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['invalidGender'] = TRUE if value is invalid.
+					
+					$isAdd = FALSE:
+					Use global variables $invalidGender = TRUE instead of creating session variable.
 			
 	*/	
-	function checkGender() {
+	function checkGender($isAdd) {
 		global $errorsPresent;
+		global $invalidGender;
 		
 		if (!($_POST['gender'] === "M" || $_POST['gender'] === "F")) {
-			$_SESSION['invalidGender'] = TRUE;
+			if ($isAdd) {
+				$_SESSION['invalidGender'] = TRUE;
+			} else {
+				$invalidGender = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 	}
 	
 	/*
-		checkBloodType():
+		checkBloodType($isAdd):
 			FUNCTIONALITY: Performs blood type check. Since this field has only 8 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
-			INPUT: NONE. Use $_POST['bloodtype'].
-			OUTPUT: Adds session variable $_SESSION['invalidBlood'] = TRUE if value is not in the dropdown list.
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['bloodtype'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['invalidBlood'] = TRUE if value is not in the dropdown list.
+					
+					$isAdd = FALSE:
+					Use global variables $invalidBlood = TRUE instead of creating session variable.					
 	*/
-	function checkBloodType() {
+	function checkBloodType($isAdd) {
 		global $errorsPresent;
+		global $invalidBlood;
 		
 		$bTypeArr = array("O+", "O-", "A+", "A-", "B+", "B-", "AB+", "AB-");
 		
 		if (!in_array($_POST['bloodtype'], $bTypeArr, TRUE)) {
-			$_SESSION['invalidBlood'] = TRUE; //failed check
+			if ($isAdd) {
+				$_SESSION['invalidBlood'] = TRUE; //failed check
+			} else {
+				$invalidBlood = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 	}
 	
 	/*
-		checkDOB():
+		checkDOB($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) If the date format supplied is valid (yyyy-mm-dd). Modern HTML5 browsers, except firefox, will definitely pass this as it supports type="date".
 				
 				The regex expression to check (URL: https://regex101.com/r/ChegrJ/1 ): /^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/
 				
 				Checks for the format, number of days in respective months. However, it does not check whether is it a leap year. Will perform manual check on it.
-			INPUT: NONE. Use $_POST['dob'].
-			OUTPUT: Add session variable $_SESSION['dobErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['dob'].
+			OUTPUT: $isAdd = TRUE: 
+					Add session variable $_SESSION['dobErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use global variables $dobErr = TRUE instead of creating session variable.	
 	*/
-	function checkDOB() {
+	function checkDOB($isAdd) {
 		global $errorsPresent;
+		global $dobErr;
 		
 		if (strlen($_POST['dob']) != 10 OR !preg_match("/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/", $_POST['dob'])) { //perform initial format check
-			$_SESSION['dobErr'] = TRUE;
+			if ($isAdd) { 
+				$_SESSION['dobErr'] = TRUE;
+			} else {
+				$dobErr = TRUE;
+			}
 			$errorsPresent = "YES";
 		} else { //check cleared. Now to determine state of leap year.
 			$year = substr($_POST['dob'], 0, 4);
@@ -267,7 +362,11 @@
 			
 			if ($month === "02" && $day === "29") { //if it is feb 29, check for valid year
 				if (!((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)))) { //if not valid year
-					$_SESSION['dobErr'] = TRUE;
+					if ($isAdd) { 
+						$_SESSION['dobErr'] = TRUE;
+					} else {
+						$dobErr = TRUE;
+					}
 					$errorsPresent = "YES";
 				}
 			}
@@ -275,28 +374,47 @@
 	}
 	
 	/*
-		checkContactNumber():
+		checkContactNumber($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) Ensures that the value entered is valid for a contact number (8-digit numeric).
 				2) If contact2 and contact3 are not empty, check them too.
-			INPUT: NONE. Use $_POST['contact1'], $_POST['contact2'] and $_POST['contact3']
-			OUTPUT: Add relevant session variable(s) if check fails (see comments in function for listing). Session variable(s) NOT PRESENT if it passes the checks.
+			INPUT:  $isAdd. Determines add or edit action, also make use of $_POST['contact1'], $_POST['contact2'] and $_POST['contact3']
+			OUTPUT: $isAdd = TRUE:
+					Add relevant session variable(s) if check fails (see comments in function for listing). Session variable(s) NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use respective global variables instead of creating session variable.
 	*/
-	function checkContactNumber() {
+	function checkContactNumber($isAdd) {
 		global $errorsPresent;
+		global $contact1Err;
+		global $contact2Err;
+		global $contact3Err;
 		
 		if (isContactNumberInvalid($_POST['contact1']) == TRUE) {
-			$_SESSION['contact1Err'] = TRUE; //sets the session variable for contact1's error
+			if ($isAdd) {
+				$_SESSION['contact1Err'] = TRUE; //sets the session variable for contact1's error
+			} else {
+				$contact1Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if (!empty($_POST['contact2']) && isContactNumberInvalid($_POST['contact2'])){
-			$_SESSION['contact2Err'] = TRUE; //sets the session variable for contact2's error
+			if ($isAdd) {
+				$_SESSION['contact2Err'] = TRUE; //sets the session variable for contact2's error
+			} else {
+				$contact2Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if (!empty($_POST['contact3']) && isContactNumberInvalid($_POST['contact3'])) {
-			$_SESSION['contact3Err'] = TRUE; //sets the session variable for contact3's error
+			if ($isAdd) {
+				$_SESSION['contact3Err'] = TRUE; //sets the session variable for contact3's error
+			} else {
+				$contact3Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 	}
@@ -317,29 +435,48 @@
 	}
 	
 	/*
-		checkAddress():
+		checkAddress($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) Ensure that the address string is alphanumeric only, with space character, # and - as exceptions.
 				2) The minimum length of string should be at least 6 (arbitary, can adjust when needed).
 				3) If address2 and address3 are not empty, check them too.
-			INPUT: NONE. Use $_POST['address1'], $_POST['address2'] and $_POST['address3']
-			OUTPUT: Add relevant session variable(s) if check fails (see comments in function for listing). Session variable(s) NOT PRESENT if it passes the checks.
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['address1'], $_POST['address2'] and $_POST['address3']
+			OUTPUT: $isAdd = TRUE:
+					Add relevant session variable(s) if check fails (see comments in function for listing). Session variable(s) NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use respective global variables instead of creating session variable.
 	*/
-	function checkAddress() {
+	function checkAddress($isAdd) {
 		global $errorsPresent;
+		global $addr1Err;
+		global $addr2Err;
+		global $addr3Err;
 		
 		if (isAddressInvalid($_POST['address1']) == TRUE) {
-			$_SESSION['addr1Err'] = TRUE; //sets the session variable for address1's error
+			if ($isAdd) {
+				$_SESSION['addr1Err'] = TRUE; //sets the session variable for address1's error
+			} else {
+				$addr1Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if ((!empty($_POST['address2']) && isAddressInvalid($_POST['address2'])) || (empty($_POST['address2']) && !empty($_POST['zipcode2']))){
-			$_SESSION['addr2Err'] = TRUE; //sets the session variable for address2's error
+			if ($isAdd) {
+				$_SESSION['addr2Err'] = TRUE; //sets the session variable for address2's error
+			} else {
+				$addr2Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if ((!empty($_POST['address3']) && isAddressInvalid($_POST['address3'])) || (empty($_POST['address3']) && !empty($_POST['zipcode3']))){
-			$_SESSION['addr3Err'] = TRUE; //sets the session variable for address3's error
+			if ($isAdd) {
+				$_SESSION['addr3Err'] = TRUE; //sets the session variable for address3's error
+			} else {
+				$addr3Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 	}
@@ -360,31 +497,51 @@
 	}
 	
 	/*
-		checkZip():
+		checkZip($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) String consists of all numbers
 				2) String is exactly 6 characters in length
 				3) If address2 and address3 are not empty, perform checks on zipcode2 and zipcode3 too.
-			INPUT: NONE. Use $_POST['zipcode1'], $_POST['zipcode2'] and $_POST['zipcode3']
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['zipcode1'], $_POST['zipcode2'] and $_POST['zipcode3']
+			OUTPUT: $isAdd = TRUE:
+					Add relevant session variable(s) if check fails (see comments in function for listing). Session variable(s) NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use respective global variables instead of creating session variable.
 	*/
-	function checkZip() {
+	function checkZip($isAdd) {
 		global $errorsPresent;
+		global $zip1Err;
+		global $zip2Err;
+		global $zip3Err;
 		
 		if (isZipcodeInvalid($_POST['zipcode1']) == TRUE) {
-			$_SESSION['zip1Err'] = TRUE; //sets the session variable for zipcode1's error
+			if ($isAdd) {
+				$_SESSION['zip1Err'] = TRUE; //sets the session variable for zipcode1's error
+			} else {
+				$zip1Err = TRUE;
+			}
 			$errorsPresent = "YES";
 		}
 		
 		if (!empty($_POST['address2'])) { //if address2 field is not empty, check zipcode2
 			if (isZipcodeInvalid($_POST['zipcode2']) == TRUE) {
-				$_SESSION['zip2Err'] = TRUE; //sets the session variable for zipcode2's error
+				if ($isAdd) {
+					$_SESSION['zip2Err'] = TRUE; //sets the session variable for zipcode2's error
+				} else {
+					$zip2Err = TRUE;
+				}
 				$errorsPresent = "YES";
 			}
 		}
 		
 		if (!empty($_POST['address3'])) { //if address3 field is not empty, check zipcode3
 			if (isZipcodeInvalid($_POST['zipcode3']) == TRUE) {
-				$_SESSION['zip3Err'] = TRUE; //sets the session variable for zipcode3's error
+				if ($isAdd) {
+					$_SESSION['zip3Err'] = TRUE; //sets the session variable for zipcode3's error
+				} else {
+					$zip3Err = TRUE;
+				}
 				$errorsPresent = "YES";
 			}
 		}
@@ -405,6 +562,132 @@
 		}
 	}
 	
+?>
+
+<?php
+	// THIS SECTION HAS ONLY 1 FUNCTION - TO PRINT OUT THE ERROR MESSAGES ARISING FROM EDIT USER
+	
+	/*
+		generateEditUserErrorMsg():
+			FUNCTIONALITY: Method gets called if there are errors present. The error messages will be generated (and echoed) here.
+			INPUT: NONE. Use the global variables.
+			OUTPUT: Echos out the respective error messages.
+	*/
+	function generateEditUserErrorMsg() {
+		global $emptyField;
+		global $invalidType;
+		global $usernameErr;
+		global $usernameExists;
+		global $pwLengthErr;
+		global $pwDiffErr;
+		global $nricInvalid;
+		global $firstNameErr;
+		global $lastNameErr;
+		global $invalidGender;
+		global $invalidBlood;
+		global $dobErr;
+		global $contact1Err;
+		global $contact2Err;
+		global $contact3Err;
+		global $addr1Err;
+		global $addr2Err;
+		global $addr3Err;
+		global $zip1Err;
+		global $zip2Err;
+		global $zip3Err;
+		
+		echo '
+	<div class="error">
+		<table>
+			<tr><td><img src="img/error.png" height="40" width="40"></td><td>Fix The Following Fields:</td></tr>
+		</table>
+		<table>'."\n";
+		if ($invalidType) {
+			echo "\t\t\t" . '<tr><td><b>Patient or Therapist:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+		}
+		
+		if ($usernameExists) {
+			echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Username already exists.<br/></td></tr>' . "\n";
+		}
+		
+		if ($usernameErr) {
+			echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Only alphanumeric characters allowed.<br/></td></tr>' . "\n";
+		}
+		
+		if ($pwLengthErr) {
+			echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Minimum password length must be at least 8.<br/></td></tr>' . "\n";
+		}
+		
+		if ($pwDiffErr) {
+			echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Password fields do not match.<br/></td></tr>' . "\n";
+		}
+		
+		if ($nricInvalid) {
+			echo "\t\t\t" . '<tr><td><b>NRIC/FIN:</b>&emsp;Invalid value entered. Please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($firstNameErr) {
+			echo "\t\t\t" . '<tr><td><b>First Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($lastNameErr) {
+			echo "\t\t\t" . '<tr><td><b>Last Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+	
+		if ($invalidGender) {
+			echo "\t\t\t" . '<tr><td><b>Gender:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+		}
+		
+		if ($invalidBlood) {
+			echo "\t\t\t" . '<tr><td><b>Blood Type:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+		}
+		
+		if ($dobErr) {
+			echo "\t\t\t" . '<tr><td><b>Date of Birth:</b>&emsp;Invalid birthdate, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($contact1Err) {
+			echo "\t\t\t" . '<tr><td><b>Main Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($contact2Err) {
+			echo "\t\t\t" . '<tr><td><b>Second Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($contact3Err) {
+			echo "\t\t\t" . '<tr><td><b>Third Contact Number:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($addr1Err) {
+			echo "\t\t\t" . '<tr><td><b>Main Address:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($addr2Err) {
+			echo "\t\t\t" . '<tr><td><b>Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($addr3Err) {
+			echo "\t\t\t" . '<tr><td><b>Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($zip1Err) {
+			echo "\t\t\t" . '<tr><td><b>Zipcode for Address 1:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($zip2Err) {
+			echo "\t\t\t" . '<tr><td><b>Zipcode for Address 2:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($zip3Err) {
+			echo "\t\t\t" . '<tr><td><b>Zipcode for Address 3:</b>&emsp;Empty or Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+		
+		if ($emptyField) {
+			echo "\t\t\t" . '<tr><td><b>Note:</b>&emsp;One or more required fields are empty. Ensure that they are filled up.<br/></td></tr>' . "\n";
+		}
+		
+		echo '</table></div><br/>';
+	}
 ?>
 
 <?php	
@@ -527,35 +810,56 @@
 		}
 		// sleep for 1 second
 		sleep(1);				
-		
-		// FORM data will be here. Perform validation
-		
+				
 		//Perform empty fields check. $emptyField
-		checkEmptyFields('edit');
+		checkEmptyFields(FALSE);
 		
+		//Checks for error after required fields are filled in.
 		if ($errorsPresent === "NO") {
-			//Perform usertype check
-			//checkUserType(); UNCOMMENT THIS LATER. HANDLE THAT METHOD TOO.
 			
-			//Perform username check. $usernameErr, $usernameExists
-			checkUserName('edit');
+			//Perform usertype check
+			checkUserType(FALSE);
+			
+			//Perform username check.
+			$uidCheck = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']));
+			
+			if ($_SESSION['editUserID'] !== $uidCheck->uid) {
+				checkUserName(FALSE);
+			}
+			
+			//Perform password check if password field is filled.
+			if (!empty($_POST['password'])) {
+				checkPassword(FALSE);
+			}
+		
+			//Perform NRIC check
+			checkNRIC(FALSE);
+			
+			//Perform firstname check
+			checkFirstAndLastName(FALSE);
+			
+			//Perform gender field check
+			checkGender(FALSE);
+			
+			//Perform blood type check
+			checkBloodType(FALSE);
+		
+			//Perform dob check
+			checkDOB(FALSE);
+		
+			//Perform contact number checks
+			checkContactNumber(FALSE);
+		
+			//Perform address checks
+			checkAddress(FALSE);
+		
+			//Perform postal code checks
+			checkZip(FALSE);
 		}
 		
-		// ERROR Table, perform if-else to generate.
+		//ERROR Table, perform if statements to generate.
 		if ($errorsPresent === "YES") {
-			echo '
-	<div class="error">
-		<table>
-			<tr><td><img src="img/error.png" height="40" width="40"></td><td>Fix The Following Fields:</td></tr>
-		</table>
-		<table>'."\n";
-	
-		if ($usernameErr) {
-			echo "\t\t\t" . '<tr><td><b>Username:</b>&emsp;Only alphanumeric characters allowed.<br/></td></tr>' . "\n";
-		}			
-		
-		echo '</table></div><br/>';
-		
+			generateEditUserErrorMsg();	
 		} else {
 			echo 'Ready!';
 		}
@@ -573,41 +877,42 @@
 		}		
 		
 		//Perform empty fields check
-		checkEmptyFields('add');
+		checkEmptyFields(TRUE);
 		
+		//Checks for error after required fields are filled in.
 		if ($errorsPresent === "NO") {
 			//Perform usertype check
-			checkUserType();
+			checkUserType(TRUE);
 			
 			//Perform username check
-			checkUserName('add');
+			checkUserName(TRUE);
 		
 			//Perform password check
-			checkPassword();
+			checkPassword(TRUE);
 		
 			//Perform NRIC check
-			checkNRIC();
+			checkNRIC(TRUE);
 			
 			//Perform firstname check
-			checkFirstAndLastName();
+			checkFirstAndLastName(TRUE);
 			
 			//Perform gender field check
-			checkGender();
+			checkGender(TRUE);
 			
 			//Perform blood type check
-			checkBloodType();
+			checkBloodType(TRUE);
 		
 			//Perform dob check
-			checkDOB();
+			checkDOB(TRUE);
 		
 			//Perform contact number checks
-			checkContactNumber();
+			checkContactNumber(TRUE);
 		
 			//Perform address checks
-			checkAddress();
+			checkAddress(TRUE);
 		
 			//Perform postal code checks
-			checkZip();
+			checkZip(TRUE);
 		}
 				
 		if ($errorsPresent === "YES") {
