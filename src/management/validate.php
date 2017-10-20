@@ -35,6 +35,7 @@
 	$zip3Err = FALSE;
 	
 ?>
+
 <?php
 	// THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
 	
@@ -120,10 +121,18 @@
 		
 		//Check whether username exists in DB.
 		if (!isset($_SESSION['usernameErr']) || !$usernameErr) {
-			$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+			$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+			
+			if ($result === FALSE) {
+				if ($isAdd) {
+					failedDatabaseConnection('add');
+				} else {
+					failedDatabaseConnection('edit');
+				}
+			}
 			
 			$decode = json_decode($result);
-			
+						
 			if (isset($decode->uid)) {
 				if ($isAdd) {
 					$_SESSION['usernameExists'] = TRUE;
@@ -192,6 +201,10 @@
 	function checkNRIC($isAdd) {
 		global $errorsPresent;
 		global $nricInvalid;
+		
+		if (!$isAdd) { //if we are editing user, skip this check.
+			return;
+		}
 		
 		$nric = $_POST['NRIC'];
 		
@@ -690,6 +703,42 @@
 	}
 ?>
 
+<?php
+	// THIS SECTION REDIRECTS BACK TO THE CALLED PAGE IF DATABASE CONNECTION IS DOWN.
+	// IT ONLY HAS ONE FUNCTION
+	
+	/*
+		failedDatabaseConnection($mode):
+			FUNCTIONALITY: Method gets called if DB connection failed.
+			INPUT: $mode. Determines which sever input it came from (add, edit, delete)
+			OUTPUT: Triggers relevant session error values and redirect back to the page it was previously.
+	*/
+	function failedDatabaseConnection($mode) {
+		switch ($mode) {
+			case 'delete':
+				$_SESSION['printThirdArea'] = TRUE;
+				$_SESSION['successfulDeletion'] = FALSE;
+				header("location: console.php?navi=delete");
+				exit();
+				break;
+			case 'add':
+				$_SESSION['generateAddStatus'] = TRUE;
+				$_SESSION['addUserSuccess'] = FALSE;
+				header("location: console.php?navi=add");
+				exit();
+				break;
+			case 'edit':
+				$_SESSION['generateEditStatus'] = TRUE;
+				$_SESSION['editUserSuccess'] = FALSE;
+				
+				//different from others as we are using AJAX
+				echo "<script>window.location = 'console.php?navi=edit'</script>";
+				exit();
+				break;
+		}
+	}
+?>
+
 <?php	
 	// THIS SECTION DEALS WITH THE ACTUAL POST REQUEST THAT ARRIVE
 
@@ -708,8 +757,13 @@
 		
 		//Attempt to retrieve user from database
 		$validForDeletion = FALSE;
-		$resultDel = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
-		$decodeDel = json_decode($resultDel);
+		$resultDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+		
+		if ($resultDel === FALSE) {
+			failedDatabaseConnection('delete');
+		}
+		
+		$decodeDel = json_decode($resultDel);		
 		
 		if (isset($decodeDel->uid)) {
 			$validForDeletion = TRUE;
@@ -746,7 +800,12 @@
 		
 		//Simple validation to ensure that it is really the selected user.
 		//Also helps if multiple queried delete tabs are opened. Delete will fail if different users are queried.
-		$cfmDel = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['cfmUserName']);
+		$cfmDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['cfmUserName']);
+		
+		if ($cfmDel === FALSE) {
+			failedDatabaseConnection('delete');
+		}
+		
 		$cfmDelResult = json_decode($cfmDel);
 		
 		if (isset($cfmDelResult->uid) && ($cfmDelResult->uid === $_SESSION['delUserID'])) {
@@ -755,9 +814,13 @@
 		
 		if ($readyToDelete) {
 			//Perform User Deletion
-			$resultDel2 = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' 
+			$resultDel2 = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' 
 				. $_SESSION['delUserID']);		
 				
+			if ($resultDel2 === FALSE) {
+				failedDatabaseConnection('delete');
+			}
+
 			$decodeDel2 = json_decode($resultDel2);
 			if ($decodeDel2 -> result === 1) { //deletion successful
 				$_SESSION['successfulDeletion'] = TRUE;
@@ -787,7 +850,13 @@
 		sleep(1);
 				
 		//Double-check from DB
-		$result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['editUserName']));
+		$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['editUserName']);
+		
+		if ($connection === FALSE) {
+			failedDatabaseConnection('edit');
+		}
+		
+		$result = json_decode($connection);
 		
 		//value received, php include 2nd form if user exists...
 		if (isset($result->uid)) {
@@ -808,8 +877,12 @@
 			header("location: console.php");
 			exit();
 		}
-		// sleep for 1 second
-		sleep(1);				
+		//sleep for 1 second
+		sleep(1);
+		
+		//Check attempt to change username and password
+		$isUsernameChanged = FALSE;
+		$isPasswordChanged = FALSE;
 				
 		//Perform empty fields check. $emptyField
 		checkEmptyFields(FALSE);
@@ -817,51 +890,253 @@
 		//Checks for error after required fields are filled in.
 		if ($errorsPresent === "NO") {
 			
+			//Retrieve Current Info Again
+			$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
+			
+			if ($connection === FALSE) {
+				failedDatabaseConnection('edit');
+			}
+			
+			$editCurrentInfo = json_decode($connection);
+			
+			//Check that at least 1 value is changed. If not display a message.			
+			//Set up the variable
+			$valuesChanged = FALSE;
+			
 			//Perform usertype check
-			checkUserType(FALSE);
+			if (($editCurrentInfo->qualify == 1 && $_POST['usertype'] !== 'Therapist') 
+				|| ($editCurrentInfo->qualify == 0 && $_POST['usertype'] !== 'Patient')) {
+				$valuesChanged = TRUE;
+				checkUserType(FALSE);
+			}
 			
-			//Perform username check.
-			$uidCheck = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']));
-			
-			if ($_SESSION['editUserID'] !== $uidCheck->uid) {
+			//Perform username check if username is modified.	
+			if ($editCurrentInfo->username !== $_POST['username']) {
+				$valuesChanged = TRUE;
+				$isUsernameChanged = TRUE;
 				checkUserName(FALSE);
 			}
 			
 			//Perform password check if password field is filled.
 			if (!empty($_POST['password'])) {
+				$valuesChanged = TRUE;
+				$isPasswordChanged = TRUE;
 				checkPassword(FALSE);
 			}
 		
-			//Perform NRIC check
-			checkNRIC(FALSE);
+			//Perform NRIC check if it is modified.
+			if ($editCurrentInfo->nric !== $_POST['NRIC'] ) {
+				$valuesChanged = TRUE;
+				checkNRIC(FALSE);
+			}
 			
-			//Perform firstname check
-			checkFirstAndLastName(FALSE);
+			//Perform firstname and lastname check if either or both is modified.
+			if ($editCurrentInfo->firstname !== $_POST['firstname'] 
+				|| $editCurrentInfo->lastname !== $_POST['lastname']) {
+				$valuesChanged = TRUE;
+				checkFirstAndLastName(FALSE);
+			}
 			
-			//Perform gender field check
-			checkGender(FALSE);
+			//Perform gender field check if it is modified.
+			if ($editCurrentInfo->gender !== $_POST['gender']) {	
+				$valuesChanged = TRUE;
+				checkGender(FALSE);
+			}
 			
-			//Perform blood type check
-			checkBloodType(FALSE);
+			//Perform blood type check if it modified.
+			if ($editCurrentInfo->bloodtype !== $_POST['bloodtype']) {
+				$valuesChanged = TRUE;
+				checkBloodType(FALSE);
+			}
 		
-			//Perform dob check
-			checkDOB(FALSE);
+			//Perform dob check if it is modified
+			if ($editCurrentInfo->dob !== $_POST['dob']) {
+				$valuesChanged = TRUE;
+				checkDOB(FALSE);
+			}
 		
-			//Perform contact number checks
-			checkContactNumber(FALSE);
+			//Perform contact number checks if it is modifed
+			$updatedPhone = array($_POST['contact1'], $_POST['contact2'], $_POST['contact3']);
+			
+			for($i = 0; $i < 3; $i++) {
+				if (empty($updatedPhone[$i]) && $i != 0) {
+					$updatedPhone[$i] = NULL;
+				}
+				
+				if ($updatedPhone[$i] !== $editCurrentInfo->phone[$i]) {
+					$valuesChanged = TRUE;
+					checkContactNumber(FALSE);
+					break;
+				}
+			}
 		
-			//Perform address checks
-			checkAddress(FALSE);
+			//Perform address checks if it is modified
+			$updatedAddr = array($_POST['address1'], $_POST['address2'], $_POST['address3']);
+			
+			for($i = 0; $i < 3; $i++) {
+				if (empty($updatedAddr[$i]) && $i != 0) {
+					$updatedAddr[$i] = NULL;
+				}
+				
+				if ($updatedAddr[$i] !== $editCurrentInfo->address[$i]) {
+					$valuesChanged = TRUE;
+					checkAddress(FALSE);
+					break;
+				}
+			}
 		
-			//Perform postal code checks
-			checkZip(FALSE);
+			//Perform postal code checks if it is modified
+			$updatedZip = array($_POST['zipcode1'], $_POST['zipcode2'], $_POST['zipcode3']);
+			
+			for($i = 0; $i < 3; $i++) {
+				if ($editCurrentInfo->zipcode[$i] === 0) {
+					$editCurrentInfo->zipcode[$i] = "";
+				}
+				$stringValue = $editCurrentInfo->zipcode[$i];
+				if ($updatedZip[$i] !== "$stringValue") {
+					$valuesChanged = TRUE;
+					checkZip(FALSE);
+					break;
+				}
+			}
 		}
 		
 		//ERROR Table, perform if statements to generate.
 		if ($errorsPresent === "YES") {
 			generateEditUserErrorMsg();	
-		} else {
-			echo 'Ready!';
+		} else { //If form haz no errors.
+			if (!$valuesChanged) {
+				echo "<h2>NOTICE: The values are not changed.</h2><br/>";
+			} else { //Success. Prepare to update DB.
+			
+				//Setup new variables to pass to DB
+				$newUserName;
+				$newPassword;
+				$newSalt;
+				$newPhone;
+				$newAddress;
+				$newZipCode;
+				$newQualify;
+				
+				if ($isUsernameChanged) {
+					$newUserName = $_POST['username'];
+				} else {
+					$newUserName = $editCurrentInfo->username;
+				}
+				
+				if ($isPasswordChanged) {
+					//Separate salt from password, perform SHA256 on bcrypt hash too.
+					$newPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
+					//first 29 characters of bcrypt hash is the salt.
+					$newSalt = substr($newPassword, 0, 29);
+					//finally, SHA256 the bcrypt string.
+					$newPassword = hash('SHA256', $newPassword);
+				} else {
+					$newPassword = $editCurrentInfo->password;
+					$newSalt = $editCurrentInfo->salt;
+				}
+				
+				//Set up array of phone numbers (Handle empty fields too)
+				$newPhone = array($_POST['contact1']);
+			
+				if (!empty(trim($_POST['contact2']))) {
+					array_push($newPhone, $_POST['contact2']);
+				} else {
+					array_push($newPhone, NULL);
+				}
+			
+				if (!empty(trim($_POST['contact3']))) {
+					array_push($newPhone, $_POST['contact3']);
+				} else {
+					array_push($newPhone, NULL);
+				}
+				
+				//Set up array of addresses (Handle empty fields too)
+				$newAddress = array($_POST['address1']);
+			
+				if (!empty(trim($_POST['address2']))) {
+					array_push($newAddress, $_POST['address2']);
+				} else {
+					array_push($newAddress, NULL);
+				}
+			
+				if (!empty(trim($_POST['address3']))) {
+					array_push($newAddress, $_POST['address3']);
+				} else {
+					array_push($newAddress, NULL);
+				}
+				
+				//Set up array of zip codes (Handle empty fields too)
+				$newZipCode = array(intval($_POST['zipcode1']));
+			
+				if (!empty(trim($_POST['zipcode2']))) {
+					array_push($newZipCode, intval($_POST['zipcode2']));
+				} else {
+					array_push($newZipCode, 0);
+				}
+			
+				if (!empty(trim($_POST['zipcode3']))) {
+					array_push($newZipCode, intval($_POST['zipcode3']));
+				} else {
+					array_push($newZipCode, 0);
+				}
+				
+				//Check therapist value. 1 = TRUE, 0 = FALSE.
+				$newQualify = 0;
+			
+				if ($_POST['usertype'] === "Therapist" ) {
+					$newQualify = 1;
+				}
+				
+				//prepare edit db statement and execute POST.....
+				$updateToDB = array (
+					"username"	=> $newUserName,
+					"password"	=> $newPassword,
+					"salt" 		=> $newSalt,
+					"firstName"	=> $_POST['firstname'],
+					"lastName"	=> $_POST['lastname'],
+					"nric"		=> $_POST['NRIC'],
+					"dob"		=> $_POST['dob'],
+					"gender"	=> $_POST['gender'],
+					"phone"		=> $newPhone,
+					"address"	=> $newAddress,
+					"zipcode"	=> $newZipCode,
+					"qualify"	=> $newQualify,		//this is NOT a string value.
+					"bloodtype"	=> $_POST['bloodtype'],
+					"secret"	=> "someSecretLUL",		//Stub. Will update this.
+					"nfcid"		=> NULL,				//Stub(?)
+					"uid"		=> $editCurrentInfo->uid
+				);
+				
+				$updateToDB_json = json_encode($updateToDB);
+				$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update');
+				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
+				curl_setopt($ch, CURLOPT_POSTFIELDS, $updateToDB_json);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
+					'Content-Type: application/json',
+					'Content-Length: ' . strlen($updateToDB_json))
+				);
+				
+				//Establish connection to DB server and get result.
+				$connectionEdit = @curl_exec($ch);
+			
+				if ($connectionEdit === FALSE) {
+					failedDatabaseConnection('edit');
+				}
+			
+				$decodeEdit = json_decode($connectionEdit);
+				
+				//Result handling.
+				$_SESSION['generateEditStatus'] = TRUE;
+				$_SESSION['editUserSuccess'] = FALSE;
+				
+				if ($decodeEdit->result == 1) {
+					$_SESSION['editUserSuccess'] = TRUE;
+				}
+				echo "<script>window.location = 'console.php?navi=edit'</script>";
+				exit();	
+			}
 		}
 		exit();
 	}
@@ -1022,8 +1297,8 @@
 				"username"	=> $_POST['username'],
 				"password"	=> $hashedPassword,
 				"salt" 		=> $salt,
-				"firstName"	=> $_POST['firstname'], //case sensitive
-				"lastName"	=> $_POST['lastname'],	//case sensitive
+				"firstName"	=> $_POST['firstname'],
+				"lastName"	=> $_POST['lastname'],
 				"nric"		=> $_POST['NRIC'],
 				"dob"		=> $_POST['dob'],
 				"gender"	=> $_POST['gender'],
@@ -1038,7 +1313,7 @@
 			
 			$addToDB_json = json_encode($addToDB);
 			$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create');
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");                                                              
+			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $addToDB_json);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
@@ -1047,18 +1322,22 @@
 			);
 			
 			//Establish connection to DB server and get result.
-			$decodeAdd = json_decode(curl_exec($ch));
+			$connectionAdd = @curl_exec($ch);
+			
+			if ($connectionAdd === FALSE) {
+				failedDatabaseConnection('add');
+			}
+			
+			$decodeAdd = json_decode($connectionAdd);
 			
 			//Result Handling
-			$_SESSION['addUserSuccess'] = FALSE;			
+			$_SESSION['addUserSuccess'] = FALSE;
+			$_SESSION['generateAddStatus'] = TRUE;			
+			
 			if ($decodeAdd->result == 1) {
 				$_SESSION['addUserSuccess'] = TRUE;
-			}			
-			$_SESSION['generateAddStatus'] = TRUE;
-			
-			//echo $addToDB_json;
-			//echo "<br/><br/>" . $decodeAdd->result;			
-			
+			}
+						
 			header("location: console.php?navi=add");
 			exit();			
 		}

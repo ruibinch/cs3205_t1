@@ -19,6 +19,27 @@
 	$_SESSION['latestAction'] = "EDIT";
 ?>
 <h1>Edit User</h1>
+
+<?php
+	// This code block generates the result of the edit to db functionality.
+if (isset($_SESSION['generateEditStatus']) && $_SESSION['generateEditStatus']) {
+	echo '
+	<div class="error" id="statusWindow">
+		<table>';
+		if ($_SESSION['editUserSuccess']) {
+			echo '<tr><td><img src="img/tick.png" height="40" width="40"></td><td>User profile has been successfully modified.</td></tr>';
+		} else {
+			echo '<tr><td><img src="img/cross.png" height="40" width="40"></td><td>ERROR: Failed to edit user.</td></tr>';
+		}		
+		echo '</table>';
+	echo '
+	</div>' . "\n";
+	unset($_SESSION['editUserSuccess']);
+	unset($_SESSION['generateEditStatus']);
+}
+?>
+
+<br/>
 <div class="contentField">
 <br/>
 <h2>Enter username to begin.</h2>
@@ -55,6 +76,7 @@
 	$(document).ready(function(){
 		$('#formEdit').on('submit', function(e){
 			$("#resultDiv").hide();
+			$("#statusWindow").hide();
 			$("#loaderDiv").show();
 			e.preventDefault();
 			$.ajax({
@@ -74,27 +96,3 @@
 		});
 	});
 </script>
-<?php
-	/*
-	
-	<form action="validate.php" method="post">
-		Joker: <input type="name" name="NRIC" required>
-		<br/><br/>
-		<input type="submit">
-		<input type="hidden" name="action" value="edit">
-	</form>
-
-<br/><br/>
-	
-	if (isset($_SESSION['editfield'])) {
-		echo "You have entered " . $_SESSION['editfield'] . " previously.\n";
-		unset($_SESSION['editfield']);
-		
-		if (isset($_SESSION['namecheck']) && $_SESSION['namecheck']) {
-			echo "Passed.";
-		} else {
-			echo "Failed.";
-		}
-	}
-	*/
-?>

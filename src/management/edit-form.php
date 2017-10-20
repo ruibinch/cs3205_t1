@@ -13,12 +13,19 @@
 
 <?php
 	//Valid uid set as session variable previously. Will now retreieve current user info.
+	$connection = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
 	
-	$result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']));
+	//IF database connection failed
+	if ($connection === FALSE) {
+		$_SESSION['generateEditStatus'] = TRUE;
+		$_SESSION['editUserSuccess'] = FALSE;
+		echo "<script>window.location = 'console.php?navi=edit'</script>";
+		exit();
+	}	
 	
-	//handle zipcodes as they are stored as integer:
+	$result = json_decode($connection);
 	
-	
+	//handle zipcodes as they are stored as integer:	
 	if ($result->zipcode[1] == 0) {
 		$z2 = "";
 	} else {
@@ -35,6 +42,7 @@
 <br/>
 <h2>Edit the respective information and submit.</h2>
 <h2>To change password, simply type in the new password.</h2>
+<h2>Scroll down and click submit to view error messages (if any).</h2>
 <h2 class="errorDel">You are now modifying uid: <?php echo $result->uid;?></h2>
 <form id="formEdit2" class="container">
 	<div class="left">

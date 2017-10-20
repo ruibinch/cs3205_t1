@@ -21,7 +21,7 @@
 		if ($_SESSION['successfulDeletion']) {
 			echo 'User Account Deleted. Farewell.';
 		} else {
-			echo 'Action Failed. Ensure that you do not have multiple delete tabs opened.';
+			echo 'Failed to delete user.';
 		}
 		echo '</h3>' . "\n";
 		
@@ -29,6 +29,7 @@
 		unset($_SESSION['printThirdArea']);
 	}
 ?>
+<br/>
 <div class="contentField">
 	<br/>
 	<h2>Enter username to begin.</h2>
