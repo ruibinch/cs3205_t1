@@ -14,6 +14,12 @@
         $num_records = 0;
     }
 
+    // Retrieves the user JSON object based on the uid
+    function getJsonFromUid($uid) {
+        $user_json_tmp = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $uid));
+        return $user_json_tmp;
+    }
+
 ?>
 
 <html>
@@ -22,6 +28,13 @@
     <head>
         <title>View Records</title>
         <link href="../css/main.css" rel="stylesheet">
+        <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
+            crossorigin="anonymous"></script>
     </head>
 
     <body>
@@ -30,28 +43,78 @@
             <h1>View Record<?php if ($num_records != 1) { ?>s<?php } ?> (<?php echo $num_records ?>):</h1>
             <hr style="margin-top:-15px">
 
-            <table class="main-table" id="recordsTable">
+            <table class="main-table"   >
                 <tr>
                     <th class = "first-col">S/N</th>
                     <th>Last Modified</th>
                     <th>Type</th>
                     <th>Title</th>
-                    <th class="last-col">Actions</th>
+                    <th style="text-align:right">Actions</th>
                 </tr>
-                <?php for ($i = 0; $i < $num_records; $i++) {
-                    $record = $records_list[$i];
-                    $record_id = $record->rid; ?>
+                <?php for ($i = 0; $i < $num_records; $i++) {   
+                    $record = $records_list[$i]; ?>
                     <tr>
                         <td class="first-col"><?php echo ($i + 1) . "." ?></td>
                         <td><?php echo $record->modifieddate ?></button></td>
                         <td><?php echo $record->type ?></td>
                         <td><?php echo $record->title ?></td>
-                        <td><a href="" style="color:blue">View</a></td>
+                        <td style="text-align:right">
+                            <input type="button" class="details" id="<?php echo $record->rid ?>" value="Details"/>
+                            <input type="button" class="consent" id="<?php echo $record->rid ?>" value="Permissions"/>
+                        </td>
                     </tr>
                 <?php } ?>
             </table>
-
 	    </div>
+
+        <div id="consentDialog"></div>
+
+        <script>
+
+            $(document).ready(function() {
+
+                $('#consentDialog').dialog({
+                    classes: {
+                        "ui-dialog": "consent"
+                    },
+                    width: 400,
+                    height: 400,
+                    autoOpen: false,
+                    resizable: false,
+                    draggable: true,
+                    modal: true,
+                    title: 'Consent Permissions',
+                    buttons: [
+                        {
+                            text: "Save",
+                            click: function() { $(this).dialog('close'); }
+                        },
+                        {
+                            text: "Cancel",
+                            click: function() { $(this).dialog('close'); }
+                        }
+                    ],
+                    open: function(event, ui) {
+                        $(this).load(
+                            'consent-dialog.php', 
+                            { "recordId": $(this).data('recordId'), "patientId": <?php echo $result->uid ?> }, 
+                            function(data) {
+                                
+                            }
+                        );
+                    }
+                });
+
+
+                $(document).on('click', 'input:button.consent', function() {
+                    $('#consentDialog')
+                        .data('recordId', $(this).attr('id'))
+                        .dialog('open');
+                });
+
+            });
+        
+        </script>
 
     </body>
 </html>

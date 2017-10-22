@@ -68,12 +68,32 @@
     //TODO: add CSRF validation
     function acceptTreatmentReq($treatmentId) {
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/update/' . $treatmentId));
+        createConsentPermissions($treatmentId);
         return $response->result;
     }
 
     function removeTreatmentReq($treatmentId) {
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
         return $response->result;
+    }
+
+    // ===============================================================================
+    //                             CONSENT RELATIONS
+    // ===============================================================================
+    
+    // Create consent permissions between the newly assigned therapist and the records of the patient; all defaulted to false
+    function createConsentPermissions($treatmentId) {
+        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $patientId = $response->patientId;
+        $therapistId = $response->therapistId;
+
+        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $patientId));
+        if (isset($patient_records_json->records)) {
+            $patient_records = $patient_records_json->records;
+            for ($i = 0; $i < count($patient_records); $i++) {
+                $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $patient_records[$i]->rid));
+            }
+        }
     }
 
     // ===============================================================================
