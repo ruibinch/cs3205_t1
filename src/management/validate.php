@@ -1,12 +1,16 @@
 <?php
 	//validate.php: Checks submitted form values and react accordingly.
 	
+	// TODO: change the dummy key here to the real key
+	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	
 	session_start();	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: /index.php");
+		header("Location: ../index.php");
 		exit();
 	}
+	
 	
 	//GLOBAL VARIABLES DECLARATION:
 	$errorsPresent = "NO"; //track whether are there any validation errors.

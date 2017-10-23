@@ -1,12 +1,25 @@
 <?php
+	//Destroys all session values once user steps into this page.
+	if (isset($_SESSION)) {
+		$_SESSION = array();
+			if (ini_get("session.use_cookies")) {
+				$params = session_get_cookie_params();
+				setcookie(session_name(), '', time() - 42000,
+					$params["path"], $params["domain"],
+					$params["secure"], $params["httponly"]
+					);
+			}
+		session_destroy();
+	}
+?>
 
+<?php
     $loginSystem = "Healthcare System";
     if (isset($_GET["to"])) {
         if ($_GET["to"] == "console") {
             $loginSystem = "Management Console";
         }
     }
-
 ?>
 
 <html>

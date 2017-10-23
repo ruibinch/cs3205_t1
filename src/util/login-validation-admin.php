@@ -3,25 +3,26 @@
 	//TODO: Implement JWT
 	//TODO: Implement Challenge-Response
 	
+	include_once 'jwt-admin.php';
+	
+	// TODO: store the jwt secret key to some place safe
+    $dummy_key = "dummykey";
+	
 	session_start();
+		
+	//DB Login..
+	$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/admin/' . $_POST['mgmt-username']);
 	
-	//WARNING: THESE ARE THE DEFAULT LOGIN DETAILS. THEY MUST BE REMOVED WHEN IT IS THE FINAL VERSION FOR SUBMISSION
-	$username = "team1";
-	$password = '$2y$10$ysODL/dUnmJaSHqLp4gz.uVQLFmExwWi1yRO/DYA4S6SxHg6Y0L7u';  //plaintext: mainecoon
-	
-	//Local login without DB.. will remove it... soon.
-	if ($_POST['mgmt-username'] === $username && password_verify($_POST['mgmt-password'], $password)) {
-		$_SESSION['loggedin'] = $username;
-		header("location: /management/console.php");
+	if ($result === FALSE) {
+		header("location: ../index.php");
 		exit();
 	}
-	
-	//DB Login..
-	$result = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/admin/' . $_POST['mgmt-username']);
 	
 	$decode = json_decode($result);
 	
 	if (isset($decode->username) && password_verify($_POST['mgmt-password'], $decode->password)) {
+		//TODO: change the dummy key here to the real key
+		setcookie("jwt", WebToken::getToken($decode->admin_id, $dummy_key),time()+3600, "/", null, true, true);
 		$_SESSION['loggedin'] = $decode->username;
 		header("location: /management/console.php");
 		exit();

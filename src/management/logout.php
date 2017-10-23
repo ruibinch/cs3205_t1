@@ -1,6 +1,13 @@
 <?php
 	//logout.php: Destroys all session and logout.
 	
+	include_once '../util/jwt-admin.php';
+	
+	// TODO: change the dummy key here to the real key
+	$result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	WebToken::refreshSecret($result->a_id);
+	setcookie("jwt", "", time()-3600, "/", null, true, true);
+		
 	//Adapted from: http://php.net/manual/en/function.session-destroy.php
 	
 	// Unset all of the session variables.

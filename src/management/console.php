@@ -3,13 +3,16 @@
 <?php
 	/* 
 		TODO:
-			- JWT Session
-			- Connection to DB using restful API
-			- Edit / Delete / Transaction / Validate
-			- Design (almost done..)
+			-Transaction
+			-CSRF
 	*/
 	
 	//console.php: management console's main page.
+	include_once '../util/jwt-admin.php';
+	
+	// TODO: change the dummy key here to the real key
+	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	
     session_start();
 	
 	if (!isset($_SESSION['loggedin'])) {
