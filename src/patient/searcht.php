@@ -32,8 +32,12 @@
     <head>
         <title>Search Therapists</title>
         <link href="../css/main.css" rel="stylesheet">
+        <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
         <script src="https://code.jquery.com/jquery-3.2.1.min.js"
             integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
             crossorigin="anonymous"></script>
     </head>
 
@@ -85,9 +89,37 @@
             </table>
 	    </div>
 
+        <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
+        <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
+
         <script>
             
             $(document).ready(function() {
+
+                $('#acknowledgementDialog').dialog({
+                    dialogClass: 'jqueryDialogNoTitle',
+                    width: 300,
+                    height: 80,
+                    autoOpen: false,
+                    resizable: false,
+                    draggable: false,
+                    position: { my: "center", at: "top" },
+                    show: {
+                        effect: 'fade',
+                        duration: 300
+                    },
+                    hide: {
+                        effect: 'fade',
+                        delay: 800
+                    },
+                    open: function() {
+                        $('#ackMessage').text($(this).data('message'));
+                        $(this).dialog('close');
+                    },
+                    close: function() {
+                        location.reload();
+                    }
+                });
 
                 $(document).on('click', '#sendTreatmentReq', function(e) {
                     $.ajax({
@@ -96,12 +128,15 @@
                         data: { "patientId": '<?php echo $patient_id ?>', "therapistId": $(this).val() }
                     }).done(function(response) {
                         if (response == 1) {
-                            alert("Treatment request sent");
+                            $('#acknowledgementDialog')
+                                .data('message', "Treatment request sent")
+                                .dialog('open');
                         } else {
-                            alert("Error in sending treatment request");
+                            $('#acknowledgementDialog')
+                                .data('message', "Error in sending treatment request")
+                                .dialog('open');
                         }
                     });
-                    location.reload();
                 });
 
             });

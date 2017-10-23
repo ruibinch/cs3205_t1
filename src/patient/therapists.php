@@ -27,7 +27,13 @@
     <head>
         <title>Therapist List</title>
         <link href="../css/main.css" rel="stylesheet">
-        <script	src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
+            crossorigin="anonymous"></script>
     </head>
 
     <body>
@@ -62,12 +68,40 @@
             </table>
 
             <button id="searchAllTherapists" class="login-btn" style="margin-top:80px">Search All Therapists</button>
+	    
+        </div>
 
-	    </div>
+        <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
+        <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
 
         <script>
 
             $(document).ready(function() {
+
+                $('#acknowledgementDialog').dialog({
+                    dialogClass: 'jqueryDialogNoTitle',
+                    width: 300,
+                    height: 80,
+                    autoOpen: false,
+                    resizable: false,
+                    draggable: false,
+                    position: { my: "center", at: "top" },
+                    show: {
+                        effect: 'fade',
+                        duration: 300
+                    },
+                    hide: {
+                        effect: 'fade',
+                        delay: 800
+                    },
+                    open: function() {
+                        $('#ackMessage').text($(this).data('message'));
+                        $(this).dialog('close');
+                    },
+                    close: function() {
+                        location.reload();
+                    }
+                });
 
                 $('#removeTherapist').click(function() {
                     $.ajax({
@@ -76,11 +110,14 @@
                         data: { "removeTreatmentId": $(this).val() }
                     }).done(function(response) {
                         if (response == 1) {
-                            alert("Therapist removed");
+                            $('#acknowledgementDialog')
+                                .data('message', "Therapist removed")
+                                .dialog('open');
                         } else {
-                            alert("Error in removing therapist");
+                            $('#acknowledgementDialog')
+                                .data('message', "Error in removing therapist")
+                                .dialog('open');
                         }
-                        location.reload();
                     });
                 });
 

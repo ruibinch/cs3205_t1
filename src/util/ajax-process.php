@@ -15,9 +15,14 @@
     } else if (isset($_POST['acceptTreatmentId'])) {
         echo acceptTreatmentReq($_POST['acceptTreatmentId']);
     } else if (isset($_POST['rejectTreatmentId'])) {
-        echo removeTreatmentReq($_POST['rejectTreatmentId']);
+        echo rejectTreatmentReq($_POST['rejectTreatmentId']);
     } else if (isset($_POST['removeTreatmentId'])) {
         echo removeTreatmentReq($_POST['removeTreatmentId']);
+    }
+
+    // Consent relations
+    if (isset($_POST['consentChanges'])) {
+        updateConsentStatus($_POST['consentChanges']);
     }
 
     // ===============================================================================
@@ -72,7 +77,13 @@
         return $response->result;
     }
 
+    function rejectTreatmentReq($treatmentId) {
+        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
+        return $response->result;
+    }
+
     function removeTreatmentReq($treatmentId) {
+        removeConsentPermissions($treatmentId);
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
         return $response->result;
     }
@@ -92,6 +103,46 @@
             $patient_records = $patient_records_json->records;
             for ($i = 0; $i < count($patient_records); $i++) {
                 $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $patient_records[$i]->rid));
+            }
+        }
+    }
+
+    // Removes all associated consents between a therapist and a patient's records when the patient removes an assigned therapist
+    function removeConsentPermissions($treatmentId) {
+        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $patientId = $response->patientId;
+        $therapistId = $response->therapistId;
+
+        // Get list of record IDs of the patient records
+        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $patientId));
+        $patient_records_ids = array();
+        if (isset($patient_records_json->records)) {
+            $patient_records = $patient_records_json->records;
+            for ($i = 0; $i < count($patient_records); $i++) {
+                array_push($patient_records_ids, $patient_records[$i]->rid);
+            }
+        }
+
+        // Iterate through the list of consents associated with the therapist and delete the consents that are for records of the deleted patient
+        $therapist_consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $therapistId));
+        if (isset($therapist_consents_json->consents)) {
+            $therapist_consents = $therapist_consents_json->consents;
+            for ($i = 0; $i < count($therapist_consents); $i++) {
+                if (in_array($therapist_consents[$i]->rid, $patient_records_ids)) {
+                    $delete_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $therapist_consents[$i]->consentId));
+                }
+            }
+
+        }
+
+    }
+
+    // Iterates through the boolean array
+    // If an element is set to true, then toggle the status value of the consent with the corresponding ID
+    function updateConsentStatus($consentChanges) {
+        for ($i = 0; $i < count($consentChanges); $i++) {
+            if ($consentChanges[$i]) { // if the value has been toggled
+                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $i));
             }
         }
     }

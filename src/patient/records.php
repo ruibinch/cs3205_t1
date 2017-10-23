@@ -67,11 +67,38 @@
             </table>
 	    </div>
 
+        <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
         <div id="consentDialog"></div>
+
+        <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
 
         <script>
 
+            var consentChanges = []; // TO EDIT
+
             $(document).ready(function() {
+
+                $('#acknowledgementDialog').dialog({
+                    dialogClass: 'jqueryDialogNoTitle',
+                    width: 300,
+                    height: 80,
+                    autoOpen: false,
+                    resizable: false,
+                    draggable: false,
+                    position: { my: "center", at: "top" },
+                    show: {
+                        effect: 'fade',
+                        duration: 300
+                    },
+                    hide: {
+                        effect: 'fade',
+                        delay: 500
+                    },
+                    open: function() {
+                        $('#ackMessage').text("Changes saved");
+                        $(this).dialog('close');
+                    },
+                });
 
                 $('#consentDialog').dialog({
                     classes: {
@@ -87,7 +114,15 @@
                     buttons: [
                         {
                             text: "Save",
-                            click: function() { $(this).dialog('close'); }
+                            click: function() { 
+                                $.ajax({
+                                    type: "POST",
+                                    url: "../util/ajax-process.php",
+                                    data: { "consentChanges": consentChanges }
+                                });
+                                $(this).dialog('close');
+                                $('#acknowledgementDialog').dialog('open');
+                            }
                         },
                         {
                             text: "Cancel",
@@ -98,18 +133,21 @@
                         $(this).load(
                             'consent-dialog.php', 
                             { "recordId": $(this).data('recordId'), "patientId": <?php echo $result->uid ?> }, 
-                            function(data) {
-                                
-                            }
                         );
                     }
                 });
 
 
                 $(document).on('click', 'input:button.consent', function() {
+
                     $('#consentDialog')
                         .data('recordId', $(this).attr('id'))
                         .dialog('open');
+                });
+
+                $(document).on('click', 'input:checkbox.setconsent', function() {
+                    var consentId = $(this).val();
+                    consentChanges[consentId] = !consentChanges[consentId]; // toggle 
                 });
 
             });
