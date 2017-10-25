@@ -130,18 +130,75 @@
                 $phone2Err = "Invalid input";
             }
         }
-        /*
-        $addr0 = str_replace(" ", "%20", $addr0);
-        $addr1 = str_replace(" ", "%20", $addr1);
-        $addr2 = str_replace(" ", "%20", $addr2);
-        */
-	/*
-        if (!$hasError) {
-          $settings_save = true;
-          $change_result = update_particulars($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->gender, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->nfcid, $user_json->secret);
-          $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/1'));
+        
+        if (empty($addr0) || empty($zip0)) {
+            if (empty($addr0) && empty($zip0)) {
+                hasError();
+                $addr0Err = $zip0Err = "Input required";
+            } else if (!empty($addr0)) {
+                hasError();
+                $addr0 = "Please input address for corresponding zipcode";
+            } else {
+                hasError();
+                $zip0 = "Please input zipcode for corresponding address";
+            }
+        } else {
+            if (isAddressInvalid($addr0)) {
+                hasError();
+                $addr0Err = "Invalid address";
+            }
+            if (isZipcodeInvalid($zip0)) {
+                hasError();
+                $zip0Err = "Invalid input";
+
+            }
         }
-	*/
+
+        if (empty($addr1)) {
+            if (!empty($addr2)) {
+                hasError();
+                $addr1Err = "Input required";
+            } else {
+                $addr1 = $addr2 = NULL;
+            }
+        } else {
+            if (isAddressInvalid($addr1)) {
+                hasError();
+                $addr1Err = "Invalid input";
+            }
+        }
+
+        if (empty($addr2)) {
+            $addr2 = NULL;
+        } else {
+            if (isContactNumberInvalid($addr2)) {
+                hasError();
+                $addr2Err = "Invalid input";
+            }
+        }
+
+        if (empty($zip1)) {
+            if (!empty($zip2)) {
+                hasError();
+                $zip1Err = "Input required";
+            } else {
+                $zip1 = $zip2 = NULL;
+            }
+        } else {
+            if (isContactNumberInvalid($zip1)) {
+                hasError();
+                $zip1Err = "Invalid input";
+            }
+        }
+
+        if (empty($zip2)) {
+            $zip2 = NULL;
+        } else {
+            if (isContactNumberInvalid($zip2)) {
+                hasError();
+                $zip2Err = "Invalid input";
+            }
+        }
         
         if (!$hasError) {
             $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->gender, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->nfcid, $user_json->secret);
@@ -223,6 +280,8 @@
                 <?php if ($settings_save) { ?>
                     <script>alert("Your particulars have been updated!")</script> 
                 <?php } ?>
+                <div class="profile-update"><a href="changepass.php" style="text-decoration:none; color:blue">Click here to change password</a>
+                </div>
                 <div class="profile-update">Username: <span class="error-message"><?php echo empty($userErr) ? "" : "*" . $userErr ?></span><br>
                     <input name="input-username" type="text" placeholder="<?php echo $user ?>"
                         value="<?php echo (isset($user_json->username) ? $user_json->username : "" )?>"><br>
