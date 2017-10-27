@@ -4,7 +4,7 @@
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     // Gets the list of records assigned to the specified patient
-    $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $result->uid));
+    $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $result->uid));
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }
@@ -60,21 +60,21 @@
                         <td><?php echo $record->title ?></td>
                         <td style="text-align:right">
                             <input type="button" class="details" id="<?php echo $record->rid ?>" value="Details"/>
-                            <input type="button" class="consent" id="<?php echo $record->rid ?>" value="Permissions"/>
+                            <input type="button" class="consent" id="<?php echo $record->rid ?>" value="Consent"/>
                         </td>
                     </tr>
                 <?php } ?>
             </table>
 	    </div>
 
-        <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
         <div id="consentDialog"></div>
-
+        
+        <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
         <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
 
         <script>
 
-            var consentChanges = []; // TO EDIT
+            var consentChanges = [];
 
             $(document).ready(function() {
 
@@ -101,9 +101,6 @@
                 });
 
                 $('#consentDialog').dialog({
-                    classes: {
-                        "ui-dialog": "consent"
-                    },
                     width: 400,
                     height: 400,
                     autoOpen: false,
@@ -132,14 +129,14 @@
                     open: function(event, ui) {
                         $(this).load(
                             'consent-dialog.php', 
-                            { "recordId": $(this).data('recordId'), "patientId": <?php echo $result->uid ?> }, 
+                            { "recordId": $(this).data('recordId') },
                         );
                     }
                 });
 
 
                 $(document).on('click', 'input:button.consent', function() {
-
+                    consentChanges = []; // reset array each type a new consent dialog window is opened
                     $('#consentDialog')
                         .data('recordId', $(this).attr('id'))
                         .dialog('open');
@@ -147,7 +144,7 @@
 
                 $(document).on('click', 'input:checkbox.setconsent', function() {
                     var consentId = $(this).val();
-                    consentChanges[consentId] = !consentChanges[consentId]; // toggle 
+                    consentChanges[consentId] = !consentChanges[consentId]; // toggle
                 });
 
             });

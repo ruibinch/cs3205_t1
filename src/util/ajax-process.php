@@ -1,17 +1,16 @@
 <?php
 
-    session_start();
-
     // Challenge-response authentication process
     if (isset($_POST['input_username'])) {
+        session_start();
         echo getChallengeAndSalt($_POST['input_username']);
     } else if (isset($_POST['response'])) {
         echo verifyResponse($_POST['response']);
     }
 
     // Treatment relations
-    if (isset($_POST['patientId']) && isset($_POST['therapistId'])) {
-        echo createTreatmentReq($_POST['patientId'], $_POST['therapistId']);
+    if (isset($_POST['patientId']) && isset($_POST['therapistId']) && isset($_POST['consentSettings'])) {
+        echo createTreatmentReq($_POST['patientId'], $_POST['therapistId'], $_POST['consentSettings']);
     } else if (isset($_POST['acceptTreatmentId'])) {
         echo acceptTreatmentReq($_POST['acceptTreatmentId']);
     } else if (isset($_POST['rejectTreatmentId'])) {
@@ -24,6 +23,9 @@
     if (isset($_POST['consentChanges'])) {
         updateConsentStatus($_POST['consentChanges']);
     }
+    if (isset($_POST['treatmentId']) && isset($_POST['currentConsentSetting']) && isset($_POST['futureConsentSetting'])) {
+        echo updateDefaultConsentSettings($_POST['treatmentId'], $_POST['currentConsentSetting'], $_POST['futureConsentSetting']);
+    } 
 
     // ===============================================================================
     //                       CHALLENGE-RESPONSE AUTHENTICATION
@@ -65,8 +67,9 @@
     //                          TREATMENT RELATIONS
     // ===============================================================================
     
-    function createTreatmentReq($patientId, $therapistId) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/create/' . $patientId . '/' . $therapistId));
+    function createTreatmentReq($patientId, $therapistId, $consentSettings) {
+        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/create/' 
+                                . $patientId . '/' . $therapistId . '/' . $consentSettings[0] . '/' . $consentSettings[1]));
         return $response->result;
     }
 
@@ -97,13 +100,18 @@
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
         $patientId = $response->patientId;
         $therapistId = $response->therapistId;
+        $currentConsent = $response->currentConsent; 
 
-        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $patientId));
+        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
         if (isset($patient_records_json->records)) {
             $patient_records = $patient_records_json->records;
             for ($i = 0; $i < count($patient_records); $i++) {
                 $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $patient_records[$i]->rid));
             }
+        }
+        
+        if ($currentConsent) {
+            setAllConsentsToTrue($treatmentId);
         }
     }
 
@@ -114,7 +122,7 @@
         $therapistId = $response->therapistId;
 
         // Get list of record IDs of the patient records
-        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $patientId));
+        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
         $patient_records_ids = array();
         if (isset($patient_records_json->records)) {
             $patient_records = $patient_records_json->records;
@@ -134,15 +142,42 @@
             }
 
         }
-
     }
 
     // Iterates through the boolean array
-    // If an element is set to true, then toggle the status value of the consent with the corresponding ID
+    // If an element is set to true, then toggle the status value of the consent with the ID corresponding to the array index value
     function updateConsentStatus($consentChanges) {
         for ($i = 0; $i < count($consentChanges); $i++) {
             if ($consentChanges[$i]) { // if the value has been toggled
                 $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $i));
+            }
+        }
+    }
+
+    // Updates the current and future consent status flags
+    function updateDefaultConsentSettings($treatmentId, $currentConsent, $futureConsent) {
+        if ($currentConsent === "true") {
+            setAllConsentsToTrue($treatmentId);
+        }
+
+        $consent_settings = array('id' => $treatmentId, 'currentConsent' => $currentConsent, 'futureConsent' => $futureConsent);
+        $consent_settings_json = json_encode($consent_settings);
+        $ch = curl_init('http://172.25.76.76/api/team1/treatment/update/consentsetting');
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $consent_settings_json);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+        return curl_exec($ch);
+    }
+
+    // Sets all the consents between the patient and the therapist to true
+    function setAllConsentsToTrue($treatmentId) {
+        $treatment = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $treatment->patientId . '/' . $treatment->therapistId));
+        $consents = $consents_json->consents;
+        for ($i = 0; $i < count($consents); $i++) {
+            $consent = $consents[$i];
+            if (!$consent->status) {
+                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consent->consentId));
             }
         }
     }

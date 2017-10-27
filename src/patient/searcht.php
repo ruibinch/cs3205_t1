@@ -79,7 +79,7 @@
                             <?php } else { ?>
                                 <td></td>
                                 <td style="text-align:right">
-                                    <button id="sendTreatmentReq"
+                                    <button id="sendTreatmentReq" name="<?php echo $therapist_name ?>"
                                         value="<?php echo $therapist_info->uid ?>">Send Treatment Request</button>
                                 </td>
                             <?php } ?>
@@ -89,10 +89,17 @@
             </table>
 	    </div>
 
+        <div id="treatmentReqSettingsDialog">
+            <p><label><input type="checkbox" class="consentsettings" id="currentConsent"/>  Allow therapist to view all my current records</label></p>
+            <p><label><input type="checkbox" class="consentsettings" id="futureConsent"/>  Allow therapist to view all my future records by default</label></p>
+        </div>
+
         <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
         <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
 
         <script>
+
+            var consentSettings = [ false, false ]; // currentConsent, futureConsent
             
             $(document).ready(function() {
 
@@ -121,23 +128,61 @@
                     }
                 });
 
-                $(document).on('click', '#sendTreatmentReq', function(e) {
-                    $.ajax({
-                        type: "POST",
-                        url: "../util/ajax-process.php",
-                        data: { "patientId": '<?php echo $patient_id ?>', "therapistId": $(this).val() }
-                    }).done(function(response) {
-                        if (response == 1) {
-                            $('#acknowledgementDialog')
-                                .data('message', "Treatment request sent")
-                                .dialog('open');
-                        } else {
-                            $('#acknowledgementDialog')
-                                .data('message', "Error in sending treatment request")
-                                .dialog('open');
+                $('#treatmentReqSettingsDialog').dialog({
+                    width: 500,
+                    height: 220,
+                    autoOpen: false,
+                    resizable: false,
+                    draggable: false,
+                    modal: true,
+                    title: "Treatment Request",
+                    buttons: [
+                        {
+                            text: "Send Request",
+                            click: function() {
+                                $.ajax({
+                                    type: "POST",
+                                    url: "../util/ajax-process.php",
+                                    data: { "patientId": $(this).data('patientId'), 
+                                            "therapistId": $(this).data('therapistId'),
+                                            "consentSettings": consentSettings }
+                                }).done(function(response) {
+                                    if (response == 1) {
+                                        $('#acknowledgementDialog')
+                                            .data('message', "Treatment request sent")
+                                            .dialog('open');
+                                    } else {
+                                        $('#acknowledgementDialog')
+                                            .data('message', "Error in sending treatment request")
+                                            .dialog('open');
+                                    }
+                                })
+                                $(this).dialog('close');
+                            }
+                        },
+                        {
+                            text: "Cancel",
+                            click: function() { $(this).dialog('close'); }
                         }
-                    });
+                    ]
+                })
+
+                $(document).on('click', '#sendTreatmentReq', function() {
+                    $('#treatmentReqSettingsDialog')
+                        .data('patientId', <?php echo $patient_id ?>)
+                        .data('therapistId', $(this).val())
+                        .dialog('option', 'title', "Treatment Request to " + $(this).attr('name'))
+                        .dialog('open');
                 });
+
+                $(document).on('click', 'input:checkbox.consentsettings', function() {
+                    if ($(this).attr('id') == "currentConsent") {
+                        consentSettings[0] = !consentSettings[0];
+                    } else if ($(this).attr('id') == "futureConsent") {
+                        consentSettings[1] = !consentSettings[1];
+                    }
+
+                })
 
             });
 

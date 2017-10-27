@@ -103,7 +103,7 @@
                     }
                 });
 
-                $('#removeTherapist').click(function() {
+                $(document).on('click', '#removeTherapist', function() {
                     $.ajax({
                         type: "POST",
                         url: "../util/ajax-process.php",

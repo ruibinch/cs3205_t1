@@ -31,7 +31,7 @@
     }
 
     // Gets the list of records assigned to the specified patient
-    $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/records/all/' . $patientId));
+    $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
     $records_list_with_consent = array();
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
@@ -73,9 +73,30 @@
                         <td><?php echo $patient_json->lastname ?></td>
                     </tr>
                     <tr>
+                        <td>Sex:</td>
+                        <td><?php if ($patient_json->sex === "M") { ?>Male<?php } else { ?>Female<?php } ?></td>
+                    </tr>
+                    <tr>
+                        <td>NRIC:</td>
+                        <td><?php echo $patient_json->nric ?></td>
+                    </tr>
+                    <tr>
+                        <td>Ethnicity:</td>
+                        <td><?php if (isset($patient_json->ethnicity)) { echo $patient_json->ethnicity; } ?></td>
+                    </tr>
+                    <tr>
                         <td>Date of Birth:</td>
                         <td><?php echo $patient_json->dob ?></td>
                     </tr>
+                    <tr>
+                        <td>Blood Type:</td>
+                        <td><?php echo $patient_json->bloodtype ?></td>
+                    </tr>
+                    <tr>
+                        <td>Drug Allergy:</td>
+                        <td><?php if ($patient_json->drugAllergy) {?>Yes<?php } else {?>No<?php } ?></td>
+                    </tr>
+                    <tr></tr>
                     <tr>
                         <td>Primary Contact Number:</td>
                         <td><?php echo $patient_json->phone[0] ?></td>

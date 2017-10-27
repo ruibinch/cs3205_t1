@@ -121,13 +121,18 @@
                     if ($user_type === "therapist" && isset($treatment_reqs)) {
                         for ($i = 0; $i < count($treatment_reqs); $i ++) {
                             $patient_json = getJsonFromUid($treatment_reqs[$i]->patientId); 
+                            $patient_name = $patient_json->firstname . " " . $patient_json->lastname;
                     ?>
                     <tr>
-                        <td><?php echo "Treatment request from ".$patient_json->firstname." ".$patient_json->lastname ?></td>
+                        <td><?php echo "Treatment request from " . $patient_name ?></td>
+                        <td class="last-col"><button id="treatmentReqDetails"
+                                value="<?php echo $treatment_reqs[$i]->id ?>">Details</button></td>
+                        <!--
                         <td class="last-col"><button id="acceptTreatmentReq"
-                                value="<?php echo $treatment_reqs[$i]->id ?>">Accept</button></td>
+                                value="<php echo $treatment_reqs[$i]->id ?>">Accept</button></td>
                         <td class="last-col"><button id="rejectTreatmentReq"
-                                value="<?php echo $treatment_reqs[$i]->id ?>">Reject</button></td>
+                                value="<php echo $treatment_reqs[$i]->id ?>">Reject</button></td>
+                        -->
                     </tr>
                 <?php
                         }
@@ -197,6 +202,8 @@
         </div>
     </div>
 
+    <div id="treatmentReqDialog"></div>
+
     <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>
     <style> .jqueryDialogNoTitle .ui-dialog-titlebar { display: none; } </style>
 
@@ -229,41 +236,72 @@
                 }
             });
 
-            $(document).on('click', '#acceptTreatmentReq', function(e) {
-                $.ajax({
-                    type: "POST",
-                    url: "util/ajax-process.php",
-                    data: { "acceptTreatmentId": $(this).val() }
-                }).done(function(response) {
-                    if (response == 1) {
-                        $('#acknowledgementDialog')
-                            .data('message', "Treatment request accepted")
-                            .dialog('open');
-                    } else {
-                        $('#acknowledgementDialog')
-                            .data('message', "Error in processing treatment request")
-                            .dialog('open');
+            $('#treatmentReqDialog').dialog({
+                width: 650,
+                height: 300,
+                autoOpen: false,
+                resizable: false,
+                draggable: false,
+                modal: true,
+                buttons: [
+                    {
+                        text: "Accept Request",
+                        click: function() {
+                            $.ajax({
+                                type: "POST",
+                                url: "util/ajax-process.php",
+                                data: { "acceptTreatmentId": $(this).data('treatmentId') }
+                            }).done(function(response) {
+                                if (response == 1) {
+                                    $('#acknowledgementDialog')
+                                        .data('message', "Treatment request accepted")
+                                        .dialog('open');
+                                } else {
+                                    $('#acknowledgementDialog')
+                                        .data('message', "Error in processing treatment request")
+                                        .dialog('open');
+                                }
+                            });
+                            $(this).dialog('close');
+                        }
+                    },
+                    {
+                        text: "Reject Request",
+                        click: function() { 
+                            $.ajax({
+                                type: "POST",
+                                url: "util/ajax-process.php",
+                                data: { "rejectTreatmentId": $(this).data('treatmentId') }
+                            }).done(function(response) {
+                                if (response == 1) {
+                                    $('#acknowledgementDialog')
+                                        .data('message', "Treatment request rejected")
+                                        .dialog('open');
+                                } else {
+                                    $('#acknowledgementDialog')
+                                        .data('message', "Error in processing treatment request")
+                                        .dialog('open');
+                                }
+                            });
+                            $(this).dialog('close'); 
+                        }
                     }
-                });
+                ],
+                open: function(event, ui) {
+                    $(this).load(
+                        'treatment-req-dialog.php',
+                        { "treatmentId": $(this).data('treatmentId') }
+                    );
+                }
             });
 
-            $(document).on('click', '#rejectTreatmentReq', function(e) {
-                $.ajax({
-                    type: "POST",
-                    url: "util/ajax-process.php",
-                    data: { "rejectTreatmentId": $(this).val() }
-                }).done(function(response) {
-                    if (response == 1) {
-                        $('#acknowledgementDialog')
-                            .data('message', "Treatment request rejected")
-                            .dialog('open');
-                    } else {
-                        $('#acknowledgementDialog')
-                            .data('message', "Error in processing treatment request")
-                            .dialog('open');
-                    }
-                });
+            $(document).on('click', '#treatmentReqDetails', function() {
+                $('#treatmentReqDialog')
+                    .data('treatmentId', $(this).val())
+                    .dialog('option', 'title', "Treatment Request from <?php if (isset($patient_name)) echo $patient_name ?>")
+                    .dialog('open');
             });
+
         });
 
         function openTab(evt, tabName) {
