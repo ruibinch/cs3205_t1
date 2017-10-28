@@ -7,20 +7,20 @@
 	
 	// TODO: store the jwt secret key to some place safe
     $dummy_key = "dummykey";
-	
-	session_start();
-		
+
+    session_start();
+
 	//DB Login..
-	$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/admin/' . $_POST['mgmt-username']);
+	$result = @file_get_contents('http://172.25.76.76/api/team1/admin/' . $_POST['username']);
 	
 	if ($result === FALSE) {
 		header("location: ../index.php");
 		exit();
 	}
 	
-	$decode = json_decode($result);
+    $decode = json_decode($result);
 	
-	if (isset($decode->username) && password_verify($_POST['mgmt-password'], $decode->password)) {
+	if (isset($decode->username)) {
 		//TODO: change the dummy key here to the real key
 		setcookie("jwt", WebToken::getToken($decode->admin_id, $dummy_key),time()+3600, "/", null, true, true);
 		$_SESSION['loggedin'] = $decode->username;
@@ -38,5 +38,5 @@
 		session_destroy();
 		header("Location: /login.php?to=console&err=1");
 		exit();
-	}
+    }
 ?>

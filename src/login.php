@@ -10,16 +10,15 @@
 					);
 			}
 		session_destroy();
-	}
-?>
-
-<?php
+    }
+    
     $loginSystem = "Healthcare System";
     if (isset($_GET["to"])) {
         if ($_GET["to"] == "console") {
             $loginSystem = "Management Console";
         }
     }
+
 ?>
 
 <html>
@@ -53,11 +52,11 @@
                 </div>
 
                 <div id="Management" class="login-tabcontent">
-                    <form class="login-form" name="form-mgmt" method="post" action="util/login-validation-admin.php">
+                    <div class="login-form" id="form-mgmt" name="form-mgmt" method="post">
                         <input id="mgmt-username" name="mgmt-username" type="text" class="login-input" placeholder="Username" autofocus>
                         <input id="mgmt-password" name="mgmt-password" type="password" class="login-input" placeholder="Password">
-                        <button id="btn-login" name="login" class="login-btn login-btn-mgmt">Login</button>
-                    </form>
+                        <button name="user_type" value="admin" id="btn-login-mgmt" name="login" class="login-btn login-btn-mgmt">Login</button>
+                    </div>
                 </div>
 
                 <?php
@@ -74,12 +73,23 @@
 
             $(document).ready(function() {
 
-                $('#form-user').on('click', "button", function() {
+                $('.login-form').on('click', 'button', function() {
+                    var loginSystem;
+                    var inputUsername;
                     userType = $(this).val();
+
+                    if (userType == "patient" || userType == "therapist") {
+                        inputUsername = $('#hc-username').val();
+                        loginSystem = "hcsystem";
+                    } else if (userType == "admin") {
+                        inputUsername = $('#mgmt-username').val();
+                        loginSystem = "mgmtconsole";
+                    }
+
                     $.ajax({
                         type: "POST",
                         url: "util/ajax-process.php",
-                        data: { "input_username": $('#hc-username').val() }
+                        data: { "inputUsername": inputUsername, "loginSystem": loginSystem }
                     }).done(function(response) {
                         obj = JSON.parse(response);
                         computeResponse(obj);
@@ -93,7 +103,12 @@
                 console.log("challenge = " + obj.challenge);
                 var bcrypt = dcodeIO.bcrypt;
 
-                var bcrypt_pw = bcrypt.hashSync($('#hc-password').val(), obj.salt); // bcrypt(pw, salt);
+                var bcrypt_pw = "";
+                if (userType == "patient" || userType == "therapist") {
+                    bcrypt_pw = bcrypt.hashSync($('#hc-password').val(), obj.salt); // bcrypt(pw, salt);
+                } else if (userType == "admin") {
+                    bcrypt_pw = bcrypt.hashSync($('#mgmt-password').val(), obj.salt); // bcrypt(pw, salt);
+                }
                 var sha_bcrypt_pw = sha256(bcrypt_pw); // H(bcrypt(pw,salt))
                 var sha_sha_bcrypt_pw_with_challenge = sha256(sha_bcrypt_pw + obj.challenge); // H(H(bcrypt(pw,salt)) || challenge)
 
@@ -113,17 +128,26 @@
                 $.ajax({
                     type: "POST",
                     url: "util/ajax-process.php",
-                    data: { "response": response }
+                    data: { "challengeResponse": response }
                 }).done(function(response) {
                     if (response == 0) {
                         window.location = "login.php?err=1";
                     } else {
-                        var url = "util/login-validation.php";
-                        var username = $('#hc-username').val();
-                        var form = $('<form action="' + url + '" method="post">' + 
+                        var form = "";
+                        if (userType == "patient" || userType == "therapist") {
+                            var url = "util/login-validation.php";
+                            var username = $('#hc-username').val();
+                            form = $('<form action="' + url + '" method="post">' + 
                                     '<input type="text" name="username" value="' + username + '" />' + 
                                     '<input type="text" name="user_type" value="' + userType + '" />' +
                                     '</form>');
+                        } else if (userType == "admin") {
+                            var url = "util/login-validation-admin.php";
+                            var username = $('#mgmt-username').val();
+                            form = $('<form action="' + url + '" method="post">' + 
+                                    '<input type="text" name="username" value="' + username + '" />' + 
+                                    '</form>');
+                        }
                         $('#body').append(form);
                         form.submit();
                     }

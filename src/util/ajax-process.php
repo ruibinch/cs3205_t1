@@ -1,11 +1,12 @@
 <?php
 
     // Challenge-response authentication process
-    if (isset($_POST['input_username'])) {
+    if (isset($_POST['inputUsername']) & isset($_POST['loginSystem'])) {
         session_start();
-        echo getChallengeAndSalt($_POST['input_username']);
-    } else if (isset($_POST['response'])) {
-        echo verifyResponse($_POST['response']);
+        echo getChallengeAndSalt($_POST['inputUsername'], $_POST['loginSystem']);
+    } else if (isset($_POST['challengeResponse'])) {
+        session_start();
+        echo verifyResponse($_POST['challengeResponse']);
     }
 
     // Treatment relations
@@ -31,15 +32,19 @@
     //                       CHALLENGE-RESPONSE AUTHENTICATION
     // ===============================================================================
             
-    function getChallengeAndSalt($input_username) {
-        $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $input_username));
+    function getChallengeAndSalt($input_username, $login_system) {
+        if ($login_system === "hcsystem") {
+            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $input_username));
+        } else if ($login_system === "mgmtconsole") {
+            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/admin/' . $input_username));
+        }
         $_SESSION['user_json'] = $user_json;
         $challenge = mt_rand(); // random number
         $_SESSION['challenge'] = $challenge;
         if (isset($user_json->salt)) {
             $response = array('challenge' => $challenge, 'salt' => $user_json->salt);
         } else { // user does not exist
-            $fake_salt = substr(password_hash(strval(mt_rand()), PASSWORD_DEFAULT), 0, 29);
+            $fake_salt = substr(password_hash(strval(mt_rand()), PASSWORD_DEFAULT), 0, 29); // to prevent timing attacks
             $response = array('challenge' => $challenge, 'salt' => $fake_salt);
         }
         return json_encode($response);
