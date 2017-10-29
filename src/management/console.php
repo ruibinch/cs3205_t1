@@ -8,7 +8,7 @@
 	*/
 	
 	//console.php: management console's main page.
-	include_once '../util/jwt-admin.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
 	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
@@ -17,7 +17,7 @@
 	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: /index.php");
+		header("Location: " . $_SERVER["DOCUMENT_ROOT"] . "/index.php");
 		exit();
 	}
 	

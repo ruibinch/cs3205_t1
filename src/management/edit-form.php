@@ -9,7 +9,7 @@
 	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: ../index.php");
+		header("Location: " . $_SERVER["DOCUMENT_ROOT"] . "/index.php");
 		exit();
 	}
 ?>

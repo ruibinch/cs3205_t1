@@ -1,7 +1,7 @@
 <?php
 	//logout.php: Destroys all session and logout.
 	
-	include_once '../util/jwt-admin.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
 	$result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
