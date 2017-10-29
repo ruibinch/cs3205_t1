@@ -1,19 +1,24 @@
 <?php
 	//txhandler.php: helper script to retreive info from DB
-	
-	//Shitty way to prevent direct access.
-	debug_backtrace() OR die ("Direct Access Forbidden.");
+		
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
-	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");	
 	
-	if (!isset($_SESSION['loggedin'])) {
-		header("HTTP/1.1 301 Moved Permanently");
-		header("Location: " . $_SERVER["DOCUMENT_ROOT"] . "/index.php");
+	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+		echo "Go home, you are drunk.";
 		exit();
 	}
 ?>
 
 <?php
+	sleep(1);
+	if ($_POST['mode'] === "all") {
+		echo "All";
+	}
 	
+	if ($_POST['mode'] === "warn") {
+		echo "Warn";
+	}
 ?>

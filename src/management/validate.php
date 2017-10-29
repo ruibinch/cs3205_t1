@@ -776,6 +776,7 @@
 	
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		echo "Go home, you are drunk.";
+		exit();
 	}
 	
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete") {

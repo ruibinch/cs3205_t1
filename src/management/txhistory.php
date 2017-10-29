@@ -17,8 +17,17 @@
 <h1>Transaction History</h1>
 <h3>Click any of the buttons to display relevant transaction history.</h3>
 
-<button type="button" id="showAll">Display ALL Transactions</button><br/><br/>
-<button type="button" id="showWarn">Display Suspicious Transactions</button><br/><br/>
+<form id="showAll">
+	<input type="hidden" name="mode" value="all">
+	<input type="Submit" value="Display ALL Transactions">
+</form>
+<br/>
+<form id="showWarn">
+	<input type="hidden" name="mode" value="warn">
+	<input type="Submit" value="Display Suspicious Transactions">
+</form>
+
+<br/>
 
 <div class="contentField" id="loaderDiv">
 	<br/>
@@ -26,6 +35,7 @@
 	<br/>
 </div>
 
+<br/>
 <div class="contentField" id="resultDiv">
 </div>
 
@@ -35,10 +45,44 @@
 
 <script>
 	$(document).ready(function(){
-		$( "#showAll" ).click(function() {
-			$("#loaderDiv").show();
+		$('#showAll').on('submit', function(e){
 			$("#resultDiv").hide();
+			$("#loaderDiv").show();
 			e.preventDefault();
+			$.ajax({
+				type: 'POST',
+				url: '/management/txhandler.php',
+				data: $('#showAll').serialize(),
+				cache: false,
+				success: function(result) {
+					$("#loaderDiv").hide();
+					$("#resultDiv").show();
+					$("#resultDiv").html(result);
+				},
+				error: function() {
+					alert('Warning: Server may be unavailable at this point in time.');
+				}
+			});
+		});
+		
+		$('#showWarn').on('submit', function(e){
+			$("#resultDiv").hide();
+			$("#loaderDiv").show();
+			e.preventDefault();
+			$.ajax({
+				type: 'POST',
+				url: '/management/txhandler.php',
+				data: $('#showWarn').serialize(),
+				cache: false,
+				success: function(result) {
+					$("#loaderDiv").hide();
+					$("#resultDiv").show();
+					$("#resultDiv").html(result);
+				},
+				error: function() {
+					alert('Warning: Server may be unavailable at this point in time.');
+				}
+			});
 		});
 	});
 </script>
