@@ -86,6 +86,11 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 				unset($_SESSION['invalidBlood']);
 			}
 			
+			if (isset($_SESSION['invalidAllergyOption']) && $_SESSION['invalidAllergyOption']) {
+				echo "\t\t\t" . '<tr><td><b>Drug Allergy:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+				unset($_SESSION['invalidAllergyOption']);
+			}
+			
 			if (isset($_SESSION['dobErr']) && $_SESSION['dobErr']) {
 				echo "\t\t\t" . '<tr><td><b>Date of Birth:</b>&emsp;Invalid birthdate, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['dobErr']);
@@ -172,11 +177,14 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 	if (!isset($_SESSION['firstrun'])) {
 		$_SESSION['type'] = '';
 		$_SESSION['uname'] = '';
+		$_SESSION['nationality'] = '';
 		$_SESSION['NRIC'] = '';
 		$_SESSION['fname'] = '';
 		$_SESSION['lname'] = '';
+		$_SESSION['ethnic'] = '';
 		$_SESSION['gender'] = '';
 		$_SESSION['btype'] = '';
+		$_SESSION['allergy'] = '';
 		$_SESSION['dob'] = '';
 		$_SESSION['c1'] = '';
 		$_SESSION['c2'] = '';
@@ -220,6 +228,12 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 			<h2>Stage 3: User Information</h2>
 			<table>
 				<tr>
+					<td>Nationality:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="text" name="nationality" placeholder="Singaporean" <?php echo 'value="'.htmlspecialchars($_SESSION['nationality']).'"';?> required>
+					</td>
+				</tr>
+				<tr>
 					<td>NRIC/FIN:<span class="required">*</span>&emsp;</td>
 					<td>
 						<input type="text" name="NRIC" placeholder="S0000000I" size="10" maxlength="9"<?php echo 'value="'.htmlspecialchars($_SESSION['NRIC']).'"';?> required>
@@ -238,7 +252,13 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 					</td>
 				</tr>
 				<tr>
-					<td>Gender:<span class="required">*</span>&emsp;</td>
+					<td>Ethnicity:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="text" name="ethnic" placeholder="Chinese" <?php echo 'value="'.htmlspecialchars($_SESSION['ethnic']).'"';?> required>
+					</td>
+				</tr>
+				<tr>
+					<td>Sex:<span class="required">*</span>&emsp;</td>
 					<td>
 						<input type="radio" name="gender" value="M" <?php if ($_SESSION['gender'] === "M") echo "checked";?> required>Male&emsp;&emsp;&emsp;
 						<input type="radio" name="gender" value="F" <?php if ($_SESSION['gender'] === "F") echo "checked";?> required>Female
@@ -269,6 +289,13 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 							}
 						?>
 						</select>
+					</td>
+				</tr>
+				<tr>
+					<td>Drug Allergy:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="radio" name="allergy" value="Yes" <?php if ($_SESSION['allergy'] === "Yes") echo "checked";?> required>Yes&emsp;&emsp;&emsp;
+						<input type="radio" name="allergy" value="No" <?php if ($_SESSION['allergy'] === "No") echo "checked";?> required>No
 					</td>
 				</tr>
 			</table>

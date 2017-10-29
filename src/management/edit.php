@@ -64,6 +64,8 @@ if (isset($_SESSION['generateEditStatus']) && $_SESSION['generateEditStatus']) {
 </div>
 
 <br/><br/>
+<div class="error" id="errorDiv">
+</div>
 
 <div class="contentField" id="resultDiv">
 </div>
@@ -79,6 +81,7 @@ if (isset($_SESSION['generateEditStatus']) && $_SESSION['generateEditStatus']) {
 	$(document).ready(function(){
 		$('#formEdit').on('submit', function(e){
 			$("#resultDiv").hide();
+			$("#errorDiv").hide();
 			$("#statusWindow").hide();
 			$("#loaderDiv").show();
 			e.preventDefault();

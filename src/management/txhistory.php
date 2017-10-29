@@ -15,4 +15,30 @@
 ?>
 
 <h1>Transaction History</h1>
-<h3>This page is a stub. Intention is to search transaction by type, date/time, user (if possible).</h3>
+<h3>Click any of the buttons to display relevant transaction history.</h3>
+
+<button type="button" id="showAll">Display ALL Transactions</button><br/><br/>
+<button type="button" id="showWarn">Display Suspicious Transactions</button><br/><br/>
+
+<div class="contentField" id="loaderDiv">
+	<br/>
+	<div class="loader" id="loader"></div>
+	<br/>
+</div>
+
+<div class="contentField" id="resultDiv">
+</div>
+
+<div class="contentField">
+	<h3>This page is a stub. Intention is to search transaction by type, date/time, user (if possible).</h3>
+</div>
+
+<script>
+	$(document).ready(function(){
+		$( "#showAll" ).click(function() {
+			$("#loaderDiv").show();
+			$("#resultDiv").hide();
+			e.preventDefault();
+		});
+	});
+</script>

@@ -57,7 +57,7 @@
 	if (isset($_SESSION['printSecondArea']) && $_SESSION['printSecondArea']) {
 		echo '<div class="contentField">' . "\n<br/>";		
 		if ($_SESSION['validForDeletion']) {
-			echo "\t" . '<h3 class="errorDel">CONFIRM USER DELETION: ' . htmlspecialchars($_SESSION['delUserName']) . '.</h3>' . "\n";
+			echo "\t" . '<h3 class="errorDel">CONFIRM USER DELETION: ' . htmlspecialchars($_SESSION['delUserName']) . ' with uid: ' . $_SESSION['delUserID'] . '.</h3>' . "\n";
 			echo "\t" . '<form method="post" action="validate.php">' . "\n";
 			echo "\t\t" . '<input type="checkbox" name="cfmDelete" required>Yes, I wish to delete the following user.' . "\n<br/><br/>";
 			echo "\t\t" . '<input type="Submit" value="Confirm Deletion">' . "\n";			

@@ -1,5 +1,6 @@
 <?php
 	//validate.php: Checks submitted form values and react accordingly.
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
 	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
@@ -27,6 +28,7 @@
 	$lastNameErr = FALSE;
 	$invalidGender = FALSE;
 	$invalidBlood = FALSE;
+	$invalidAllergyOption = FALSE;
 	$dobErr = FALSE;
 	$contact1Err = FALSE;
 	$contact2Err = FALSE;
@@ -40,8 +42,7 @@
 	
 ?>
 
-<?php
-	// THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.
+<?php // THIS SECTION DEALS WITH THE FIELD VALIDATION CHECKS. IT COMPRISES OF SEVERAL FUNCTIONS.	
 	
 	/*
 		checkEmptyFields($isAdd):
@@ -60,12 +61,12 @@
 		global $emptyField;
 		
 		if ($isAdd) {
-			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty($_POST['password']) OR empty($_POST['cfmPassword']) OR empty(trim($_POST['nationality'])) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['ethnic'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty($_POST['allergy']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 				$_SESSION['emptyField'] = TRUE; //failed check
 				$errorsPresent = "YES";
 			}
 		} else { //similar statement, but exclude password fields.
-			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
+			if (empty(trim($_POST['usertype'])) OR empty(trim($_POST['username'])) OR empty(trim($_POST['nationality'])) OR empty(trim($_POST['NRIC'])) OR empty(trim($_POST['firstname'])) OR empty(trim($_POST['lastname'])) OR empty(trim($_POST['ethnic'])) OR empty(trim($_POST['gender'])) OR empty($_POST['bloodtype']) OR empty($_POST['allergy']) OR empty(trim($_POST['dob'])) OR empty(trim($_POST['contact1'])) OR empty(trim($_POST['address1'])) OR empty(trim($_POST['zipcode1']))) {
 				$emptyField = TRUE;
 				$errorsPresent = "YES";
 			}
@@ -315,6 +316,31 @@
 				$_SESSION['invalidGender'] = TRUE;
 			} else {
 				$invalidGender = TRUE;
+			}
+			$errorsPresent = "YES";
+		}
+	}
+	
+	/*
+		checkAllergy($isAdd):
+			FUNCTIONALITY: Perform allergy value check. Since this field has only 2 options, the posibility of selecting something invalid is NIL unless somebody purposely manipulated the form data upon submission. In this case, this action **MAY BE RECORDED** (Need to implement).
+			INPUT: $isAdd. Determines add or edit action, also make use of $_POST['allergy'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['invalidAllergyOption'] = TRUE if value is invalid.
+					
+					$isAdd = FALSE:
+					Use global variables $invalidAllergyOption = TRUE instead of creating session variable.
+			
+	*/	
+	function checkAllergy($isAdd) {
+		global $errorsPresent;
+		global $invalidAllergyOption;
+		
+		if (!($_POST['allergy'] === "Yes" || $_POST['allergy'] === "No")) {
+			if ($isAdd) {
+				$_SESSION['invalidAllergyOption'] = TRUE;
+			} else {
+				$invalidAllergyOption = TRUE;
 			}
 			$errorsPresent = "YES";
 		}
@@ -581,9 +607,8 @@
 	
 ?>
 
-<?php
-	// THIS SECTION HAS ONLY 1 FUNCTION - TO PRINT OUT THE ERROR MESSAGES ARISING FROM EDIT USER
-	
+<?php // THIS SECTION HAS ONLY 1 FUNCTION - TO PRINT OUT THE ERROR MESSAGES ARISING FROM EDIT USER
+		
 	/*
 		generateEditUserErrorMsg():
 			FUNCTIONALITY: Method gets called if there are errors present. The error messages will be generated (and echoed) here.
@@ -602,6 +627,7 @@
 		global $lastNameErr;
 		global $invalidGender;
 		global $invalidBlood;
+		global $invalidAllergyOption;
 		global $dobErr;
 		global $contact1Err;
 		global $contact2Err;
@@ -659,6 +685,10 @@
 			echo "\t\t\t" . '<tr><td><b>Blood Type:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
 		}
 		
+		if ($invalidAllergyOption) {
+			echo "\t\t\t" . '<tr><td><b>Drug Allergy:</b>&emsp;Form tampering detected.<br/></td></tr>' . "\n";
+		}
+		
 		if ($dobErr) {
 			echo "\t\t\t" . '<tr><td><b>Date of Birth:</b>&emsp;Invalid birthdate, please re-enter.<br/></td></tr>' . "\n";
 		}
@@ -707,8 +737,7 @@
 	}
 ?>
 
-<?php
-	// THIS SECTION REDIRECTS BACK TO THE CALLED PAGE IF DATABASE CONNECTION IS DOWN.
+<?php // THIS SECTION REDIRECTS BACK TO THE CALLED PAGE IF DATABASE CONNECTION IS DOWN.
 	// IT ONLY HAS ONE FUNCTION
 	
 	/*
@@ -743,9 +772,8 @@
 	}
 ?>
 
-<?php	
-	// THIS SECTION DEALS WITH THE ACTUAL POST REQUEST THAT ARRIVE
-
+<?php // THIS SECTION DEALS WITH THE ACTUAL POST REQUEST THAT ARRIVE
+	
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		echo "Go home, you are drunk.";
 	}
@@ -928,6 +956,11 @@
 				checkPassword(FALSE);
 			}
 		
+			//Trigger to detect Nationality value is changed. No validation check
+			if ($editCurrentInfo->nationality !== $_POST['nationality'] ) {
+				$valuesChanged = TRUE;
+			}
+		
 			//Perform NRIC check if it is modified.
 			if ($editCurrentInfo->nric !== $_POST['NRIC'] ) {
 				$valuesChanged = TRUE;
@@ -941,16 +974,34 @@
 				checkFirstAndLastName(FALSE);
 			}
 			
+			//Trigger to detect Ethnicity value is changed. No validation check
+			if ($editCurrentInfo->ethnicity !== $_POST['ethnic'] ) {
+				$valuesChanged = TRUE;
+			}
+			
 			//Perform gender field check if it is modified.
-			if ($editCurrentInfo->gender !== $_POST['gender']) {	
+			if ($editCurrentInfo->sex !== $_POST['gender']) {	
 				$valuesChanged = TRUE;
 				checkGender(FALSE);
 			}
 			
-			//Perform blood type check if it modified.
+			//Perform blood type check if it is modified.
 			if ($editCurrentInfo->bloodtype !== $_POST['bloodtype']) {
 				$valuesChanged = TRUE;
 				checkBloodType(FALSE);
+			}
+			
+			//Perform allergy type check if it is modified.
+			$drugAllergyTxt = "";
+			if ($editCurrentInfo->drugAllergy) {
+				$drugAllergyTxt = "Yes";
+			} else {
+				$drugAllergyTxt = "No";
+			}
+			
+			if ($drugAllergyTxt !== $_POST['allergy']) {
+				$valuesChanged = TRUE;
+				checkAllergy(FALSE);
 			}
 		
 			//Perform dob check if it is modified
@@ -1040,6 +1091,12 @@
 					$newSalt = $editCurrentInfo->salt;
 				}
 				
+				//Handle Drug Allergy
+				$drugAllergy = FALSE;
+				if ($_POST['allergy'] === "Yes" ) {
+					$drugAllergy = TRUE;
+				}
+				
 				//Set up array of phone numbers (Handle empty fields too)
 				$newPhone = array($_POST['contact1']);
 			
@@ -1094,22 +1151,25 @@
 				
 				//prepare edit db statement and execute POST.....
 				$updateToDB = array (
-					"username"	=> $newUserName,
-					"password"	=> $newPassword,
-					"salt" 		=> $newSalt,
-					"firstName"	=> $_POST['firstname'],
-					"lastName"	=> $_POST['lastname'],
-					"nric"		=> $_POST['NRIC'],
-					"dob"		=> $_POST['dob'],
-					"gender"	=> $_POST['gender'],
-					"phone"		=> $newPhone,
-					"address"	=> $newAddress,
-					"zipcode"	=> $newZipCode,
-					"qualify"	=> $newQualify,		//this is NOT a string value.
-					"bloodtype"	=> $_POST['bloodtype'],
-					"secret"	=> "someSecretLUL",		//Stub. Will update this.
-					"nfcid"		=> NULL,				//Stub(?)
-					"uid"		=> $editCurrentInfo->uid
+					"username"		=> $newUserName,
+					"password"		=> $newPassword,
+					"salt" 			=> $newSalt,
+					"firstName"		=> $_POST['firstname'],
+					"lastName"		=> $_POST['lastname'],
+					"ethnicity"		=> $_POST['ethnic'],
+					"nationality"	=> $_POST['nationality'],
+					"nric"			=> $_POST['NRIC'],
+					"dob"			=> $_POST['dob'],
+					"sex"			=> $_POST['gender'],
+					"phone"			=> $newPhone,
+					"address"		=> $newAddress,
+					"zipcode"		=> $newZipCode,
+					"qualify"		=> $newQualify,		//this is NOT a string value.
+					"bloodtype"		=> $_POST['bloodtype'],
+					"drugAllergy"	=> $drugAllergy,
+					"secret"		=> "someSecretLUL",		//Stub. Will update this.
+					"nfcid"			=> NULL,				//Stub(?)
+					"uid"			=> $editCurrentInfo->uid
 				);
 				
 				$updateToDB_json = json_encode($updateToDB);
@@ -1145,7 +1205,6 @@
 		exit();
 	}
 	
-	//SECURITY ISSUES: FORM MANIPULATION FROM OTHER PAGE (UPDATE: HANDLED)
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "add") {
 		
 		//Navigation Session Check
@@ -1180,6 +1239,9 @@
 			
 			//Perform blood type check
 			checkBloodType(TRUE);
+			
+			//Perform allergy field check
+			checkAllergy(TRUE);
 		
 			//Perform dob check
 			checkDOB(TRUE);
@@ -1200,11 +1262,14 @@
 			//Save previously entered values:
 			$_SESSION['type'] = $_POST['usertype'];
 			$_SESSION['uname'] = $_POST['username'];
+			$_SESSION['nationality'] = $_POST['nationality'];
 			$_SESSION['NRIC'] = $_POST['NRIC'];
 			$_SESSION['fname'] = $_POST['firstname'];
 			$_SESSION['lname'] = $_POST['lastname'];
+			$_SESSION['ethnic'] = $_POST['ethnic'];
 			$_SESSION['gender'] = $_POST['gender'];
 			$_SESSION['btype'] = $_POST['bloodtype'];
+			$_SESSION['allergy'] = $_POST['allergy'];
 			$_SESSION['dob'] = $_POST['dob'];
 			$_SESSION['c1'] = $_POST['contact1'];
 			$_SESSION['c2'] = $_POST['contact2'];
@@ -1222,11 +1287,14 @@
 			//unset all user input values.
 			unset($_SESSION['type']);
 			unset($_SESSION['uname']);
+			unset($_SESSION['nationality']);
 			unset($_SESSION['NRIC']);
 			unset($_SESSION['fname']);
 			unset($_SESSION['lname']);
+			unset($_SESSION['ethnic']);
 			unset($_SESSION['gender']);
 			unset($_SESSION['btype']);
+			unset($_SESSION['allergy']);
 			unset($_SESSION['dob']);
 			unset($_SESSION['c1']);
 			unset($_SESSION['c2']);
@@ -1243,6 +1311,12 @@
 			$hashedPassword = password_hash($_POST['password'], PASSWORD_BCRYPT);
 			$salt = substr($hashedPassword, 0, 29); //first 29 characters of bcrypt hash is the salt.
 			$hashedPassword = hash('SHA256', $hashedPassword); //finally, SHA256 the bcrypt string.
+			
+			//Handle Drug Allergy
+			$drugAllergy = FALSE;
+			if ($_POST['allergy'] === "Yes" ) {
+				$drugAllergy = TRUE;
+			}
 			
 			//Set up array of phone numbers (Handle empty fields too)
 			$phoneNumbers = array($_POST['contact1']);
@@ -1298,21 +1372,24 @@
 			
 			//POST METHOD 
 			$addToDB = array (
-				"username"	=> $_POST['username'],
-				"password"	=> $hashedPassword,
-				"salt" 		=> $salt,
-				"firstName"	=> $_POST['firstname'],
-				"lastName"	=> $_POST['lastname'],
-				"nric"		=> $_POST['NRIC'],
-				"dob"		=> $_POST['dob'],
-				"gender"	=> $_POST['gender'],
-				"phone"		=> $phoneNumbers,
-				"address"	=> $addresses,
-				"zipcode"	=> $zipcodes,
-				"qualify"	=> $isTherapist,		//this is NOT a string value.
-				"bloodtype"	=> $_POST['bloodtype'],
-				"secret"	=> "someSecretLUL",		//Stub. Will update this.
-				"nfcid"		=> NULL					//Stub(?)
+				"username"		=> $_POST['username'],
+				"password"		=> $hashedPassword,
+				"salt" 			=> $salt,
+				"firstName"		=> $_POST['firstname'],
+				"lastName"		=> $_POST['lastname'],
+				"ethnicity"		=> $_POST['ethnic'],
+				"nationality"	=> $_POST['nationality'],
+				"nric"			=> $_POST['NRIC'],
+				"dob"			=> $_POST['dob'],
+				"sex"			=> $_POST['gender'],
+				"phone"			=> $phoneNumbers,
+				"address"		=> $addresses,
+				"zipcode"		=> $zipcodes,
+				"qualify"		=> $isTherapist,		//this is NOT a string value.
+				"bloodtype"		=> $_POST['bloodtype'],
+				"drugAllergy"	=> $drugAllergy,
+				"secret"		=> "someSecretLUL",		//Stub. Will update this.
+				"nfcid"			=> NULL					//Stub(?)
 			);
 			
 			$addToDB_json = json_encode($addToDB);

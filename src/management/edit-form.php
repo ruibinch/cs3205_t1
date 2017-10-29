@@ -74,6 +74,12 @@
 		<h2>Stage 3: User Information</h2>
 		<table>
 			<tr>
+				<td>Nationality:<span class="required">*</span>&emsp;</td>
+				<td>
+					<input type="text" name="nationality" placeholder="Singaporean" <?php echo 'value="'.htmlspecialchars($result->nationality).'"';?> required>
+				</td>
+			</tr>
+			<tr>
 				<td>NRIC/FIN:<span class="required">*</span>&emsp;</td>
 				<td>
 					<input type="text" name="NRIC" placeholder="S0000000I" size="10" maxlength="9"<?php echo 'value="'.htmlspecialchars($result->nric).'"';?> required>
@@ -92,10 +98,16 @@
 				</td>
 			</tr>
 			<tr>
-				<td>Gender:<span class="required">*</span>&emsp;</td>
+				<td>Ethnicity:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="text" name="ethnic" placeholder="Chinese" <?php echo 'value="'.htmlspecialchars($result->ethnicity).'"';?> required>
+					</td>
+				</tr>
+			<tr>
+				<td>Sex:<span class="required">*</span>&emsp;</td>
 				<td>
-					<input type="radio" name="gender" value="M" <?php if ($result->gender === "M") echo "checked";?> required>Male&emsp;&emsp;&emsp;
-					<input type="radio" name="gender" value="F" <?php if ($result->gender === "F") echo "checked";?> required>Female
+					<input type="radio" name="gender" value="M" <?php if ($result->sex === "M") echo "checked";?> required>Male&emsp;&emsp;&emsp;
+					<input type="radio" name="gender" value="F" <?php if ($result->sex === "F") echo "checked";?> required>Female
 				</td>
 			</tr>
 			<tr>
@@ -125,6 +137,13 @@
 					</select>
 				</td>
 			</tr>
+			<tr>
+				<td>Drug Allergy:<span class="required">*</span>&emsp;</td>
+					<td>
+						<input type="radio" name="allergy" value="Yes" <?php if ($result->drugAllergy) echo "checked";?> required>Yes&emsp;&emsp;&emsp;
+						<input type="radio" name="allergy" value="No" <?php if (!($result->drugAllergy)) echo "checked";?> required>No
+					</td>
+				</tr>
 		</table>
 	</div>
 	<div class="left">
@@ -203,9 +222,6 @@
 	<br/>
 </div>
 
-<div class="contentField" id="errorDiv">
-</div>
-
 <!-- Consider making a separate js file-->
 <script>
 	$(document).ready(function(){
@@ -222,6 +238,7 @@
 					$("#loaderDiv2").hide();
 					$("#errorDiv").show();
 					$("#errorDiv").html(result);
+					$('body').scrollTop(0);
 				},
 				error: function() {
 					alert('Warning: Server may be unavailable at this point in time.');
