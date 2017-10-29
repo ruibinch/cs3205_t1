@@ -1,9 +1,9 @@
 <?php
 
     // Challenge-response authentication process
-    if (isset($_POST['inputUsername']) & isset($_POST['loginSystem'])) {
+    if (isset($_POST['inputUsername']) & isset($_POST['loginSystem']) && isset($_POST['userType'])) {
         session_start();
-        echo getChallengeAndSalt($_POST['inputUsername'], $_POST['loginSystem']);
+        echo getChallengeAndSalt($_POST['inputUsername'], $_POST['loginSystem'], $_POST['userType']);
     } else if (isset($_POST['challengeResponse'])) {
         session_start();
         echo verifyResponse($_POST['challengeResponse']);
@@ -32,7 +32,10 @@
     //                       CHALLENGE-RESPONSE AUTHENTICATION
     // ===============================================================================
             
-    function getChallengeAndSalt($input_username, $login_system) {
+    function getChallengeAndSalt($input_username, $login_system, $user_type) {
+        $_SESSION['login_system'] = $login_system;
+        $_SESSION['user_type'] = $user_type;
+
         if ($login_system === "hcsystem") {
             $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $input_username));
         } else if ($login_system === "mgmtconsole") {
@@ -47,6 +50,7 @@
             $fake_salt = substr(password_hash(strval(mt_rand()), PASSWORD_DEFAULT), 0, 29); // to prevent timing attacks
             $response = array('challenge' => $challenge, 'salt' => $fake_salt);
         }
+
         return json_encode($response);
     }
 
@@ -62,10 +66,58 @@
             $sha_check_char = hash("sha256", $check_char); // H(H(hash,challenge) XOR response)
             
             if (strcmp($sha_check_char, $user_pwhash) === 0) {
-                return 1;
+                return processLogin();
             }
         }
-        return 0;
+    }
+
+    function processLogin() {
+        $dummy_key = "dummykey";
+        
+        if ($_SESSION['login_system'] === "hcsystem") {
+            include_once 'jwt.php';
+            $user_json = $_SESSION['user_json'];
+            $user_type = $_SESSION['user_type'];
+
+            if ($user_type === "therapist" && $user_json->qualify !== 1) {
+                return "login.php?err=1";
+                //header("location: ../login.php?err=1");
+                //die();
+            }
+            
+            //TODO: change the dummy key here to the real key; change $secure to true
+            setcookie("jwt", WebToken::getToken($user_json->uid, $user_type === "therapist", $dummy_key), 
+                    time()+3600, "/", null, true, true);
+            return "main.php";
+            //exit();
+
+        } else if ($_SESSION['login_system'] === "mgmtconsole") {
+            include_once 'jwt-admin.php';
+            
+            $decode = $_SESSION['user_json'];
+            if (isset($decode->username)) {
+                //TODO: change the dummy key here to the real key
+                setcookie("jwt", WebToken::getToken($decode->admin_id, $dummy_key),time()+3600, "/", null, true, true);
+                $_SESSION['loggedin'] = $decode->username;
+                return "management/console.php";
+                //header("location: management/console.php");
+                //exit();
+            } else {
+                $_SESSION = array();
+                if (ini_get("session.use_cookies")) {
+                    $params = session_get_cookie_params();
+                    setcookie(session_name(), '', time() - 42000,
+                        $params["path"], $params["domain"],
+                        $params["secure"], $params["httponly"]
+                );
+                }
+                session_destroy();
+                return "login.php?to=console&err=1";
+                //header("Location: login.php?to=console&err=1");
+                //exit();
+            }
+            
+        }
     }
 
     // ===============================================================================

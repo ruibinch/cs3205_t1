@@ -89,8 +89,11 @@
                     $.ajax({
                         type: "POST",
                         url: "util/ajax-process.php",
-                        data: { "inputUsername": inputUsername, "loginSystem": loginSystem }
+                        data: { "inputUsername": inputUsername, 
+                                "loginSystem": loginSystem,
+                                "userType": userType }
                     }).done(function(response) {
+                        console.log("response = " + response);
                         obj = JSON.parse(response);
                         computeResponse(obj);
                     });
@@ -128,8 +131,14 @@
                 $.ajax({
                     type: "POST",
                     url: "util/ajax-process.php",
-                    data: { "challengeResponse": response }
-                }).done(function(response) {
+                    data: { "challengeResponse": response },
+                    success: function(data) {
+                        window.location.href = data;
+                    },
+                    error: function(xhr, ajaxOptions, thrownError) { }
+                });
+                /*
+                .done(function(response) {
                     if (response == 0) {
                         window.location = "login.php?err=1";
                     } else {
@@ -152,6 +161,7 @@
                         form.submit();
                     }
                 });
+                */
             }
 
             window.onload = function() {
