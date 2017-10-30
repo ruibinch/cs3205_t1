@@ -75,7 +75,7 @@
         $dummy_key = "dummykey";
         
         if ($_SESSION['login_system'] === "hcsystem") {
-            include_once 'jwt.php';
+            include_once 'util/jwt.php';
             $user_json = $_SESSION['user_json'];
             $user_type = $_SESSION['user_type'];
 
@@ -92,7 +92,7 @@
             //exit();
 
         } else if ($_SESSION['login_system'] === "mgmtconsole") {
-            include_once 'jwt-admin.php';
+            include_once 'util/jwt-admin.php';
             
             $decode = $_SESSION['user_json'];
             if (isset($decode->username)) {

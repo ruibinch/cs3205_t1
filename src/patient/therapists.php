@@ -106,7 +106,7 @@
                 $(document).on('click', '#removeTherapist', function() {
                     $.ajax({
                         type: "POST",
-                        url: "../util/ajax-process.php",
+                        url: "../ajax-process.php",
                         data: { "removeTreatmentId": $(this).val() }
                     }).done(function(response) {
                         if (response == 1) {

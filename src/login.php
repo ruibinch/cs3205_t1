@@ -93,7 +93,6 @@
                                 "loginSystem": loginSystem,
                                 "userType": userType }
                     }).done(function(response) {
-                        console.log("response = " + response);
                         obj = JSON.parse(response);
                         computeResponse(obj);
                     });
@@ -124,10 +123,10 @@
                 //console.log("H(bcrypt(pw,salt)) = " + sha_bcrypt_pw);
                 //console.log("H(H(bcrypt(pw,salt)) || challenge) = " + sha_sha_bcrypt_pw_with_challenge);
                 
-                sendResponse(response, obj.challenge);
+                sendResponse(response);
             }
 
-            function sendResponse(response, challenge) {
+            function sendResponse(response) {
                 $.ajax({
                     type: "POST",
                     url: "ajax-process.php",
@@ -137,31 +136,6 @@
                     },
                     error: function(xhr, ajaxOptions, thrownError) { }
                 });
-                /*
-                .done(function(response) {
-                    if (response == 0) {
-                        window.location = "login.php?err=1";
-                    } else {
-                        var form = "";
-                        if (userType == "patient" || userType == "therapist") {
-                            var url = "util/login-validation.php";
-                            var username = $('#hc-username').val();
-                            form = $('<form action="' + url + '" method="post">' + 
-                                    '<input type="text" name="username" value="' + username + '" />' + 
-                                    '<input type="text" name="user_type" value="' + userType + '" />' +
-                                    '</form>');
-                        } else if (userType == "admin") {
-                            var url = "util/login-validation-admin.php";
-                            var username = $('#mgmt-username').val();
-                            form = $('<form action="' + url + '" method="post">' + 
-                                    '<input type="text" name="username" value="' + username + '" />' + 
-                                    '</form>');
-                        }
-                        $('#body').append(form);
-                        form.submit();
-                    }
-                });
-                */
             }
 
             window.onload = function() {
