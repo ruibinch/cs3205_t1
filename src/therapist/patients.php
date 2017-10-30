@@ -35,7 +35,6 @@
         <div class="shifted">
             <h1>Patient<?php if ($num_patients != 1) { ?>s<?php } ?> you are assigned to (<?php echo $num_patients ?>):</h1>
             <hr style="margin-top:-15px">
-            <p>Search by name: <input type="text" id="searchbox" name="searchbox" style="width:30%"/></p> <!-- TODO - search function -->
             <table class="main-table">
                 <tr>
                     <th class = "first-col">S/N</th>

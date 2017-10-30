@@ -88,7 +88,7 @@
 
                     $.ajax({
                         type: "POST",
-                        url: "util/ajax-process.php",
+                        url: "ajax-process.php",
                         data: { "inputUsername": inputUsername, 
                                 "loginSystem": loginSystem,
                                 "userType": userType }
@@ -130,7 +130,7 @@
             function sendResponse(response, challenge) {
                 $.ajax({
                     type: "POST",
-                    url: "util/ajax-process.php",
+                    url: "ajax-process.php",
                     data: { "challengeResponse": response },
                     success: function(data) {
                         window.location.href = data;

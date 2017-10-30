@@ -114,7 +114,7 @@
                             click: function() { 
                                 $.ajax({
                                     type: "POST",
-                                    url: "../util/ajax-process.php",
+                                    url: "../ajax-process.php",
                                     data: { "consentChanges": consentChanges }
                                 });
                                 $(this).dialog('close');

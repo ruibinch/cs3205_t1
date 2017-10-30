@@ -142,7 +142,7 @@
                             click: function() {
                                 $.ajax({
                                     type: "POST",
-                                    url: "../util/ajax-process.php",
+                                    url: "../ajax-process.php",
                                     data: { "patientId": $(this).data('patientId'), 
                                             "therapistId": $(this).data('therapistId'),
                                             "consentSettings": consentSettings }

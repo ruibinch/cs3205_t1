@@ -172,7 +172,7 @@
                     console.log(consentChanges);
                     $.ajax({
                         type: "POST",
-                        url: "../util/ajax-process.php",
+                        url: "../ajax-process.php",
                         data: { "treatmentId": <?php echo $treatment->id; ?>,
                                 "currentConsentSetting": $('#currentConsent').is(':checked'),
                                 "futureConsentSetting": $('#futureConsent').is(':checked'),

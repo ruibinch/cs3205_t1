@@ -249,7 +249,7 @@
                         click: function() {
                             $.ajax({
                                 type: "POST",
-                                url: "util/ajax-process.php",
+                                url: "ajax-process.php",
                                 data: { "acceptTreatmentId": $(this).data('treatmentId') }
                             }).done(function(response) {
                                 if (response == 1) {
@@ -270,7 +270,7 @@
                         click: function() { 
                             $.ajax({
                                 type: "POST",
-                                url: "util/ajax-process.php",
+                                url: "ajax-process.php",
                                 data: { "rejectTreatmentId": $(this).data('treatmentId') }
                             }).done(function(response) {
                                 if (response == 1) {

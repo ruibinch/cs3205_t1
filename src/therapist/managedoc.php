@@ -4,7 +4,7 @@
   $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
 
   $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
-  $user_type = $result->qualify ? "therapist" : "patient";
+  $user_type = $result->istherapist ? "therapist" : "patient";
   
   $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
   $num_documents = count($documents_list);

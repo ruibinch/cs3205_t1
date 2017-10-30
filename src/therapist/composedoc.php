@@ -3,7 +3,7 @@
   include_once '../util/jwt.php';
   $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
   $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
-  $user_type = $result->qualify ? "therapist" : "patient";
+  $user_type = $result->istherapist ? "therapist" : "patient";
 
   $patients_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'))->treatments;
   $num_patients = count($patients_list);

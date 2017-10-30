@@ -43,11 +43,7 @@
 
     if ($user_type === "therapist") {
 		echo
-		'<div class="sidebar">
-			<form class="sidebar-searchbar-form">
-	  			<span class="searchbar-icon"><i class=\'fa fa-search\'></i></span>
-	  			<input class="sidebar-searchbar" type="text" name="search" placeholder="Search..">
-			</form><br>
+        '<div class="sidebar">
 			<a href="'.$therapist_home.'" style="text-decoration:none">Home</a><br><hr>
 			<a href="'.$therapist_patient_list.'" style="text-decoration:none">Patients</a><br><hr>
 			<a href="'.$therapist_compose_doc.'" style="text-decoration:none">Compose</a><br><hr>
@@ -58,10 +54,6 @@
 	} else if ($user_type === "patient") { 
 		echo
 		'<div class="sidebar">
-			<form class="sidebar-searchbar-form">
-	  			<span class="searchbar-icon"><i class=\'fa fa-search\'></i></span>
-	  			<input class="sidebar-searchbar" type="text" name="search" placeholder="Search..">
-			</form><br>
 			<a href="'.$patient_home.'" style="text-decoration:none">Home</a><br><hr>
 			<a href="'.$patient_therapist_list.'" style="text-decoration:none">Therapists</a><br><hr>
 			<a href="'.$patient_documents.'" style="text-decoration:none">Records</a><br><hr>
