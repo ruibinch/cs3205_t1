@@ -7,13 +7,14 @@ class CSRFToken
 
     /*
      * @param $uid
+     * @param $description
      * @return a token expiring in one hour
      */
-    static function generateToken($uid)
+    static function generateToken($uid, $description)
     {
         $string = bin2hex(random_bytes(20));
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/csrf/create/" . $string . "/" . $uid . "/" . (time()+3600));
+        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/csrf/create/" . $string . "/" . $uid . "/" . (time()+3600) . "/" .$description);
         curl_setopt($curl, CURLOPT_PORT, 80);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = json_decode(curl_exec($curl));
