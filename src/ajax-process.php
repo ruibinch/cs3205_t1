@@ -26,7 +26,12 @@
     }
     if (isset($_POST['treatmentId']) && isset($_POST['currentConsentSetting']) && isset($_POST['futureConsentSetting'])) {
         echo updateDefaultConsentSettings($_POST['treatmentId'], $_POST['currentConsentSetting'], $_POST['futureConsentSetting']);
-    } 
+    }
+
+    // Misc
+    if (isset($_POST['attachRecords'])) {
+        echo displayAttachedRecords($_POST['attachRecords']);
+    }
 
     // ===============================================================================
     //                       CHALLENGE-RESPONSE AUTHENTICATION
@@ -87,7 +92,7 @@
             
             //TODO: change the dummy key here to the real key; change $secure to true
             setcookie("jwt", WebToken::getToken($user_json->uid, $user_type === "therapist", $dummy_key), 
-                    time()+3600, "/", null, true, true);
+                    time()+3600, "/", null, false, true);
             return "main.php";
             //exit();
 
@@ -237,6 +242,35 @@
                 $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consent->consentId));
             }
         }
+    }
+
+    // ===============================================================================
+    //                                  MISC
+    // ===============================================================================
+    
+    function displayAttachedRecords($attached_records_list) {
+        /*
+        $var = "";
+        for ($i = 0; $i < count($attached_records_list); $i++) {
+            $var .= $attached_records_list[$i] . ", "; 
+        }
+        return $var;
+        */
+        
+        $count = 1;
+        $line = "<br>";
+        for ($i = 0; $i < count($attached_records_list); $i++) {
+            if ($attached_records_list[$i]) {
+                $line .= "<span>";
+                $line .= $count . ". <a href='#'><u>"; // TODO - include link to view the file
+                $line .= json_decode(file_get_contents('http://172.25.76.76/api/team1/record/' . $i))->title;
+                $line .= "</u></a></span>";
+                $line .= "<br>";
+                $count++;
+            }
+        }
+
+        return $line;
     }
 
     // ===============================================================================

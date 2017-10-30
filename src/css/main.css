@@ -338,7 +338,7 @@ div.tab button.active {
 }
 
 
-.newdoc-table input {
+.newdoc-table input[type='button'], .newdoc-table input[type='text'] {
     width: 50%;
     border-radius: 5px;
     outline: none;

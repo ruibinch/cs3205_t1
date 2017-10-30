@@ -32,7 +32,6 @@
 
     // Gets the list of records assigned to the specified patient
     $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
-    $records_list_with_consent = array();
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }
