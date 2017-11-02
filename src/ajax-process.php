@@ -33,6 +33,11 @@
         echo displayAttachedRecords($_POST['attachRecords']);
     }
 
+    // Document Sharing
+    if (isset($_POST['therapistArray'])) {
+        echo shareDocumentsWithTherapists($_POST['therapistArray']);
+    }
+
     // ===============================================================================
     //                       CHALLENGE-RESPONSE AUTHENTICATION
     // ===============================================================================
@@ -301,6 +306,51 @@
         }
 
         return $line;
+    }
+
+    function shareDocumentsWithTherapists($therapist_array) {
+        $t_array = array();
+        foreach($therapist_array AS $therapist) {
+            $therapist = json_decode($therapist);
+            $consent_string = getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner);
+            if ($therapist->isChecked) {
+                if (strcmp($consent_string, "-1") == 0) { // Consent doesn't exist
+                    $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
+                    $consent_json = json_decode(getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner));
+                    $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                    array_push($t_array, $therapist->therapist." consent created");
+                } else {
+                    $consent_json = json_decode($consent_string);
+                    if (!$consent_json->status) {
+                        $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                        array_push($t_array, $therapist->therapist." consent toggled to true");
+                    }
+                }
+            } else {
+                if (strcmp($consent_string, "-1") !== 0) { // If consent exist
+                    $consent_json = json_decode($consent_string);
+                    if ($consent_json->status) {
+                        $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                        array_push($t_array, $therapist->therapist." consent toggled to false");
+                    }
+                }
+            }
+        }
+        return json_encode($t_array);
+    }
+
+    function getConsentJson($uid, $rid, $tid) {
+        $consentId = "-1"; // Consent doesn't exist
+        $consent_array = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/owner/".$tid."/".$uid));
+        if (!isset($consent_array->result)) {
+            $consent_array = $consent_array->consents;
+            foreach ($consent_array AS $consent_elem) {
+                if (strcmp($consent_elem->rid, $rid) == 0) {
+                    $consentId = file_get_contents("http://172.25.76.76/api/team1/consent/".$consent_elem->consentId);
+                }
+            }
+        }
+        return $consentId;
     }
 
     // ===============================================================================
