@@ -4,54 +4,40 @@
 	crossorigin="anonymous"></script>
 <div id="chart"></div>
 <script>
-
-Plotly.d3.csv('<?php echo htmlspecialchars($fileurl)?>', function(err, rows) {
-
-	console.log(rows);
-	var json;
-	$.ajax({
-	     url: '<?php echo htmlspecialchars($jsonurl)?>',
-	     type: "GET",
-	     dataType: "JSON",
-	     success: function(json){
-	        console.log(json);
-	       	if (!json.hasOwnProperty("headers") || !json["headers"].hasOwnProperty("x")) {
-	    		document.getElementById("chart").innerHTML = "Wrong file format";
-	    		throw new Error("Wrong JSON file format");
-	    	}
-	    	
-	    	var xheader = json["headers"]["x"];
-	    	var x = [];
-	    	rows.forEach(function(entry) {
-	    		x.push(parseInt(entry[xheader]));
-	    	});
-
-	    	var traces = [];
-	    	for (var k in json["headers"]) {
-	    		if (k != "x") {
-	    			var trace = {};
-	    			trace["y"] = [];
-	    			rows.forEach(function(entry) {
-	    				trace["y"].push(parseInt(entry[k]));
-	    			});
-	    			trace["x"] = x;
-	    			trace["mode"] = 'lines';
-	    			trace["name"] = escape(k);
-	    			traces.push(trace);
-	    		}
-	    	}
-
-	    	var layout = {
-	    		title : escape(json["title"])
-	    	};
-
-			console.log(traces);
-	    	
-	    	Plotly.newPlot("chart", traces, layout);
-	     }
+Plotly.d3.json('/tmp/json2.json', function(json){
+	var multix = Number(json[json["x_axis"]]["multiplier"]);
+	var x;
+	if (json.hasOwnProperty('sessionTime')) {
+		x = json[json["x_axis"]]["values"].map(function(f){
+    		return new Date(f + json["sessionTime"]);
+    	});
+	} else {
+    	x = json[json["x_axis"]]["values"].map(function(f){
+    		return f * multix;
+    	});
+	}
+	var traces = json[json["y_axis"]]["data"].map(function(e){
+		var multi = Number(json[json["y_axis"]]["multiplier"]);
+		return {
+			x: x,
+			y: e["values"].map(function(f){
+				return f * multi;
+			}),
+			name: e["name"],
+			mode: "lines",
+		};
 	});
-	
-
+	var layout = {
+		title: json["title"],
+		xaxis: {
+			title: json["x_axis"] + "/" + json[json["x_axis"]]["displayUnit"],
+		},
+		yaxis: {
+			title: json["y_axis"] + "/" + json[json["x_axis"]]["displayUnit"],
+		},
+		showlegend: true
+	}
+	Plotly.newPlot('chart', traces, layout);
 });
 
 </script>
