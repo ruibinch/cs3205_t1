@@ -281,7 +281,7 @@
                                     echo "-";
                                 } else {
                                     $patient = getJsonFromUid($p_id);
-                                    echo $p_id;
+                                    echo $patient->firstname." ".$patient->lastname;
                                 }
                                 ?>
                             </td>
