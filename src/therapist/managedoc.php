@@ -9,6 +9,30 @@
     $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
     $num_documents = count($documents_list);
 
+    $shared_documents_list = array();
+
+    if (isset(json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents)) {
+        $consented_documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents;
+        $shared_documents_list = array();
+        foreach($consented_documents_list AS $consented_document) {
+            $shared_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
+            if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0) {
+                array_push($shared_documents_list, get_record($consented_document->rid));
+            }
+        }
+    }
+
+    if (isset(json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents)) {
+        $consented_documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents;
+        $shared_documents_list = array();
+        foreach($consented_documents_list AS $consented_document) {
+            $shared_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
+            if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0) {
+                array_push($shared_documents_list, get_record($consented_document->rid));
+            }
+        }
+    }
+
     function sanitise($input) {
         $input = trim($input);
         $input = stripcslashes($input);
@@ -122,7 +146,13 @@
     <head>
         <title>Manage Documents</title>
         <link href="../css/main.css" rel="stylesheet">
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css" rel="stylesheet">
+        <script src="https://code.jquery.com/jquery-3.2.1.min.js"
+            integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+            crossorigin="anonymous"></script>
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"
+            integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30="
+            crossorigin="anonymous"></script>
     </head>
 
     <body>
@@ -131,13 +161,16 @@
         <div class="shifted">
         <h1>You have <?php echo $num_documents ?> document<?php if ($num_documents != 1) { ?>s<?php } ?>.</h1>  
             <hr style="margin-top:-15px">
-            <table class="main-table">
+            <details>
+                <summary>Your Notes</summary>
+                <table class="main-table">
                 <tr>
                     <th class="first-col">S/N</th>
                     <th>Title</th>
                     <th>Patient</th>
                     <th>Shared with Patient</th>
                     <th>Last modified</th>
+                    <th></th>
                     <th class="last-col"></th>
                 </tr>
                 <?php 
@@ -213,24 +246,133 @@
                             </form>
                             <button name="delete-document" style="border:none; background:none"><i class="fa fa-times fa-lg" aria-hidden="true"></i></button>
                         </td>
-
+                        <td>
+                            <button data-patientid="<?php echo $record->patientId ?>" data-rid="<?php echo $record->rid ?>" name="share-document" style="border:none; background:none"><i class="fa fa-share-square-o fa-lg" aria-hidden="true"></i></button>
+                        </td>
                     </tr>
                 <?php 
                     $i++;
                     }
                 }
                 ?>
-            </table>
+                </table>
+            </details>
+            <details>
+                <summary>Other Therapists' Notes</summary>
+                <table class="main-table">
+                    <tr>
+                        <th class="first-col">S/N</th>
+                        <th>Title</th>
+                        <th>Therapist</th>
+                        <th>Patient</th>
+                        <th>Last modified</th>
+                    </tr>
+                    <?php for($i=0; $i < count($shared_documents_list); $i++) { ?>
+                        <tr>
+                            <td><?php echo $i + 1 ?></td>
+                            <td style="width:60%">
+                                <details>
+                                    <summary><?php echo $shared_documents_list[$i]->title ?></summary>
+                                    <?php echo $shared_documents_list[$i]->notes ?>
+                                </details>
+                                
+                            </td>
+                            <td>
+                                <?php
+                                $t_id = $shared_documents_list[$i]->therapistId;
+                                $therapist = getJsonFromUid($t_id);
+                                echo $therapist->firstname." ".$therapist->lastname;
+                                ?>
+                            </td>
+                            <td>
+                                <?php
+                                $p_id = $shared_documents_list[$i]->patientId;
+                                $patient = getJsonFromUid($p_id);
+                                echo $patient->firstname." ".$patient->lastname;
+                                ?>
+                            </td>
+                            <td><?php echo substr($shared_documents_list[$i]->modifieddate, 0, 10) ?></td>
+                        </tr>
+                    <?php } ?>
+                </table>
+            </details>
         </div>
 
+        <div id="therapistsListDialog"></div>
+
         <script>
-          $(document).ready(function() {
-            $("button[name='delete-document'").click(function() {
+
+        var therapistArray = [];
+        $(document).ready(function() {
+
+            $("button[name='delete-document']").click(function() {
               var to_delete = confirm("Are you sure you want to delete this document?");
               if (to_delete) {
                 $("#deleteDocument").submit();
               }
             });
+
+            $("button[name='share-document']").click(function() {
+                var patientId = $(this).data('patientid');
+                var rid = $(this).data('rid');
+                $('#therapistsListDialog')
+                    .data('patientId', patientId)
+                    .data('therapistId', <?php echo $user_json->uid ?>)
+                    .data('rid', rid)
+                    .dialog('open');
+                
+            });
+
+            $('#therapistsListDialog').dialog({
+                width: 400,
+                height: 600,
+                autoOpen: false,
+                resizable: false,
+                draggable: true,
+                modal: true,
+                title: 'Share Documents',
+                buttons: [
+                    {
+                        text: "Share",
+                        click: function() {
+                            var rid = $(this).data('rid');
+                            therapistArray = [];
+                            $(".selectDocumentCheckbox").each(function() {
+                                var t_id = $(this).val();
+                                var isChecked = $(this).is(':checked');
+                                var t_json = {"therapist": t_id, "isChecked": isChecked, "owner": <?php echo $user_json->uid ?>, "rid": rid};
+                                therapistArray.push(JSON.stringify(t_json));
+                            });
+                            $.ajax({
+                                type: "POST",
+                                url: "../ajax-process.php",
+                                data: { "therapistArray": therapistArray }
+                            }).done(function(response) {
+                                alert(response);
+                            });
+                            $(this).dialog('close');
+                        }
+                    },
+                    {
+                        text: "Cancel",
+                        click: function() {
+                            therapistArray = [];
+                            $(this).dialog('close');
+                        }
+                    }
+                ],
+                open: function(event, ui) {
+                    $(this).load(
+                        'therapists-list-dialog.php', 
+                        { 
+                            "patientId": $(this).data('patientId'), 
+                            "therapistId": $(this).data('therapistId'),
+                            "rid": $(this).data('rid')
+                        }
+                    );
+                }
+            });
+
           });
         </script>
     </body>
