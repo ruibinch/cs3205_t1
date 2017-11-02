@@ -19,7 +19,25 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['action'])) {
             $rid = $_POST['rid'];
-            $delete = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/delete/'.$rid."/".$user_json->uid));
+            $record = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $rid));
+            $patientId = $record->patientId;
+            $therapistId = $record->therapistId;
+
+            // delete consent related to the document, if itexists
+            if ($therapistId != 0) {
+                $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $therapistId . '/' . $patientId));
+                if (isset($consents_json->consents)) {
+                    $consents_list = $consents_json->consents;
+                    for ($j = 0; $j < count($consents_list); $j++) {
+                        if ($consents_list[$j]->rid === $rid) {
+                            $delete_consent = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $consents_list[$j]->consentId));
+                        }
+                    }
+                }
+            }
+
+            // delete document
+            $delete_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/delete/'.$rid."/".$user_json->uid));
             $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
@@ -51,25 +69,26 @@
             $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
-            // if permission had been granted to the patient to view the document, create a corresponding consent
-            if ($allow_patient_viewdoc === "on") {
-                $added_document = $documents_list[count($documents_list)-1];
-                $added_document_rid = $added_document->rid;
-                $associated_patient_id = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $added_document_rid))->patientId;
+            // create a corresponding consent between this document and the associated patient
+            $added_document = $documents_list[count($documents_list)-1];
+            $added_document_rid = $added_document->rid;
+            $associated_patient_id = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $added_document_rid))->patientId;
+            if ($associated_patient_id != 0) { // if there is an associated patient
                 $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $associated_patient_id . '/' . $added_document_rid));
                 
-                // set the consent status to true
-                $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/record/' . $added_document_rid));
-                if (isset($consents_json->consents)) {
-                    $consents = $consents_json->consents;
-                    for ($i = 0; $i < count($consents); $i++) {
-                        if ($consents[$i]->uid === $associated_patient_id) {
-                            $consentId = $consents[$i]->consentId;
-                            $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consentId));
+                // if option to allow patient to view is set, update the consent status to true
+                if ($allow_patient_viewdoc === "on") {
+                    $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/record/' . $added_document_rid));
+                    if (isset($consents_json->consents)) {
+                        $consents = $consents_json->consents;
+                        for ($i = 0; $i < count($consents); $i++) {
+                            if ($consents[$i]->uid === $associated_patient_id) {
+                                $consentId = $consents[$i]->consentId;
+                                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consentId));
+                            }
                         }
                     }
                 }
-
             }
         }
     }
@@ -110,7 +129,7 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-            <h1>You have <?php echo $num_documents ?> documents.</h1>  
+        <h1>You have <?php echo $num_documents ?> document<?php if ($num_documents != 1) { ?>s<?php } ?>.</h1>  
             <hr style="margin-top:-15px">
             <table class="main-table">
                 <tr>
@@ -129,6 +148,8 @@
                             continue;
                         } else {
                             $patient = getJsonFromUid($record->patientId);
+                            $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
+                            
                 ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1) . "." ?></td>
@@ -172,11 +193,10 @@
                                     echo "-";
                                 } else {
                                     $shared_with_patient = "No";
-                                    $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
                                     if (isset($consents_json->consents)) {
                                         $consents = $consents_json->consents;
                                         for ($j = 0; $j < count($consents); $j++) {
-                                            if ($consents[$j]->rid === $document->rid) {
+                                            if (($consents[$j]->rid === $document->rid) && $consents[$j]->status) {
                                                 $shared_with_patient = "Yes";
                                             }
                                         }
@@ -189,7 +209,7 @@
                         <td style="vertical-align:top">
                             <form id="deleteDocument" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                               <input type="hidden" name="action" value="delete-document" />
-                              <input type="hidden" name="rid" value="<?php echo $record->rid; ?>">
+                              <input type="hidden" name="rid" value="<?php echo $record->rid; ?>"/>
                             </form>
                             <button name="delete-document" style="border:none; background:none"><i class="fa fa-times fa-lg" aria-hidden="true"></i></button>
                         </td>

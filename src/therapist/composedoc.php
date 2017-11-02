@@ -5,8 +5,15 @@
     $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
-    $patients_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'))->treatments;
-    $num_patients = count($patients_list);
+    $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'));
+    if (isset($patients_list_json->treatments)) {
+        $patients_list = $patients_list_json->treatments;
+    }
+    if (isset($patients_list)) {
+        $num_patients = count($patients_list);
+    } else {
+        $num_patients = 0;
+    }
 
     function getUserFromUid($uid) {
         return json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $uid));

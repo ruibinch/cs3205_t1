@@ -104,21 +104,23 @@
                 });
 
                 $(document).on('click', '#removeTherapist', function() {
-                    $.ajax({
-                        type: "POST",
-                        url: "../ajax-process.php",
-                        data: { "removeTreatmentId": $(this).val() }
-                    }).done(function(response) {
-                        if (response == 1) {
-                            $('#acknowledgementDialog')
-                                .data('message', "Therapist removed")
-                                .dialog('open');
-                        } else {
-                            $('#acknowledgementDialog')
-                                .data('message', "Error in removing therapist")
-                                .dialog('open');
-                        }
-                    });
+                    if (confirm("Are you sure you want to remove this therapist?")) {
+                        $.ajax({
+                            type: "POST",
+                            url: "../ajax-process.php",
+                            data: { "removeTreatmentId": $(this).val() }
+                        }).done(function(response) {
+                            if (response == 1) {
+                                $('#acknowledgementDialog')
+                                    .data('message', "Therapist removed")
+                                    .dialog('open');
+                            } else {
+                                $('#acknowledgementDialog')
+                                    .data('message', "Error in removing therapist")
+                                    .dialog('open');
+                            }
+                        });
+                    }
                 });
 
                 $('#searchAllTherapists').click(function() {

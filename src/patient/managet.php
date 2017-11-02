@@ -26,6 +26,22 @@
         $records_list = $records_list_json->records;
     }
 
+    $documents_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $therapistId . '/' . $result->uid));
+    if (isset($documents_list_json->consents)) {
+        $documents_list = $documents_list_json->consents;
+        for ($i = 0; $i < count($documents_list); $i++) {
+            if (!$documents_list[$i]->status) {
+                unset($documents_list[$i]);
+            }
+        }
+        $documents_list = array_values($documents_list);
+    }
+    if (isset($documents_list)) {
+        $num_documents = count($documents_list);
+    } else {
+        $num_documents = 0;
+    }
+
 ?>
 
 <html>
@@ -129,7 +145,31 @@
             </table>
 
             <h2 style="margin-top:50px">Associated Documents</h2>
-            <i>TBD</i>
+            <table class="main-table">
+                <tr>
+                    <th class="first-col">S/N</th>
+                    <th>Last modified</th>
+                    <th width="40%">Title</th>
+                    <th>Document Owner</th>
+                    <th>Shared With</th>
+                </tr>
+                <?php for ($i = 0; $i < $num_documents; $i++) {
+                    $documentId = $documents_list[$i]->rid;
+                    $document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $documentId)); ?>
+                    <tr>
+                        <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
+                        <td style="vertical-align:top"><?php echo substr($document->modifieddate, 0, 10); ?></td>
+                        <td>
+                            <details>
+                                <summary><?php echo $document->title ?></summary>
+                                <p><?php echo $document->notes ?></p>
+                            </details>
+                        </td>
+                        <td style="vertical-align:top"><?php echo $therapist->firstname . " " . $therapist->lastname ?></td>
+                        <td style="vertical-align:top">-</td>
+                    </tr>
+                <?php } ?>
+            </table>
         </div>
 
         <div id="acknowledgementDialog"><p id="ackMessage" style="text-align:center"></p></div>

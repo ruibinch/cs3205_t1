@@ -72,6 +72,8 @@
             
             if (strcmp($sha_check_char, $user_pwhash) === 0) {
                 return processLogin();
+            } else {
+                return "login.php?err=1";
             }
         }
     }
@@ -148,7 +150,7 @@
     }
 
     function removeTreatmentReq($treatmentId) {
-        removeConsentPermissions($treatmentId);
+        removeAdditionalElements($treatmentId);
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
         return $response->result;
     }
@@ -185,12 +187,32 @@
         }
     }
 
-    // Removes all associated consents between a therapist and a patient's records when the patient removes an assigned therapist
-    function removeConsentPermissions($treatmentId) {
+    function removeAdditionalElements($treatmentId) {
         $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
         $patientId = $response->patientId;
         $therapistId = $response->therapistId;
 
+        removeDocumentsAndAssociatedConsents($patientId, $therapistId);
+        removeOtherConsents($patientId, $therapistId);
+    }
+
+    // Removes all documents associated to the patient that had been written by the therapist
+    function removeDocumentsAndAssociatedConsents($patientId, $therapistId) {
+        $patient_consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $patientId));
+        if (isset($patient_consents_json->consents)) {
+            $patient_consents = $patient_consents_json->consents;
+            for ($i = 0; $i < count($patient_consents); $i++) {
+                $record = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $patient_consents[$i]->rid));
+                if ($record->therapistId === $therapistId) {
+                    $delete_document_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/delete/' . $record->rid . '/' . $therapistId));
+                    $delete_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $patient_consents[$i]->consentId));
+                }
+            }
+        }
+    }
+
+    // Removes all associated consents between a therapist and a patient's records when the patient removes an assigned therapist
+    function removeOtherConsents($patientId, $therapistId) {
         // Get list of record IDs of the patient records
         $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
         $patient_records_ids = array();
@@ -210,8 +232,8 @@
                     $delete_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $therapist_consents[$i]->consentId));
                 }
             }
-
         }
+
     }
 
     // Iterates through the boolean array
