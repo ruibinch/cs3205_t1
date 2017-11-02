@@ -22,17 +22,6 @@
         }
     }
 
-    if (isset(json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents)) {
-        $consented_documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents;
-        $shared_documents_list = array();
-        foreach($consented_documents_list AS $consented_document) {
-            $shared_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
-            if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0) {
-                array_push($shared_documents_list, get_record($consented_document->rid));
-            }
-        }
-    }
-
     function sanitise($input) {
         $input = trim($input);
         $input = stripcslashes($input);
@@ -162,7 +151,7 @@
         <h1>You have <?php echo $num_documents ?> document<?php if ($num_documents != 1) { ?>s<?php } ?>.</h1>  
             <hr style="margin-top:-15px">
             <details>
-                <summary>Your Notes</summary>
+                <summary><b>Your Notes</b></summary>
                 <table class="main-table">
                 <tr>
                     <th class="first-col">S/N</th>
@@ -257,8 +246,9 @@
                 ?>
                 </table>
             </details>
+            <br>
             <details>
-                <summary>Other Therapists' Notes</summary>
+                <summary><b>Other Therapists' Notes</b></summary>
                 <table class="main-table">
                     <tr>
                         <th class="first-col">S/N</th>
@@ -287,8 +277,12 @@
                             <td>
                                 <?php
                                 $p_id = $shared_documents_list[$i]->patientId;
-                                $patient = getJsonFromUid($p_id);
-                                echo $patient->firstname." ".$patient->lastname;
+                                if ($p_id === 0) {
+                                    echo "-";
+                                } else {
+                                    $patient = getJsonFromUid($p_id);
+                                    echo $p_id;
+                                }
                                 ?>
                             </td>
                             <td><?php echo substr($shared_documents_list[$i]->modifieddate, 0, 10) ?></td>
