@@ -5,6 +5,12 @@
 
     $therapists_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/therapists'));
     $therapists_list = $therapists_list_json->users;
+    for ($i = 0; $i < count($therapists_list); $i++) {
+        if ($therapists_list[$i]->uid === $patient_id) { // if the patient is also a therapist, remove his/her name
+            unset($therapists_list[$i]);
+        }
+    }
+    $therapists_list = array_values($therapists_list);
 
     $therapists_assigned_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/' . $patient_id . '/true'));
     $therapists_assigned_ids = array();
@@ -56,36 +62,34 @@
                 </tr>
                 <?php for ($i = 0; $i < count($therapists_list); $i++) {
                     $therapist_info = $therapists_list[$i];
-                    $therapist_name = $therapist_info->firstname . " " . $therapist_info->lastname;
-                    if ($therapists_list[$i]->uid !== $patient_id) { // check that therapist is not the patient himself/herself ?>
-                        <tr>
-                            <form method="post" action="managet.php">
-                                <input name="therapist_search" value="<?php echo $therapist_info->uid ?>" type="hidden">
-                                <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                                <td><button class="list-button"><?php echo $therapist_name ?></button></td>
-                            </form>
-                            <?php if (in_array($therapists_list[$i]->uid, $therapists_assigned_ids)) { ?>
-                                <td style="text-align:right">Therapist already assigned</td>
-                                <td style="text-align:right">
-                                    <button id="sendTreatmentReq"
-                                        value="<?php echo $therapist_info->uid ?>" disabled>Send Treatment Request</button>
-                                </td>
-                            <?php } else if (in_array($therapists_list[$i]->uid, $therapists_pending_ids)) { ?> 
-                                <td style="text-align:right">Treatment request pending</td>
-                                <td style="text-align:right">
-                                    <button id="sendTreatmentReq"
-                                        value="<?php echo $therapist_info->uid ?>" disabled>Send Treatment Request</button>
-                                </td>
-                            <?php } else { ?>
-                                <td></td>
-                                <td style="text-align:right">
-                                    <button id="sendTreatmentReq" name="<?php echo $therapist_name ?>"
-                                        value="<?php echo $therapist_info->uid ?>">Send Treatment Request</button>
-                                </td>
-                            <?php } ?>
-                        </tr>
-                    <?php }
-                } ?>
+                    $therapist_name = $therapist_info->firstname . " " . $therapist_info->lastname; ?>
+                    <tr>
+                        <form method="post" action="managet.php">
+                            <input name="therapist_search" value="<?php echo $therapist_info->uid ?>" type="hidden">
+                            <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                            <td><button class="list-button"><?php echo $therapist_name ?></button></td>
+                        </form>
+                        <?php if (in_array($therapists_list[$i]->uid, $therapists_assigned_ids)) { ?>
+                            <td style="text-align:right">Therapist already assigned</td>
+                            <td style="text-align:right">
+                                <button id="sendTreatmentReq"
+                                    value="<?php echo $therapist_info->uid ?>" disabled>Send Treatment Request</button>
+                            </td>
+                        <?php } else if (in_array($therapists_list[$i]->uid, $therapists_pending_ids)) { ?> 
+                            <td style="text-align:right">Treatment request pending</td>
+                            <td style="text-align:right">
+                                <button id="sendTreatmentReq"
+                                    value="<?php echo $therapist_info->uid ?>" disabled>Send Treatment Request</button>
+                            </td>
+                        <?php } else { ?>
+                            <td></td>
+                            <td style="text-align:right">
+                                <button id="sendTreatmentReq" name="<?php echo $therapist_name ?>"
+                                    value="<?php echo $therapist_info->uid ?>">Send Treatment Request</button>
+                            </td>
+                        <?php } ?>
+                    </tr>
+                <?php } ?>
             </table>
 	    </div>
 

@@ -92,7 +92,7 @@
             
             //TODO: change the dummy key here to the real key; change $secure to true
             setcookie("jwt", WebToken::getToken($user_json->uid, $user_type === "therapist", $dummy_key), 
-                    time()+3600, "/", null, false, true);
+                    time()+3600, "/", null, true, true);
             return "main.php";
             //exit();
 
@@ -137,8 +137,8 @@
 
     //TODO: add CSRF validation
     function acceptTreatmentReq($treatmentId) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/update/' . $treatmentId));
         createConsentPermissions($treatmentId);
+        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/update/' . $treatmentId));
         return $response->result;
     }
 
@@ -168,7 +168,15 @@
         if (isset($patient_records_json->records)) {
             $patient_records = $patient_records_json->records;
             for ($i = 0; $i < count($patient_records); $i++) {
-                $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $patient_records[$i]->rid));
+                $record = $patient_records[$i];
+                // caters for the case where the patient is also a therapist - excludes the documents owned by the patient as a therapist
+                if ($record->type === "File") {
+                    if ($record->subtype != "document") {
+                        $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
+                    }
+                } else {
+                    $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
+                }
             }
         }
         

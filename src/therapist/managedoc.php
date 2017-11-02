@@ -131,7 +131,7 @@
                             $patient = getJsonFromUid($record->patientId);
                 ?>
                     <tr>
-                        <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                        <td class="first-col" style="vertical-align:top"><?php echo ($i + 1) . "." ?></td>
                         <td style="width:60%">
                             <details>
                                 <summary>
@@ -157,7 +157,7 @@
                                 </p>
                             </details>
                         </td>
-                        <td>
+                        <td style="vertical-align:top">
                             <?php 
                                 if (isset($patient->firstname) && isset($patient->lastname)) { 
                                     echo $patient->firstname . " " . $patient->lastname; 
@@ -166,7 +166,7 @@
                                 }
                             ?>
                         </td>
-                        <td>
+                        <td style="vertical-align:top">
                             <?php
                                 if (!isset($patient->uid)) { // if document has no associated patient
                                     echo "-";
@@ -185,8 +185,8 @@
                                 }
                             ?>
                         </td>
-                        <td><?php echo substr($record->modifieddate, 0, 10); ?></td>
-                        <td>
+                        <td style="vertical-align:top"><?php echo substr($record->modifieddate, 0, 10); ?></td>
+                        <td style="vertical-align:top">
                             <form id="deleteDocument" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                               <input type="hidden" name="action" value="delete-document" />
                               <input type="hidden" name="rid" value="<?php echo $record->rid; ?>">

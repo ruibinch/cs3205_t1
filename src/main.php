@@ -43,6 +43,32 @@
         } else {
             $num_therapists = 0;
         }
+
+        // Populate documents list
+        $documents_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $result->uid . '/true'));
+        if (isset($documents_list_json->consents)) {
+            $documents_list = $documents_list_json->consents;
+        }
+        if (isset($documents_list)) {
+            $num_documents = count($documents_list);
+        } else {
+            $num_documents = 0;
+        }
+        // filter the list to remove all non-documents - for the case where a user is both a patient and a therapist
+        if ($user_json->qualify === 1) {
+            $documents_list_filtered = array();
+            for ($i = 0; $i < $num_documents; $i++) {
+                $consent = $documents_list[$i];
+                $record_details = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/' . $consent->rid));
+                if (isset($record_details->subtype)) {
+                    if ($record_details->subtype === "document") {
+                        array_push($documents_list_filtered, $consent);
+                    }
+                }
+            }
+            $documents_list = $documents_list_filtered;
+            $num_documents = count($documents_list);
+        }
     } else if ($user_type === "therapist") {
         $user = "Therapist";
         // Populate notifications list; TODO - include notifications for documents
@@ -67,10 +93,6 @@
             $num_patients = 0;
         }
     }
-
-    // TODO - update from DB API
-    $documents_list = array();
-    $num_documents = count($documents_list);
 
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid)
@@ -107,11 +129,11 @@
                 onclick="openTab(event, 'Notifications')">Notifications</button>
             <?php if ($user_type === "patient") { ?>
                 <button class="tablinks" onclick="openTab(event, 'Therapist')">Therapists</button>
+                <button class="tablinks"
+                    onclick="openTab(event, 'Documents')">Documents</button>
             <?php } else { ?>
                 <button class="tablinks" onclick="openTab(event, 'Patient')">Patients</button>
             <?php } ?>
-            <button class="tablinks"
-                onclick="openTab(event, 'Documents')">Documents</button>
         </div>
 
         <div id="Notifications" class="tabcontent" style="display: block;">
@@ -127,12 +149,6 @@
                         <td><?php echo "Treatment request from " . $patient_name ?></td>
                         <td class="last-col"><button id="treatmentReqDetails"
                                 value="<?php echo $treatment_reqs[$i]->id ?>">Details</button></td>
-                        <!--
-                        <td class="last-col"><button id="acceptTreatmentReq"
-                                value="<php echo $treatment_reqs[$i]->id ?>">Accept</button></td>
-                        <td class="last-col"><button id="rejectTreatmentReq"
-                                value="<php echo $treatment_reqs[$i]->id ?>">Reject</button></td>
-                        -->
                     </tr>
                 <?php
                         }
@@ -181,21 +197,31 @@
         </div>
 
         <div id="Documents" class="tabcontent">
-            <h3>You have <?php echo $num_documents ?> documents.</h3>
+            <h3>You have <?php echo $num_documents ?> document<?php if ($num_documents != 1) { ?>s<?php } ?>.</h3>
 
             <table class="main-table">
                 <tr>
                     <th class="first-col">S/N</th>
-                    <th>Title</th>
-                    <th>Type</th>
-                    <th class="last-col">Date</th>
+                    <th>Last modified</th>
+                    <th width="40%">Title</th>
+                    <th>Document Owner</th>
+                    <th>Shared With</th>
                 </tr>
-                <?php for ($i = 0; $i < $num_documents; $i++) { ?>
+                <?php for ($i = 0; $i < $num_documents; $i++) {
+                    $documentId = $documents_list[$i]->rid;
+                    $document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $documentId));
+                    $therapist = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/public/' . $document->therapistId)); ?>
                     <tr>
-                        <td class="first-col"><?php echo ($i + 1)."." ?></td>
-                        <td><?php echo $documents_list[$i] ?></td>
-                        <td style="width: 10%">.mp3</td>
-                        <td></td>
+                        <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
+                        <td style="vertical-align:top"><?php echo substr($document->modifieddate, 0, 10); ?></td>
+                        <td>
+                            <details>
+                                <summary><?php echo $document->title ?></summary>
+                                <p><?php echo $document->notes ?></p>
+                            </details>
+                        </td>
+                        <td style="vertical-align:top"><?php echo $therapist->firstname . " " . $therapist->lastname ?></td>
+                        <td style="vertical-align:top">-</td>
                     </tr>
                 <?php } ?>
             </table>

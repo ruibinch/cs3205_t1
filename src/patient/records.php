@@ -3,6 +3,8 @@
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
     $user_type = $result->istherapist ? "therapist" : "patient";
 
+    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+
     // Gets the list of records assigned to the specified patient
     $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $result->uid));
     if (isset($records_list_json->records)) {
@@ -12,6 +14,19 @@
         $num_records = count($records_list);
     } else {
         $num_records = 0;
+    }
+    // if the user is also a therapist, then the records list will contain documents owned by the user in the therapist role
+    // remove these documents
+    if ($user_json->qualify === 1) {
+        $records_list_filtered = array();
+        for ($i = 0; $i < $num_records; $i++) {
+            $record = $records_list[$i];
+            if (!isset($record->subtype)) {
+                array_push($records_list_filtered, $record);
+            }
+        }
+        $records_list = $records_list_filtered;
+        $num_records = count($records_list);
     }
 
     // Retrieves the user JSON object based on the uid

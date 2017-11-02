@@ -22,11 +22,13 @@
     // Gets the list of consents associated with this therapist
     $consents_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $result->uid));
     $consents_list_status = array();
+    $consents_rids = array();
     if (isset($consents_list_json->consents)) {
         $consents_list = $consents_list_json->consents;
         for ($i = 0; $i < count($consents_list); $i++) {
             $consent = $consents_list[$i];
             $consents_list_status[$consent->rid] = $consent->status;
+            array_push($consents_rids, $consent->rid);
         }
     }
 
@@ -142,23 +144,25 @@
                         <th class="last-col">Actions</th>
                     </tr>
                     <?php for ($i = 0; $i < $num_records; $i++) {
-                        $record = $records_list[$i]; ?>
-                        <tr>
-                            <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                            <td><?php echo $record->modifieddate ?></button></td>
-                            <td><?php echo $record->type ?></td>
-                            <td><?php echo $record->title ?></td>
-                            <td class="last-col">
-                                <?php
-                                    if ($consents_list_status[$record->rid]) {
-                                        echo "<input type='button' value='Details'"; // TODO - include link
-                                    } else {
-                                        echo "<input type='button' value='Details' disabled";
-                                    }
-                                ?>
-                            </td>
-                        </tr>
-                    <?php } ?>
+                        $record = $records_list[$i];
+                        if (in_array($record->rid, $consents_rids)) { ?>
+                            <tr>
+                                <td class="first-col"><?php echo ($i + 1) . "." ?></td>
+                                <td><?php echo $record->modifieddate ?></button></td>
+                                <td><?php echo $record->type ?></td>
+                                <td><?php echo $record->title ?></td>
+                                <td class="last-col">
+                                    <?php
+                                        if ($consents_list_status[$record->rid]) {
+                                            echo "<input type='button' value='Details'"; // TODO - include link
+                                        } else {
+                                            echo "<input type='button' value='Details' disabled";
+                                        }
+                                    ?>
+                                </td>
+                            </tr>
+                        <?php }
+                    } ?>
                 </table>
             </div>
         <?php } ?>
