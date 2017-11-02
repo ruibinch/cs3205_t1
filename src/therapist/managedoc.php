@@ -16,7 +16,7 @@
         $shared_documents_list = array();
         foreach($consented_documents_list AS $consented_document) {
             $shared_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
-            if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0) {
+            if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0 && $consented_document->status) {
                 array_push($shared_documents_list, get_record($consented_document->rid));
             }
         }
