@@ -3,7 +3,7 @@
 /*
  * Usage:
  * include_once 'ssl.php';
- * $result = get_content($url);
+ * $result = ssl::get_content($url);
  */
 class ssl
 {
