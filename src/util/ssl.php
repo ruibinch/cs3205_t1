@@ -38,7 +38,9 @@ class ssl
     {
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         self::setSSL($curl);
+
         return curl_exec($curl);
     }
 }
