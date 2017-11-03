@@ -1,9 +1,11 @@
 <?php
+
+    include_once '../util/ssl.php';
     include_once '../util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
     $patient_id = $result->uid;
 
-    $therapists_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/therapists'));
+    $therapists_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/therapists'));
     $therapists_list = $therapists_list_json->users;
     for ($i = 0; $i < count($therapists_list); $i++) {
         if ($therapists_list[$i]->uid === $patient_id) { // if the patient is also a therapist, remove his/her name
@@ -12,7 +14,7 @@
     }
     $therapists_list = array_values($therapists_list);
 
-    $therapists_assigned_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/' . $patient_id . '/true'));
+    $therapists_assigned_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/patient/' . $patient_id . '/true'));
     $therapists_assigned_ids = array();
     if (isset($therapists_assigned_json->treatments)) {
         $therapists_assigned = $therapists_assigned_json->treatments;
@@ -21,7 +23,7 @@
         }
     }
 
-    $therapists_pending_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/patient/' . $patient_id . '/false'));
+    $therapists_pending_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/patient/' . $patient_id . '/false'));
     $therapists_pending_ids = array();
     if (isset($therapists_pending_json->treatments)) {
         $therapists_pending = $therapists_pending_json->treatments;

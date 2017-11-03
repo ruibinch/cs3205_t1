@@ -1,21 +1,22 @@
 <?php
 
+    include_once '../util/ssl.php';
     include_once '../util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
 
-    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
     
-    $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
+    $documents_list = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
     $num_documents = count($documents_list);
 
     $shared_documents_list = array();
 
-    if (isset(json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents)) {
-        $consented_documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents;
+    if (isset(json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents)) {
+        $consented_documents_list = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/'.$user_json->uid))->consents;
         $shared_documents_list = array();
         foreach($consented_documents_list AS $consented_document) {
-            $shared_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
+            $shared_document = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/'.$consented_document->rid));
             if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0 && $consented_document->status) {
                 array_push($shared_documents_list, get_record($consented_document->rid));
             }
@@ -32,26 +33,26 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['action'])) {
             $rid = $_POST['rid'];
-            $record = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $rid));
+            $record = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/get/' . $rid));
             $patientId = $record->patientId;
             $therapistId = $record->therapistId;
 
             // delete consent related to the document, if itexists
             if ($therapistId != 0) {
-                $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $therapistId . '/' . $patientId));
+                $consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/owner/' . $therapistId . '/' . $patientId));
                 if (isset($consents_json->consents)) {
                     $consents_list = $consents_json->consents;
                     for ($j = 0; $j < count($consents_list); $j++) {
                         if ($consents_list[$j]->rid === $rid) {
-                            $delete_consent = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $consents_list[$j]->consentId));
+                            $delete_consent = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/delete/' . $consents_list[$j]->consentId));
                         }
                     }
                 }
             }
 
             // delete document
-            $delete_document = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/delete/'.$rid."/".$user_json->uid));
-            $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
+            $delete_document = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/delete/'.$rid."/".$user_json->uid));
+            $documents_list = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
             $current_date = new DateTime();
@@ -79,25 +80,25 @@
             curl_setopt($ch, CURLOPT_POSTFIELDS, $document_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
-            $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
+            $documents_list = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
             // create a corresponding consent between this document and the associated patient
             $added_document = $documents_list[count($documents_list)-1];
             $added_document_rid = $added_document->rid;
-            $associated_patient_id = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $added_document_rid))->patientId;
+            $associated_patient_id = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/get/' . $added_document_rid))->patientId;
             if ($associated_patient_id != 0) { // if there is an associated patient
-                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $associated_patient_id . '/' . $added_document_rid));
+                $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/create/' . $associated_patient_id . '/' . $added_document_rid));
                 
                 // if option to allow patient to view is set, update the consent status to true
                 if ($allow_patient_viewdoc === "on") {
-                    $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/record/' . $added_document_rid));
+                    $consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/record/' . $added_document_rid));
                     if (isset($consents_json->consents)) {
                         $consents = $consents_json->consents;
                         for ($i = 0; $i < count($consents); $i++) {
                             if ($consents[$i]->uid === $associated_patient_id) {
                                 $consentId = $consents[$i]->consentId;
-                                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consentId));
+                                $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/update/' . $consentId));
                             }
                         }
                     }
@@ -120,11 +121,11 @@
     }
 
     function get_record($rid) {
-        return json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $rid));
+        return json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/get/' . $rid));
     }
 
     function getJsonFromUid($uid) {
-        $user_json_tmp = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/'.$uid));
+        $user_json_tmp = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/'.$uid));
         return $user_json_tmp;
     }
 
@@ -170,7 +171,7 @@
                             continue;
                         } else {
                             $patient = getJsonFromUid($record->patientId);
-                            $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
+                            $consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
                             
                 ?>
                     <tr>

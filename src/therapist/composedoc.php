@@ -1,11 +1,12 @@
 <?php
 
+    include_once '../util/ssl.php';
     include_once '../util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
-    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
-    $patients_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'));
+    $patients_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/therapist/'.$user_json->uid.'/true'));
     if (isset($patients_list_json->treatments)) {
         $patients_list = $patients_list_json->treatments;
     }
@@ -16,7 +17,7 @@
     }
 
     function getUserFromUid($uid) {
-        return json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $uid));
+        return json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $uid));
     }
 
 ?>

@@ -1,9 +1,10 @@
 <?php
 
+    include_once 'util/ssl.php';
     include_once 'util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
 
-    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
     $user_type = "patient";
 
     $settings_save = false;
@@ -55,7 +56,7 @@
             $hashedpass = password_hash($pass, PASSWORD_BCRYPT);
             $salted = substr($hashedpass, 0, 29);
             $hashedpass = hash('SHA256', $hashedpass);
-            //file_get_contents('http://172.25.76.76/api/team1/user/update/'.$user_json->username.'/'.$hashedpass.'/'.$salt.'/');
+            //ssl::get_content('http://172.25.76.76/api/team1/user/update/'.$user_json->username.'/'.$hashedpass.'/'.$salt.'/');
             
             $pass_json = json_array($user_json->username, $hashedpass, $salted);
             $url = 'http://172.25.76.76/api/team1/user/update/password';
@@ -64,7 +65,7 @@
             curl_setopt($ch, CURLOPT_POSTFIELDS, $pass_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
-            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
             
         }
     }

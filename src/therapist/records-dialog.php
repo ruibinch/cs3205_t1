@@ -1,5 +1,7 @@
 <?php
 
+    include_once '../util/ssl.php';
+
     if (isset($_POST['patientId'])) {
         $patientId = $_POST['patientId'];
     }
@@ -11,7 +13,7 @@
     }
 
     // Gets the list of consents associated with this therapist
-    $consents_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $therapistId));
+    $consents_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/' . $therapistId));
     $consents_list_status = array();
     if (isset($consents_list_json->consents)) {
         $consents_list = $consents_list_json->consents;
@@ -22,7 +24,7 @@
     }
     
     // Gets the list of records assigned to the specified patient
-    $records_list_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
+    $records_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/' . $patientId));
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }

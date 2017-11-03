@@ -1,5 +1,7 @@
 <?php
 
+    include_once 'util/ssl.php';
+
     // Challenge-response authentication process
     if (isset($_POST['inputUsername']) & isset($_POST['loginSystem']) && isset($_POST['userType'])) {
         session_start();
@@ -47,9 +49,9 @@
         $_SESSION['user_type'] = $user_type;
 
         if ($login_system === "hcsystem") {
-            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $input_username));
+            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/' . $input_username));
         } else if ($login_system === "mgmtconsole") {
-            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/admin/' . $input_username));
+            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/admin/' . $input_username));
         }
         $_SESSION['user_json'] = $user_json;
         $challenge = mt_rand(); // random number
@@ -137,7 +139,7 @@
     // ===============================================================================
     
     function createTreatmentReq($patientId, $therapistId, $consentSettings) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/create/' 
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/create/' 
                                 . $patientId . '/' . $therapistId . '/' . $consentSettings[0] . '/' . $consentSettings[1]));
         return $response->result;
     }
@@ -145,18 +147,18 @@
     //TODO: add CSRF validation
     function acceptTreatmentReq($treatmentId) {
         createConsentPermissions($treatmentId);
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/update/' . $treatmentId));
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/update/' . $treatmentId));
         return $response->result;
     }
 
     function rejectTreatmentReq($treatmentId) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
         return $response->result;
     }
 
     function removeTreatmentReq($treatmentId) {
         removeAdditionalElements($treatmentId);
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/delete/' . $treatmentId));
         return $response->result;
     }
 
@@ -166,12 +168,12 @@
     
     // Create consent permissions between the newly assigned therapist and the records of the patient; all defaulted to false
     function createConsentPermissions($treatmentId) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
         $patientId = $response->patientId;
         $therapistId = $response->therapistId;
         $currentConsent = $response->currentConsent; 
 
-        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
+        $patient_records_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/' . $patientId));
         if (isset($patient_records_json->records)) {
             $patient_records = $patient_records_json->records;
             for ($i = 0; $i < count($patient_records); $i++) {
@@ -179,10 +181,10 @@
                 // caters for the case where the patient is also a therapist - excludes the documents owned by the patient as a therapist
                 if ($record->type === "File") {
                     if ($record->subtype != "document") {
-                        $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
+                        $create_consent_response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
                     }
                 } else {
-                    $create_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
+                    $create_consent_response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/create/' . $therapistId . '/' . $record->rid));
                 }
             }
         }
@@ -193,7 +195,7 @@
     }
 
     function removeAdditionalElements($treatmentId) {
-        $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
         $patientId = $response->patientId;
         $therapistId = $response->therapistId;
 
@@ -203,14 +205,14 @@
 
     // Removes all documents associated to the patient that had been written by the therapist
     function removeDocumentsAndAssociatedConsents($patientId, $therapistId) {
-        $patient_consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $patientId));
+        $patient_consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/' . $patientId));
         if (isset($patient_consents_json->consents)) {
             $patient_consents = $patient_consents_json->consents;
             for ($i = 0; $i < count($patient_consents); $i++) {
-                $record = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/get/' . $patient_consents[$i]->rid));
+                $record = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/get/' . $patient_consents[$i]->rid));
                 if ($record->therapistId === $therapistId) {
-                    $delete_document_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/delete/' . $record->rid . '/' . $therapistId));
-                    $delete_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $patient_consents[$i]->consentId));
+                    $delete_document_response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/delete/' . $record->rid . '/' . $therapistId));
+                    $delete_consent_response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/delete/' . $patient_consents[$i]->consentId));
                 }
             }
         }
@@ -219,7 +221,7 @@
     // Removes all associated consents between a therapist and a patient's records when the patient removes an assigned therapist
     function removeOtherConsents($patientId, $therapistId) {
         // Get list of record IDs of the patient records
-        $patient_records_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/' . $patientId));
+        $patient_records_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/' . $patientId));
         $patient_records_ids = array();
         if (isset($patient_records_json->records)) {
             $patient_records = $patient_records_json->records;
@@ -229,12 +231,12 @@
         }
 
         // Iterate through the list of consents associated with the therapist and delete the consents that are for records of the deleted patient
-        $therapist_consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/user/' . $therapistId));
+        $therapist_consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/' . $therapistId));
         if (isset($therapist_consents_json->consents)) {
             $therapist_consents = $therapist_consents_json->consents;
             for ($i = 0; $i < count($therapist_consents); $i++) {
                 if (in_array($therapist_consents[$i]->rid, $patient_records_ids)) {
-                    $delete_consent_response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/delete/' . $therapist_consents[$i]->consentId));
+                    $delete_consent_response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/delete/' . $therapist_consents[$i]->consentId));
                 }
             }
         }
@@ -246,7 +248,7 @@
     function updateConsentStatus($consentChanges) {
         for ($i = 0; $i < count($consentChanges); $i++) {
             if ($consentChanges[$i]) { // if the value has been toggled
-                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $i));
+                $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/update/' . $i));
             }
         }
     }
@@ -268,13 +270,13 @@
 
     // Sets all the consents between the patient and the therapist to true
     function setAllConsentsToTrue($treatmentId) {
-        $treatment = json_decode(file_get_contents('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
-        $consents_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/owner/' . $treatment->patientId . '/' . $treatment->therapistId));
+        $treatment = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/' . $treatmentId));
+        $consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/owner/' . $treatment->patientId . '/' . $treatment->therapistId));
         $consents = $consents_json->consents;
         for ($i = 0; $i < count($consents); $i++) {
             $consent = $consents[$i];
             if (!$consent->status) {
-                $response = json_decode(file_get_contents('http://172.25.76.76/api/team1/consent/update/' . $consent->consentId));
+                $response = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/update/' . $consent->consentId));
             }
         }
     }
@@ -298,7 +300,7 @@
             if ($attached_records_list[$i]) {
                 $line .= "<span>";
                 $line .= $count . ". <a href='#'><u>"; // TODO - include link to view the file
-                $line .= json_decode(file_get_contents('http://172.25.76.76/api/team1/record/' . $i))->title;
+                $line .= json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/' . $i))->title;
                 $line .= "</u></a></span>";
                 $line .= "<br>";
                 $count++;
@@ -315,14 +317,14 @@
             $consent_string = getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner);
             if ($therapist->isChecked) {
                 if (strcmp($consent_string, "-1") == 0) { // Consent doesn't exist
-                    $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
+                    $result = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
                     $consent_json = json_decode(getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner));
-                    $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                    $result = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
                     array_push($t_array, $therapist->therapist." consent created");
                 } else {
                     $consent_json = json_decode($consent_string);
                     if (!$consent_json->status) {
-                        $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                        $result = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
                         array_push($t_array, $therapist->therapist." consent toggled to true");
                     }
                 }
@@ -330,7 +332,7 @@
                 if (strcmp($consent_string, "-1") !== 0) { // If consent exist
                     $consent_json = json_decode($consent_string);
                     if ($consent_json->status) {
-                        $result = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
+                        $result = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/update/".$consent_json->consentId));
                         array_push($t_array, $therapist->therapist." consent toggled to false");
                     }
                 }
@@ -341,12 +343,12 @@
 
     function getConsentJson($uid, $rid, $tid) {
         $consentId = "-1"; // Consent doesn't exist
-        $consent_array = json_decode(file_get_contents("http://172.25.76.76/api/team1/consent/owner/".$tid."/".$uid));
+        $consent_array = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/owner/".$tid."/".$uid));
         if (!isset($consent_array->result)) {
             $consent_array = $consent_array->consents;
             foreach ($consent_array AS $consent_elem) {
                 if (strcmp($consent_elem->rid, $rid) == 0) {
-                    $consentId = file_get_contents("http://172.25.76.76/api/team1/consent/".$consent_elem->consentId);
+                    $consentId = ssl::get_content("http://172.25.76.76/api/team1/consent/".$consent_elem->consentId);
                 }
             }
         }

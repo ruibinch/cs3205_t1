@@ -1,9 +1,10 @@
 <?php
 
+    include_once 'util/ssl.php';
     include_once 'util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
 
-    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     $user = "User";
@@ -52,7 +53,7 @@
           $hasError = true;
           $userErr = "Invalid username format, please only use alphanumeric characters";
         } else { // Check availability
-          $username_check = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/'. $username));
+          $username_check = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/'. $username));
           if (isset($username_check->uid) && $username_check->uid !== $user_json->uid) {
             $hasError = true;
             $userErr = "Username unavailable";
@@ -208,7 +209,7 @@
             curl_setopt($ch, CURLOPT_POSTFIELDS, $particulars_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
-            $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
         }
         
     }
@@ -253,10 +254,10 @@
     
     function update_particulars($uid, $username, $password, $salt, $fname, $lname, $nric, $dob, $gender, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3, $qualify, $bloodtype, $nfcid) {
         
-        //$change_result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/'.$uid.'/'.$username.'/'.$password.'/'.$salt.'/'.$fname.'/'.$lname.'/'.$nric.'/'.$dob.'/'.$gender.'/'.$phone1.'/'.$phone2.'/'.$phone3.'/'.$addr1.'/'.$addr2.'/'.$addr3.'/'.$zip1.'/'.$zip2.'/'.$zip3.'/'.$qualify.'/'.$bloodtype.'/'.$nfcid.'/'));
+        //$change_result = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/'.$uid.'/'.$username.'/'.$password.'/'.$salt.'/'.$fname.'/'.$lname.'/'.$nric.'/'.$dob.'/'.$gender.'/'.$phone1.'/'.$phone2.'/'.$phone3.'/'.$addr1.'/'.$addr2.'/'.$addr3.'/'.$zip1.'/'.$zip2.'/'.$zip3.'/'.$qualify.'/'.$bloodtype.'/'.$nfcid.'/'));
         
         
-        //$change_result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/1/Bob99/$2y$10$rV.EgHEAFwc1NZQTncxdi.HTGK9DNDWkjjQ9cHfDk4aoapDUqhPVm/$2y$10$yLsZ4j4efAU5.4JJzBDgbO/Bobby/Mike/S1234567Z/2000-12-01/M/98989898/97979797/96969696/Kent%20Ridge/PGP/Sentosa%20Cove/555555/544444/533333/0/B+/123/'));
+        //$change_result = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/1/Bob99/$2y$10$rV.EgHEAFwc1NZQTncxdi.HTGK9DNDWkjjQ9cHfDk4aoapDUqhPVm/$2y$10$yLsZ4j4efAU5.4JJzBDgbO/Bobby/Mike/S1234567Z/2000-12-01/M/98989898/97979797/96969696/Kent%20Ridge/PGP/Sentosa%20Cove/555555/544444/533333/0/B+/123/'));
         
         //return $change_result->result;
     }
