@@ -10,16 +10,16 @@ class OneTimeToken
      * @param $filePath - relative path of the file
      * @param $CSRFToken
      */
-    static function generateToken($uid, $filePath, $CSRFToken)
+    static function generateToken($uid, $filePath, $CSRFToken, $type)
     {
         $string = bin2hex(random_bytes(20));
         $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/otl/create/" . $string . "/" . $uid . "/" . $filePath . "/" . $CSRFToken);
+        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/otl/create/" . $string . "/" . $uid . "/" . $filePath . "/" . $CSRFToken . "/" . $type);
         curl_setopt($curl, CURLOPT_PORT, 80);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         $result = json_decode(curl_exec($curl));
-        if ($result->result === false)
-            return generateToken($uid, $filePath, $CSRFToken);
+        if (!isset($result->result) || $result->result != 1)
+            return self::generateToken($uid, $filePath, $CSRFToken);
         return $string;
     }
 
