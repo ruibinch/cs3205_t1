@@ -23,5 +23,7 @@ if (!isset($_GET['otl'])) {
     }
     $file = file_get_contents($path);
     echo $file;
+    OneTimeToken::deleteToken($otl);
+    unlink($path);
 }
 ?>
