@@ -176,7 +176,7 @@
                 ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1) . "." ?></td>
-                        <td style="width:60%">
+                        <td style="width:60%; vertical-align:top">
                             <details>
                                 <summary>
                                     <?php echo $record->title; ?>
@@ -184,19 +184,29 @@
                                 <p><?php echo $record->notes; ?></p>
                                 <p>
                                     <?php 
+                                        $therapist_consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/' . $result->uid . '/true'));
+                                        if (isset($therapist_consents_json->consents)) {
+                                            $records_viewable_by_therapist = $therapist_consents_json->consents;
+                                        }
+                                        $rids_viewable_by_therapist = array();
+                                        if (isset($records_viewable_by_therapist)) {
+                                            for ($k = 0; $k < count($records_viewable_by_therapist); $k++) {
+                                                array_push($rids_viewable_by_therapist, $records_viewable_by_therapist[$k]->rid);
+                                            }
+                                        }
+
                                         $attached_rids = $record->records;
-                                        $output = "";
                                         if ($attached_rids[0] !== 0) { // if there are attached records
-                                            echo "Attached RIDs:";
-                                            foreach($attached_rids as $value) {
-                                                if ($output === "") {
-                                                    $output .= $value;
+                                            echo "Attached records: <br>";
+                                            for ($j = 0; $j < count($attached_rids); $j++) {
+                                                $attached_record = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/' . $attached_rids[$j]));
+                                                if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
+                                                    echo ($j+1) . ". <a href='#'><u>" . $attached_record->title . "</u></a><br>"; 
                                                 } else {
-                                                    $output .= ", " . $value;
+                                                    echo ($j+1) . ". " . $attached_record->title . "<br>";
                                                 }
                                             }
                                         }
-                                        echo $output;
                                     ?>
                                 </p>
                             </details>
@@ -236,7 +246,7 @@
                             </form>
                             <button name="delete-document" style="border:none; background:none"><i class="fa fa-times fa-lg" aria-hidden="true"></i></button>
                         </td>
-                        <td>
+                        <td style="vertical-align:top">
                             <button data-patientid="<?php echo $record->patientId ?>" data-rid="<?php echo $record->rid ?>" name="share-document" style="border:none; background:none"><i class="fa fa-share-square-o fa-lg" aria-hidden="true"></i></button>
                         </td>
                     </tr>

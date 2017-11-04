@@ -91,7 +91,7 @@
         <script>
 
             var attachRecordsList = [];
-            var attachedRids = [];
+            //var attachedRids = [];
 
             $(document).ready(function() {
 
@@ -128,15 +128,17 @@
                                     url: "../ajax-process.php",
                                     data: { "attachRecords": attachRecordsList }
                                 }).done(function(response) {
+                                    console.log(response);
                                     $('#attachedRecordsTable').html(response);
 
-                                    // Display just for reference
+                                    /* Display just for reference
                                     for (var i = 0; i < attachRecordsList.length; i++) {
                                         if (attachRecordsList[i]) {
                                             attachedRids.push(i);
                                         }
                                     }
                                     $('#attachedRecordsTable').append("<br>Attached RIDs:<br>" + attachedRids);
+                                    */
                                 });
                                 $(this).dialog('close');
                             }
@@ -184,7 +186,7 @@
                     }
                 });
 
-                $("button[name='save-form'").click(function() {
+                $("button[name='save-form']").click(function() {
                     var title = $('input[name="document-title"]').val().trim();
                     var notes = $('textarea[name="document-notes"]').val().trim();
                     $('input[name="attached-records"]').val(attachedRids);

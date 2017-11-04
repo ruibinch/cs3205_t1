@@ -286,10 +286,11 @@
     // ===============================================================================
     
     function displayAttachedRecords($attached_records_list) {
+        
         /*
         $var = "";
         for ($i = 0; $i < count($attached_records_list); $i++) {
-            $var .= $attached_records_list[$i] . ", "; 
+            $var .= gettype($attached_records_list[$i]) . ", "; 
         }
         return $var;
         */
@@ -297,7 +298,7 @@
         $count = 1;
         $line = "<br>";
         for ($i = 0; $i < count($attached_records_list); $i++) {
-            if ($attached_records_list[$i]) {
+            if ($attached_records_list[$i] === "true") {
                 $line .= "<span>";
                 $line .= $count . ". <a href='#'><u>"; // TODO - include link to view the file
                 $line .= json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/' . $i))->title;
