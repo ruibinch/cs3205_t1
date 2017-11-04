@@ -37,5 +37,17 @@ class ssl
         self::setSSL($curl);
         return curl_exec($curl);
     }
+    
+    static function post_content($url, $data, $header)
+    {
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $url);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
+        self::setSSL($curl);
+        return curl_exec($curl);
+    }
 }
 ?>

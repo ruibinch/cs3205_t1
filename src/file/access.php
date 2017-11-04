@@ -21,6 +21,7 @@ if (!isset($_GET['otl'])) {
         header('404 Not Found.');
         die();
     }
+    header('Content-Disposition: attachment; filename='.basename($path));
     $file = file_get_contents($path);
     echo $file;
     OneTimeToken::deleteToken($_GET['otl']);

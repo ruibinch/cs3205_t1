@@ -42,14 +42,13 @@ setcookie("vcsrf", $csrftoken, time()+3600);
 </head>
 <div id="window" style="">
 	<div id="header"
-		style="position: fixed; width: 100%; height: 10%; left: 0; top: 0; overflow: hidden;">
-<a href='/main.php'>Back to main</a>
+		style="position: fixed; width: 12%; height: 5%; left: 0; top: 0; overflow: hidden;">
+<a href='/main.php' class='menu_li_a'>Back to main</a>
 </div>
 	<div id="menu"
-		style="position: fixed; width: 12%; height: 90%; left: 0; bottom: 0; overflow: scroll;">
+		style="position: fixed; width: 12%; height: 95%; left: 0; bottom: 0; overflow: scroll;">
 		<ul style="width: 100%" class="menu_ul">
 <?php
-echo ssl::get_content('https://cs3205-4.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid);
 $listOfConsents = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/" . $uid))->consents;
 $listOfOwned = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/".$uid))->records;
 $rids = [];
@@ -57,23 +56,26 @@ foreach ($listOfConsents as $consent) {
     if ($consent->status) {
         $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
         $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
-        echo "<li><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a></li>";
+        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
     }
 }
 foreach ($listOfOwned as $owned) {
-    echo "<li><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a></li>";
+    echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
 }
 
 ?>
 </ul>
 	</div>
 	<iframe id="display"
-		style="position: fixed; width: 88%; height: 90%; right: 0; bottom: 0; overflow: hidden;">
+		style="position: fixed; width: 88%; height: 100%; right: 0; bottom: 0; overflow: hidden;">
 	</iframe>
 </div>
 <script type="text/javascript">
 function viewfile(rid) {
 	document.getElementById("display").src='display.php?rid=' + rid + '&csrf=' + $.cookie("vcsrf");
+}
+function downloadfile(rid) {
+	document.getElementById("display").src='display.php?rid=' + rid + '&csrf=' + $.cookie("vcsrf") + "&method=download";
 }
 </script>
 </html>
