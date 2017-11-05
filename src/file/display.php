@@ -35,6 +35,12 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         //download file
         $filecontent = ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/get/".$rid);
         $details = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/".$rid));
+        if (preg_match("#^.ht#", basename($details->absolutePath))) {
+            //prevent creation of conf files like .htaccess
+            Log::recordTX($uid, "Error", ".ht* file writing detected: " . $details->absolutePath);
+            header('HTTP/1.0 400 Bad Request.');
+            die();
+        }
         if (!file_exists($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)))
             mkdir($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid), 0711);
         if (!file_exists($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)))

@@ -23,7 +23,7 @@ if (!isset($_GET['otl'])) {
         header('HTTP/1.0 404 Not Found.');
         die();
     } else if (preg_match("#^".$_SERVER['DOCUMENT_ROOT']."/tmp/#", realpath($path))) {
-        Log::recordTX($uid, "Warning", "LFI path found: ".$path);
+        Log::recordTX($uid, "Error", "LFI path detected: ".$path);
         header('HTTP/1.0 400 Bad Request.');
         die();
     }
