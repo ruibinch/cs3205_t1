@@ -28,7 +28,7 @@ class WebToken
                 )
             );
             $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['normal'];
-            Log::recordTX($admin_id, "info", "User jwt generated");
+            Log::recordTX($uid, "info", "User jwt generated");
             return JWT::encode($token, $key);
         } else {
             Log::recordTX($uid, "info", 'Fail to update secret');
