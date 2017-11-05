@@ -8,11 +8,11 @@
     if (isset($_POST["therapist_search"])) {
         $therapistId = $_POST["therapist_search"];
     }
-    $therapist = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/public/' . $therapistId));
+    $therapist = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/public/' . $therapistId));
 
     // Iterate through the list of therapists assigned to this patient
     // and obtain the treatment object associated to this treatment between the patient and therapist
-    $therapists_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/patient/' . $result->uid . '/true'));
+    $therapists_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/patient/' . $result->uid . '/true'));
     if (isset($therapists_list_json->treatments)) {
         $treatments_list = $therapists_list_json->treatments;
         for ($i = 0; $i < count($treatments_list); $i++) {
@@ -23,12 +23,12 @@
     }
 
     // Gets the list of records of the patient
-    $records_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/all/' . $result->uid));
+    $records_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/' . $result->uid));
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }
 
-    $documents_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/owner/' . $therapistId . '/' . $result->uid));
+    $documents_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/owner/' . $therapistId . '/' . $result->uid));
     if (isset($documents_list_json->consents)) {
         $documents_list = $documents_list_json->consents;
         for ($i = 0; $i < count($documents_list); $i++) {
@@ -120,7 +120,7 @@
                 <?php for ($i = 0; $i < count($records_list); $i++) {   
                     $record = $records_list[$i];
                     // Get the corresponding consent between the therapist and this specific record
-                    $consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/record/' . $record->rid));
+                    $consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/record/' . $record->rid));
                     $consents = $consents_json->consents;
                     for ($j = 0; $j < count($consents); $j++) {
                         if ($consents[$j]->uid == $therapistId) {
@@ -157,7 +157,7 @@
                 </tr>
                 <?php for ($i = 0; $i < $num_documents; $i++) {
                     $documentId = $documents_list[$i]->rid;
-                    $document = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/get/' . $documentId)); ?>
+                    $document = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $documentId)); ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
                         <td style="vertical-align:top"><?php echo htmlspecialchars(substr($document->modifieddate, 0, 10)); ?></td>

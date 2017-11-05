@@ -1,11 +1,12 @@
 <?php
 require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
+include 'ssl.php';
 
 class WebToken
 {
 
-    private static $serverurl = "http://172.25.76.76/";
+    private static $serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
 
     /*
      * @param $uid
@@ -14,11 +15,7 @@ class WebToken
     static function getToken($uid, $istherapist, $key)
     {
         if (self::refreshSecret($uid)) {
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/" . $uid);
-            curl_setopt($curl, CURLOPT_PORT, 80);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            $secret = json_decode(curl_exec($curl))->secret;
+            $secret = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $uid))->secret;
             $token = array(
                 "exp" => time() + 3600,
                 "secret" => $secret,
@@ -48,11 +45,7 @@ class WebToken
                     header("Location: /login.php?error=1");
                     die();
                 } else {
-                    $curl = curl_init();
-                    curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/" . $decoded->data->uid);
-                    curl_setopt($curl, CURLOPT_PORT, 80);
-                    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-                    $result = json_decode(curl_exec($curl));
+                    $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $decoded->data->uid));
                     if (strcmp($result->secret, $decoded->secret) != 0) {
                         /*
                          * Possile cause: logout, login somewhere else, change psw
@@ -90,11 +83,7 @@ class WebToken
         $string = bin2hex(random_bytes(20));
         while ($secret && strcmp($secret, $string) == 0)
             $string = bin2hex(random_bytes(20));
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/set/" . $uid . "/" . $string);
-        curl_setopt($curl, CURLOPT_PORT, 80);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = json_decode(curl_exec($curl));
+        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/set/" . $uid . "/" . $string));
         if ($result->result == 1)
             return true;
         else
@@ -103,11 +92,7 @@ class WebToken
 
     static function getSecret($uid)
     {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/user/secret/" . $uid);
-        curl_setopt($curl, CURLOPT_PORT, 80);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = json_decode(curl_exec($curl));
+        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $uid));
         if (isset($result->secret))
             return $result->secret;
         else

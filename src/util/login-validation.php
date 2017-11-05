@@ -7,7 +7,7 @@
     $dummy_key = "dummykey";
 
     $username = $_POST['username'];
-    $user_json = json_decode(file_get_contents('http://172.25.76.76/api/team1/user/username/' . $username));
+    $user_json = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $username));
 
     if ($_POST['user_type'] === "therapist" && $user_json->qualify !== 1) {
         header("location: ../login.php?err=1");

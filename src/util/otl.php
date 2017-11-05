@@ -37,11 +37,7 @@ class OneTimeToken
         if (isset($result->result) && ! ($result->result))
             return false;
         else {
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/otl/delete/" . $token);
-            curl_setopt($curl, CURLOPT_PORT, 80);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            $result = json_decode(curl_exec($curl));
+            $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/otl/delete/" . $token));
             if ($result->result == 1)
                 return true;
             else
@@ -54,11 +50,7 @@ class OneTimeToken
      */
     static function getToken($token)
     {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/otl/" . $token);
-        curl_setopt($curl, CURLOPT_PORT, 80);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = json_decode(curl_exec($curl));
+        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/otl/" . $token));
         return $result;
     }
 }

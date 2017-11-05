@@ -8,7 +8,7 @@ if (! isset($_GET["ott"])) {
 } else {
     $dir = __DIR__ . "/../../tmp/";
     $ott = $_GET["ott"];
-    $result = json_decode(file_get_contents('http://172.25.76.76/api/team1/otl/' . $ott));
+    $result = json_decode(file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/otl/' . $ott));
     if (! isset($result->result)) {
         $filepath = $dir . $result->filepath;
         if (file_exists($filepath)) {

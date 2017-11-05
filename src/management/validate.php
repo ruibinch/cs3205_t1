@@ -126,7 +126,7 @@
 		
 		//Check whether username exists in DB.
 		if (!isset($_SESSION['usernameErr']) || !$usernameErr) {
-			$result = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['username']);
+			$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
 			
 			if ($result === FALSE) {
 				if ($isAdd) {
@@ -790,7 +790,7 @@
 		
 		//Attempt to retrieve user from database
 		$validForDeletion = FALSE;
-		$resultDel = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['username']);
+		$resultDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
 		
 		if ($resultDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -833,7 +833,7 @@
 		
 		//Simple validation to ensure that it is really the selected user.
 		//Also helps if multiple queried delete tabs are opened. Delete will fail if different users are queried.
-		$cfmDel = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['cfmUserName']);
+		$cfmDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['cfmUserName']);
 		
 		if ($cfmDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -847,7 +847,7 @@
 		
 		if ($readyToDelete) {
 			//Perform User Deletion
-			$resultDel2 = @file_get_contents('http://172.25.76.76/api/team1/user/delete/' 
+			$resultDel2 = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' 
 				. $_SESSION['delUserID']);		
 				
 			if ($resultDel2 === FALSE) {
@@ -883,7 +883,7 @@
 		sleep(1);
 				
 		//Double-check from DB
-		$connection = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['editUserName']);
+		$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['editUserName']);
 		
 		if ($connection === FALSE) {
 			failedDatabaseConnection('edit');
@@ -924,7 +924,7 @@
 		if ($errorsPresent === "NO") {
 			
 			//Retrieve Current Info Again
-			$connection = @file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $_SESSION['editUserID']);
+			$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
 			
 			if ($connection === FALSE) {
 				failedDatabaseConnection('edit');
@@ -1174,7 +1174,7 @@
 				);
 				
 				$updateToDB_json = json_encode($updateToDB);
-				$ch = curl_init('http://172.25.76.76/api/team1/user/update');
+				$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update');
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $updateToDB_json);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1394,7 +1394,7 @@
 			);
 			
 			$addToDB_json = json_encode($addToDB);
-			$ch = curl_init('http://172.25.76.76/api/team1/user/create');
+			$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create');
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $addToDB_json);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);

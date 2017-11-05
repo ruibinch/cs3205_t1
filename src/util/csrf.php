@@ -1,9 +1,11 @@
 <?php
 
+include_once 'ssl.php';
+
 class CSRFToken
 {
 
-    private static $serverurl = "http://172.25.76.76/";
+    private static $serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
 
     /*
      * @param $uid
@@ -13,13 +15,9 @@ class CSRFToken
     static function generateToken($uid, $description)
     {
         $string = bin2hex(random_bytes(20));
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/csrf/create/" . $string . "/" . $uid . "/" . (time()+3600) . "/" .$description);
-        curl_setopt($curl, CURLOPT_PORT, 80);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = json_decode(curl_exec($curl));
+        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/csrf/create/" . $string . "/" . $uid . "/" . (time()+3600) . "/" .$description));
         if ($result->result === false)
-            return generateToken($uid, $filePath, $CSRFToken);
+            return generateToken($uid, $description);
         return $string;
     }
 
@@ -33,11 +31,7 @@ class CSRFToken
         if (isset($result->result) && ! ($result->result))
             return false;
         else {
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/csrf/delete/" . $token);
-            curl_setopt($curl, CURLOPT_PORT, 80);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-            $result = json_decode(curl_exec($curl));
+            $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/csrf/delete/" . $token));
             if ($result->result == 1)
                 return true;
             else
@@ -50,11 +44,7 @@ class CSRFToken
      */
     static function getToken($token)
     {
-        $curl = curl_init();
-        curl_setopt($curl, CURLOPT_URL, self::$serverurl . "api/team1/csrf/" . $token);
-        curl_setopt($curl, CURLOPT_PORT, 80);
-        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-        $result = json_decode(curl_exec($curl));
+        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/csrf/" . $token));
         return $result;
     }
 }
