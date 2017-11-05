@@ -54,7 +54,7 @@
           $hasError = true;
           $userErr = "Invalid username format, please only use alphanumeric characters";
         } else { // Check availability
-          $username_check = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/'. $username));
+          $username_check = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/'. $username));
           if (isset($username_check->uid) && $username_check->uid !== $user_json->uid) {
             $hasError = true;
             $userErr = "Username " . $username . " taken";
@@ -238,14 +238,14 @@
             $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->sex, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->secret, $drugAllergy, $ethnicity, $nationality);
             $description = "Updated " . implode(", ", $changed);
             Log::recordTX($user_json->uid, "Info", $description);
-            $url = 'http://172.25.76.76/api/team1/user/update';
+            $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update';
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
             ssl::setSSL($curl);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $particulars_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
-            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/'.$result->uid));
+            $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$result->uid));
         } 
     }
 

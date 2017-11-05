@@ -83,7 +83,7 @@
             curl_setopt($ch, CURLOPT_POSTFIELDS, $document_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
-            $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
+            $documents_list = json_decode(file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
             // create a corresponding consent between this document and the associated patient
