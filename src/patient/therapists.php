@@ -2,6 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
+    include_once '../util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     // Gets the list of therapists assigned to the specified patient
@@ -112,7 +113,8 @@
                             url: "../ajax-process.php",
                             data: { "removeTreatmentId": $(this).val() }
                         }).done(function(response) {
-                            if (response == 1) {
+                            <?php Log::recordTX($result->uid, "Info", "Removed therapist"); ?>;
+			    if (response == 1) {
                                 $('#acknowledgementDialog')
                                     .data('message', "Therapist removed")
                                     .dialog('open');
