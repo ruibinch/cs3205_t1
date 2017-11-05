@@ -159,7 +159,6 @@
                     <th>Last modified</th>
                     <th width="40%">Title</th>
                     <th>Document Owner</th>
-                    <th>Shared With</th>
                 </tr>
                 <?php for ($i = 0; $i < $num_documents; $i++) {
                     $documentId = $documents_list[$i]->rid;
@@ -174,7 +173,6 @@
                             </details>
                         </td>
                         <td style="vertical-align:top"><?php echo htmlspecialchars($therapist->firstname . " " . $therapist->lastname) ?></td>
-                        <td style="vertical-align:top">-</td>
                     </tr>
                 <?php } ?>
             </table>
