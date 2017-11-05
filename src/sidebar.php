@@ -37,7 +37,7 @@
     }
 
     include_once $jwt_link;
-    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
     $user_type = $result->istherapist ? "therapist" : "patient";
 
 

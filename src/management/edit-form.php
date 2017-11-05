@@ -5,7 +5,7 @@
 	debug_backtrace() OR die ("Direct Access Forbidden.");
 	
 	// TODO: change the dummy key here to the real key
-	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	WebToken::verifyToken($_COOKIE["jwt"]);
 	
 	if (!isset($_SESSION['loggedin'])) {
 		header("HTTP/1.1 301 Moved Permanently");

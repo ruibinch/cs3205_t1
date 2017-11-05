@@ -4,7 +4,7 @@
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
-	$result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+	$result = WebToken::verifyToken($_COOKIE["jwt"]);
 	WebToken::refreshSecret($result->a_id);
 	setcookie("jwt", "", time()-3600, "/", null, true, true);
 		

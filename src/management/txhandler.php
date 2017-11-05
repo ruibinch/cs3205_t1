@@ -4,7 +4,7 @@
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	
 	// TODO: change the dummy key here to the real key
-	WebToken::verifyToken($_COOKIE["jwt"], "dummykey");	
+	WebToken::verifyToken($_COOKIE["jwt"]);	
 	
 	if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 		echo "Go home, you are drunk.";

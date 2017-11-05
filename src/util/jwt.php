@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
-include 'ssl.php';
+include_once 'ssl.php';
 
 class WebToken
 {
@@ -12,7 +12,7 @@ class WebToken
      * @param $uid
      * @param $key - secret key
      */
-    static function getToken($uid, $istherapist, $key)
+    static function getToken($uid, $istherapist)
     {
         if (self::refreshSecret($uid)) {
             $secret = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $uid))->secret;
@@ -24,6 +24,7 @@ class WebToken
                     "istherapist" => $istherapist // bool
                 )
             );
+            $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['normal'];
             return JWT::encode($token, $key);
         } else {
             throw new Exception('Fail to update secret');
@@ -34,10 +35,11 @@ class WebToken
      * @param $token - token found in cookie
      * @param $key - secret key
      */
-    static function verifyToken($token, $key)
+    static function verifyToken($token)
     {
         if ($token) {
             try {
+                $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['normal'];
                 $decoded = JWT::decode($token, $key, array(
                     'HS256'
                 ));
