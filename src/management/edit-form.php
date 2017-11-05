@@ -16,7 +16,7 @@
 
 <?php
 	//Valid uid set as session variable previously. Will now retreieve current user info.
-	$connection = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
+	$connection = file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $_SESSION['editUserID']);
 	
 	//IF database connection failed
 	if ($connection === FALSE) {
@@ -228,6 +228,7 @@
 		$('#formEdit2').on('submit', function(e){
 			$("#errorDiv").hide();
 			$("#loaderDiv2").show();
+			$('html, body').animate({scrollTop:$(document).height()},500);
 			e.preventDefault();
 			$.ajax({
 				type: 'POST',
@@ -238,7 +239,7 @@
 					$("#loaderDiv2").hide();
 					$("#errorDiv").show();
 					$("#errorDiv").html(result);
-					$('body').scrollTop(0);
+					$('html, body').animate({scrollTop:0},500);
 				},
 				error: function() {
 					alert('Warning: Server may be unavailable at this point in time.');

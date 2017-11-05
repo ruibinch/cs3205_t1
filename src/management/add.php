@@ -55,6 +55,11 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 				unset($_SESSION['pwDiffErr']);
 			}
 			
+			if (isset($_SESSION['nationalityErr']) && $_SESSION['nationalityErr']) {
+				echo "\t\t\t" . '<tr><td><b>Nationality:</b>&emsp;Invalid character. Please re-enter.<br/></td></tr>' . "\n";
+				unset($_SESSION['nationalityErr']);
+			}
+			
 			//Stub validation. If need be then will implement.
 			if (isset($_SESSION['nricExists']) && $_SESSION['nricExists']) {
 				echo "\t\t\t" . '<tr><td><b>NRIC/FIN:</b>&emsp;NRIC/FIN number already exists.<br/></td></tr>' . "\n";
@@ -74,6 +79,11 @@ if (isset($_SESSION['errorsPresent']) && $_SESSION['errorsPresent']) {
 			if (isset($_SESSION['lastNameErr']) && $_SESSION['lastNameErr']) {
 				echo "\t\t\t" . '<tr><td><b>Last Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
 				unset($_SESSION['lastNameErr']);
+			}
+			
+			if (isset($_SESSION['ethnicErr']) && $_SESSION['ethnicErr']) {
+				echo "\t\t\t" . '<tr><td><b>Ethnicity:</b>&emsp;Invalid character. Please re-enter.<br/></td></tr>' . "\n";
+				unset($_SESSION['ethnicErr']);
 			}
 			
 			if (isset($_SESSION['invalidGender']) && $_SESSION['invalidGender']) {

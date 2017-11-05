@@ -23,9 +23,11 @@
 	$usernameExists = FALSE;
 	$pwLengthErr = FALSE;
 	$pwDiffErr = FALSE;
+	$nationalityErr = FALSE;
 	$nricInvalid = FALSE;
 	$firstNameErr = FALSE;
 	$lastNameErr = FALSE;
+	$ethnicityErr = FALSE;
 	$invalidGender = FALSE;
 	$invalidBlood = FALSE;
 	$invalidAllergyOption = FALSE;
@@ -126,7 +128,7 @@
 		
 		//Check whether username exists in DB.
 		if (!isset($_SESSION['usernameErr']) || !$usernameErr) {
-			$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+			$result = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['username']);
 			
 			if ($result === FALSE) {
 				if ($isAdd) {
@@ -150,7 +152,7 @@
 	}
 	
 	/*
-		checkPassword():
+		checkPassword($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) Password length is at least 8 characters.
 				2) Password is entered correctly (check with 'confirm password' field).
@@ -189,7 +191,7 @@
 	}
 	
 	/*
-		checkNRIC():
+		checkNRIC($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) NRIC/FIN entered is valid (syntax wise).
 				2) Not reused (Not implemented. To be decided)
@@ -260,7 +262,34 @@
 	}
 	
 	/*
-		checkFirstAndLastName():
+		checkNationality($isAdd):
+			FUNCTIONALITY: Performs the following check:
+				1) Nationality complies with the following regex: /^[A-Za-z ]+$/
+			INPUT: $isAdd. Determines add or edit action, 
+					also make use of $_POST['nationality'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['nationalityErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use global variables $nationalityErr = TRUE instead of creating session variable.
+	*/
+	function checkNationality($isAdd) {
+		global $nationalityErr;
+		global $errorsPresent;
+		
+		if (!preg_match("/^[A-Za-z ]+$/", $_POST['nationality'])) {
+			if ($isAdd) {
+				$_SESSION['nationalityErr'] = TRUE;
+			} else {
+				$nationalityErr = TRUE;
+			}
+			$errorsPresent = "YES";
+		}
+	}
+	
+	
+	/*
+		checkFirstAndLastName($isAdd):
 			FUNCTIONALITY: Performs the following check:
 				1) First and Last Name String complies with the following regex: /^[\p{L}\s'.-]+$/
 				For explanation of regex, see https://regex101.com/r/rT1exI/1
@@ -294,6 +323,32 @@
 			}
 			$errorsPresent = "YES";
 		} 
+	}
+	
+	/*
+		checkEthnic($isAdd):
+			FUNCTIONALITY: Performs the following check:
+				1) Ethnicity complies with the following regex: /^[A-Za-z ]+$/
+			INPUT: $isAdd. Determines add or edit action, 
+					also make use of $_POST['ethnic'].
+			OUTPUT: $isAdd = TRUE:
+					Adds session variable $_SESSION['ethnicityErr'] = TRUE if the check fails. Session variable NOT PRESENT if it passes the checks.
+					
+					$isAdd = FALSE:
+					Use global variables $ethnicityErr = TRUE instead of creating session variable.
+	*/
+	function checkEthnic($isAdd) {
+		global $ethnicityErr;
+		global $errorsPresent;
+		
+		if (!preg_match("/^[A-Za-z ]+$/", $_POST['ethnic'])) {
+			if ($isAdd) {
+				$_SESSION['ethnicityErr'] = TRUE;
+			} else {
+				$ethnicityErr = TRUE;
+			}
+			$errorsPresent = "YES";
+		}
 	}
 	
 	/*
@@ -623,8 +678,10 @@
 		global $pwLengthErr;
 		global $pwDiffErr;
 		global $nricInvalid;
+		global $nationalityErr;
 		global $firstNameErr;
 		global $lastNameErr;
+		global $ethnicityErr;
 		global $invalidGender;
 		global $invalidBlood;
 		global $invalidAllergyOption;
@@ -665,6 +722,10 @@
 			echo "\t\t\t" . '<tr><td><b>Password:</b>&emsp;Password fields do not match.<br/></td></tr>' . "\n";
 		}
 		
+		if ($nationalityErr) {
+			echo "\t\t\t" . '<tr><td><b>Nationality:</b>&emsp;Invalid character. Please re-enter.<br/></td></tr>' . "\n";
+		}
+		
 		if ($nricInvalid) {
 			echo "\t\t\t" . '<tr><td><b>NRIC/FIN:</b>&emsp;Invalid value entered. Please re-enter.<br/></td></tr>' . "\n";
 		}
@@ -675,6 +736,10 @@
 		
 		if ($lastNameErr) {
 			echo "\t\t\t" . '<tr><td><b>Last Name:</b>&emsp;Invalid, please re-enter.<br/></td></tr>' . "\n";
+		}
+	
+		if ($ethnicityErr) {
+			echo "\t\t\t" . '<tr><td><b>Ethnicity:</b>&emsp;Invalid character. Please re-enter.<br/></td></tr>' . "\n";
 		}
 	
 		if ($invalidGender) {
@@ -790,7 +855,7 @@
 		
 		//Attempt to retrieve user from database
 		$validForDeletion = FALSE;
-		$resultDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['username']);
+		$resultDel = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['username']);
 		
 		if ($resultDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -833,7 +898,7 @@
 		
 		//Simple validation to ensure that it is really the selected user.
 		//Also helps if multiple queried delete tabs are opened. Delete will fail if different users are queried.
-		$cfmDel = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['cfmUserName']);
+		$cfmDel = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['cfmUserName']);
 		
 		if ($cfmDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -847,7 +912,7 @@
 		
 		if ($readyToDelete) {
 			//Perform User Deletion
-			$resultDel2 = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/delete/' 
+			$resultDel2 = @file_get_contents('http://172.25.76.76/api/team1/user/delete/' 
 				. $_SESSION['delUserID']);		
 				
 			if ($resultDel2 === FALSE) {
@@ -883,7 +948,7 @@
 		sleep(1);
 				
 		//Double-check from DB
-		$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/' . $_POST['editUserName']);
+		$connection = @file_get_contents('http://172.25.76.76/api/team1/user/username/' . $_POST['editUserName']);
 		
 		if ($connection === FALSE) {
 			failedDatabaseConnection('edit');
@@ -924,7 +989,7 @@
 		if ($errorsPresent === "NO") {
 			
 			//Retrieve Current Info Again
-			$connection = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
+			$connection = @file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $_SESSION['editUserID']);
 			
 			if ($connection === FALSE) {
 				failedDatabaseConnection('edit');
@@ -957,9 +1022,10 @@
 				checkPassword(FALSE);
 			}
 		
-			//Trigger to detect Nationality value is changed. No validation check
+			//Trigger to detect Nationality value is changed.
 			if ($editCurrentInfo->nationality !== $_POST['nationality'] ) {
 				$valuesChanged = TRUE;
+				checkNationality(FALSE);
 			}
 		
 			//Perform NRIC check if it is modified.
@@ -978,6 +1044,7 @@
 			//Trigger to detect Ethnicity value is changed. No validation check
 			if ($editCurrentInfo->ethnicity !== $_POST['ethnic'] ) {
 				$valuesChanged = TRUE;
+				checkEthnic(FALSE);
 			}
 			
 			//Perform gender field check if it is modified.
@@ -1062,7 +1129,7 @@
 			generateEditUserErrorMsg();	
 		} else { //If form haz no errors.
 			if (!$valuesChanged) {
-				echo "<h2>NOTICE: The values are not changed.</h2><br/>";
+				echo "<br/><h2>NOTICE: The values are not changed.</h2><br/>";
 			} else { //Success. Prepare to update DB.
 			
 				//Setup new variables to pass to DB
@@ -1174,7 +1241,7 @@
 				);
 				
 				$updateToDB_json = json_encode($updateToDB);
-				$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update');
+				$ch = curl_init('http://172.25.76.76/api/team1/user/update');
 				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 				curl_setopt($ch, CURLOPT_POSTFIELDS, $updateToDB_json);
 				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -1228,12 +1295,18 @@
 		
 			//Perform password check
 			checkPassword(TRUE);
+			
+			//Perform nationality check
+			checkNationality(TRUE);
 		
 			//Perform NRIC check
 			checkNRIC(TRUE);
 			
 			//Perform firstname check
 			checkFirstAndLastName(TRUE);
+			
+			//Perform ethnicity check
+			checkEthnic(TRUE);
 			
 			//Perform gender field check
 			checkGender(TRUE);
@@ -1394,7 +1467,7 @@
 			);
 			
 			$addToDB_json = json_encode($addToDB);
-			$ch = curl_init('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/create');
+			$ch = curl_init('http://172.25.76.76/api/team1/user/create');
 			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
 			curl_setopt($ch, CURLOPT_POSTFIELDS, $addToDB_json);
 			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
