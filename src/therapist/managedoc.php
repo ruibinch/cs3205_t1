@@ -274,7 +274,34 @@
                             <td style="width:60%">
                                 <details>
                                     <summary><?php echo $shared_documents_list[$i]->title ?></summary>
-                                    <?php echo $shared_documents_list[$i]->notes ?>
+                                    <p><?php echo $shared_documents_list[$i]->notes ?></p>
+                                    <p>
+                                        <?php 
+                                            $therapist_consents_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/consent/user/' . $user_json->uid . '/true'));
+                                            if (isset($therapist_consents_json->consents)) {
+                                                $records_viewable_by_therapist = $therapist_consents_json->consents;
+                                            }
+                                            $rids_viewable_by_therapist = array();
+                                            if (isset($records_viewable_by_therapist)) {
+                                                for ($k = 0; $k < count($records_viewable_by_therapist); $k++) {
+                                                    array_push($rids_viewable_by_therapist, $records_viewable_by_therapist[$k]->rid);
+                                                }
+                                            }
+
+                                            $attached_rids = $record->records;
+                                            if ($attached_rids[0] !== 0) { // if there are attached records
+                                                echo "Attached records: <br>";
+                                                for ($j = 0; $j < count($attached_rids); $j++) {
+                                                    $attached_record = json_decode(ssl::get_content('http://172.25.76.76/api/team1/record/' . $attached_rids[$j]));
+                                                    if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
+                                                        echo ($j+1) . ". <a href='#'><u>" . $attached_record->title . "</u></a><br>"; 
+                                                    } else {
+                                                        echo ($j+1) . ". " . $attached_record->title . "<br>";
+                                                    }
+                                                }
+                                            }
+                                        ?>
+                                    </p>
                                 </details>
                                 
                             </td>
