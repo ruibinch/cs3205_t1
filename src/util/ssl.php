@@ -47,7 +47,7 @@ class ssl
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        array_push($headers, 'Authorization: dGVhbTE6dGVhbTFMb3Zlc0Nvcmdp');
+        array_push($header, 'Authorization: dGVhbTE6dGVhbTFMb3Zlc0Nvcmdp');
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         self::setSSL($curl);
         return curl_exec($curl);
