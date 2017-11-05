@@ -53,6 +53,7 @@ li a:hover {
 	<div id="menu"
 		style="position: fixed; width: 250px; height: 95%; left: 0; bottom: 0; overflow: scroll;">
 <?php
+Log::recordTX($uid, "Info", "Opened file viewer");
 $listOfConsents = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/" . $uid))->consents;
 $listOfOwned = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/all/".$uid))->records;
 $rids = [];

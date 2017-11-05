@@ -16,13 +16,14 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
     $rid = $_GET['rid'];
     if (!json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/check/".$uid."/".$rid))->result) {
         //No access to this file
+        Log::recordTX($uid, "Warning", "Trying to access unprivilaged file: ".$rid);
         header('HTTP/1.0 400 Bad Request.');
         die();
     } else {
         $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_GET['csrf']));
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewdoc") {
             //invalid csrf token
-            echo json_encode($csrf);
+            Log::recordTX($uid, "Warning", "Invalid csrf when accessing display.php");
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
@@ -49,7 +50,7 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         }
         $file = fopen($filepath, "w");
         fwrite($file, $filecontent);
-        
+        Log::recordTX($uid, "Info", "Store file on server: ".$filepath);
         $fileurl = "/file/access.php?otl=".$otl;
         if (isset($_GET['method']) && $_GET['method'] == download) {
             header('Location: '.$fileurl);

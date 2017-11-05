@@ -80,7 +80,7 @@
 							break;
 						default:
 							echo '<h1><---- Select one of the options on the menu bar to continue.</h1>' . "\n";
-							echo "\t\t\t\t" . '<h2 class="required">WARNING: To prevent tampering, only the LATEST INSTANCE of {Add, Edit, Delete} User is considered a valid request to the server.</h2>' . "\n";
+							echo "\t\t\t\t" . '<h2 class="required">Warning: To prevent tampering, only the LATEST INSTANCE of {Add, Edit, Delete} User is considered a valid request to the server.</h2>' . "\n";
 							if (isset($_SESSION['naviError'])) {
 								echo "\t\t\t\t" . '<div class="error">' . "\n\t\t\t\t\t" . '<br/><h1>ERROR: Invalid action detected.<br/>Ensure that you do not use multiple windows/tabs for User Modifiations.</h1><br/>' . "\n\t\t\t\t" . '</div>' . "\n";
 								$_SESSION['latestAction'] = "NONE";

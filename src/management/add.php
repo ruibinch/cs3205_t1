@@ -235,7 +235,7 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 					<td><input type="password" name="cfmPassword" required></td>
 				</tr>
 			</table>
-			<h2>Stage 3: User Information</h2>
+			<h2>Stage 3: User information</h2>
 			<table>
 				<tr>
 					<td>Nationality:<span class="required">*</span>&emsp;</td>

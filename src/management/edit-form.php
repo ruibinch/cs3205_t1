@@ -71,7 +71,7 @@
 				<td><input type="password" name="cfmPassword"></td>
 			</tr>
 		</table>
-		<h2>Stage 3: User Information</h2>
+		<h2>Stage 3: User information</h2>
 		<table>
 			<tr>
 				<td>Nationality:<span class="required">*</span>&emsp;</td>

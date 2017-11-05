@@ -988,28 +988,28 @@
 		//Checks for error after required fields are filled in.
 		if ($errorsPresent === "NO") {
 			
-			//Retrieve Current Info Again
+			//Retrieve Current info Again
 			$connection = @file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $_SESSION['editUserID']);
 			
 			if ($connection === FALSE) {
 				failedDatabaseConnection('edit');
 			}
 			
-			$editCurrentInfo = json_decode($connection);
+			$editCurrentinfo = json_decode($connection);
 			
 			//Check that at least 1 value is changed. If not display a message.			
 			//Set up the variable
 			$valuesChanged = FALSE;
 			
 			//Perform usertype check
-			if (($editCurrentInfo->qualify == 1 && $_POST['usertype'] !== 'Therapist') 
-				|| ($editCurrentInfo->qualify == 0 && $_POST['usertype'] !== 'Patient')) {
+			if (($editCurrentinfo->qualify == 1 && $_POST['usertype'] !== 'Therapist') 
+				|| ($editCurrentinfo->qualify == 0 && $_POST['usertype'] !== 'Patient')) {
 				$valuesChanged = TRUE;
 				checkUserType(FALSE);
 			}
 			
 			//Perform username check if username is modified.	
-			if ($editCurrentInfo->username !== $_POST['username']) {
+			if ($editCurrentinfo->username !== $_POST['username']) {
 				$valuesChanged = TRUE;
 				$isUsernameChanged = TRUE;
 				checkUserName(FALSE);
@@ -1023,45 +1023,45 @@
 			}
 		
 			//Trigger to detect Nationality value is changed.
-			if ($editCurrentInfo->nationality !== $_POST['nationality'] ) {
+			if ($editCurrentinfo->nationality !== $_POST['nationality'] ) {
 				$valuesChanged = TRUE;
 				checkNationality(FALSE);
 			}
 		
 			//Perform NRIC check if it is modified.
-			if ($editCurrentInfo->nric !== $_POST['NRIC'] ) {
+			if ($editCurrentinfo->nric !== $_POST['NRIC'] ) {
 				$valuesChanged = TRUE;
 				checkNRIC(FALSE);
 			}
 			
 			//Perform firstname and lastname check if either or both is modified.
-			if ($editCurrentInfo->firstname !== $_POST['firstname'] 
-				|| $editCurrentInfo->lastname !== $_POST['lastname']) {
+			if ($editCurrentinfo->firstname !== $_POST['firstname'] 
+				|| $editCurrentinfo->lastname !== $_POST['lastname']) {
 				$valuesChanged = TRUE;
 				checkFirstAndLastName(FALSE);
 			}
 			
 			//Trigger to detect Ethnicity value is changed. No validation check
-			if ($editCurrentInfo->ethnicity !== $_POST['ethnic'] ) {
+			if ($editCurrentinfo->ethnicity !== $_POST['ethnic'] ) {
 				$valuesChanged = TRUE;
 				checkEthnic(FALSE);
 			}
 			
 			//Perform gender field check if it is modified.
-			if ($editCurrentInfo->sex !== $_POST['gender']) {	
+			if ($editCurrentinfo->sex !== $_POST['gender']) {	
 				$valuesChanged = TRUE;
 				checkGender(FALSE);
 			}
 			
 			//Perform blood type check if it is modified.
-			if ($editCurrentInfo->bloodtype !== $_POST['bloodtype']) {
+			if ($editCurrentinfo->bloodtype !== $_POST['bloodtype']) {
 				$valuesChanged = TRUE;
 				checkBloodType(FALSE);
 			}
 			
 			//Perform allergy type check if it is modified.
 			$drugAllergyTxt = "";
-			if ($editCurrentInfo->drugAllergy) {
+			if ($editCurrentinfo->drugAllergy) {
 				$drugAllergyTxt = "Yes";
 			} else {
 				$drugAllergyTxt = "No";
@@ -1073,7 +1073,7 @@
 			}
 		
 			//Perform dob check if it is modified
-			if ($editCurrentInfo->dob !== $_POST['dob']) {
+			if ($editCurrentinfo->dob !== $_POST['dob']) {
 				$valuesChanged = TRUE;
 				checkDOB(FALSE);
 			}
@@ -1086,7 +1086,7 @@
 					$updatedPhone[$i] = NULL;
 				}
 				
-				if ($updatedPhone[$i] !== $editCurrentInfo->phone[$i]) {
+				if ($updatedPhone[$i] !== $editCurrentinfo->phone[$i]) {
 					$valuesChanged = TRUE;
 					checkContactNumber(FALSE);
 					break;
@@ -1101,7 +1101,7 @@
 					$updatedAddr[$i] = NULL;
 				}
 				
-				if ($updatedAddr[$i] !== $editCurrentInfo->address[$i]) {
+				if ($updatedAddr[$i] !== $editCurrentinfo->address[$i]) {
 					$valuesChanged = TRUE;
 					checkAddress(FALSE);
 					break;
@@ -1112,10 +1112,10 @@
 			$updatedZip = array($_POST['zipcode1'], $_POST['zipcode2'], $_POST['zipcode3']);
 			
 			for($i = 0; $i < 3; $i++) {
-				if ($editCurrentInfo->zipcode[$i] === 0) {
-					$editCurrentInfo->zipcode[$i] = "";
+				if ($editCurrentinfo->zipcode[$i] === 0) {
+					$editCurrentinfo->zipcode[$i] = "";
 				}
-				$stringValue = $editCurrentInfo->zipcode[$i];
+				$stringValue = $editCurrentinfo->zipcode[$i];
 				if ($updatedZip[$i] !== "$stringValue") {
 					$valuesChanged = TRUE;
 					checkZip(FALSE);
@@ -1144,7 +1144,7 @@
 				if ($isUsernameChanged) {
 					$newUserName = $_POST['username'];
 				} else {
-					$newUserName = $editCurrentInfo->username;
+					$newUserName = $editCurrentinfo->username;
 				}
 				
 				if ($isPasswordChanged) {
@@ -1155,8 +1155,8 @@
 					//finally, SHA256 the bcrypt string.
 					$newPassword = hash('SHA256', $newPassword);
 				} else {
-					$newPassword = $editCurrentInfo->password;
-					$newSalt = $editCurrentInfo->salt;
+					$newPassword = $editCurrentinfo->password;
+					$newSalt = $editCurrentinfo->salt;
 				}
 				
 				//Handle Drug Allergy
@@ -1237,7 +1237,7 @@
 					"drugAllergy"	=> $drugAllergy,
 					"secret"		=> "someSecretLUL",		//Stub. Will update this.
 					"nfcid"			=> NULL,				//Stub(?)
-					"uid"			=> $editCurrentInfo->uid
+					"uid"			=> $editCurrentinfo->uid
 				);
 				
 				$updateToDB_json = json_encode($updateToDB);

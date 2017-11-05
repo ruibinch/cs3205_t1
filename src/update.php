@@ -287,7 +287,7 @@
         if ($nationality !== $user_json->nationality) { array_push($changed, "Nationality"); }
         if ($ethnicity !== $user_json->ethnicity) { array_push($changed, "Ethnicity"); }
         if ($drugAllergy !== $user_json->drugAllergy) { array_push($changed, "Drug Allergy"); }
-        if ($phone1 !== $user_json->phone[0] || $phone2 !== $user_json->phone[1] || $phone3 !== $user_json->phone[2]) { array_push($changed, "Contact Information"); }
+        if ($phone1 !== $user_json->phone[0] || $phone2 !== $user_json->phone[1] || $phone3 !== $user_json->phone[2]) { array_push($changed, "Contact information"); }
         if ($addr1 !== $user_json->address[0] || $addr2 !== $user_json->address[1] || $addr3 !== $user_json->address[2]) { array_push($changed, "Address"); }
         if ($zip1 !== $user_json->zipcode[0] || $zip2 !== $user_json->zipcode[1] || $zip3 !== $user_json->zipcode[2]) { array_push($changed, "Zipcode"); }
         return $changed;

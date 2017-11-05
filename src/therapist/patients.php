@@ -41,7 +41,7 @@
                 <tr>
                     <th class = "first-col">S/N</th>
                     <th>Name</th>
-                    <th>Contact Info</th>
+                    <th>Contact info</th>
                     <th>D.O.B</th>
                 </tr>
                 <?php for ($i = 0; $i < $num_patients; $i++) { 

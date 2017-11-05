@@ -1,7 +1,9 @@
 <?php
 require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
-include_once 'ssl.php';
+
+include_once $_SERVER['DOCUMENT_ROOT'].'/util/ssl.php';
+include_once $_SERVER["DOCUMENT_ROOT"] . '/util/logger.php';
 
 class WebToken
 {
@@ -26,9 +28,10 @@ class WebToken
                 )
             );
             $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['normal'];
+            Log::recordTX($admin_id, "info", "User jwt generated");
             return JWT::encode($token, $key);
         } else {
-            throw new Exception('Fail to update secret');
+            Log::recordTX($uid, "info", 'Fail to update secret');
         }
     }
 
@@ -46,6 +49,7 @@ class WebToken
                     'HS256'
                 ));
                 if ($decoded->exp < time()) {
+                    Log::recordTX($decoded->data->uid, "Warning", "Expired user jwt");
                     header("Location: /login.php?error=1");
                     die();
                 } else {
@@ -54,6 +58,7 @@ class WebToken
                         /*
                          * Possile cause: logout, login somewhere else, change psw
                          */
+                        Log::recordTX($decoded->data->uid, "Warning", "Outdated admin jwt");
                         header("Location: /login.php?error=2");
                         die();
                     }
@@ -64,7 +69,7 @@ class WebToken
                  * This token cannot be decoded.
                  * The signature cannot be verified.
                  */
-                echo $e;
+                Log::recordTX(-1, "Warning", "Unrecognised user jwt");
                 header("Location: /login.php?error=3");
                 die();
             }
@@ -72,6 +77,7 @@ class WebToken
             /*
              * Token is not present.
              */
+            Log::recordTX(-1, "Warning", "Missing user jwt");
             header("Location: /login.php?error=4");
             die();
         }

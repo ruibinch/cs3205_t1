@@ -8,7 +8,7 @@ class ssl
 {
     private static $certFile = "/usr/keys/team1-cert.pem";
     private static $keyFile = "/usr/keys/team1-key.pem";
-    private static $caInfo = "/usr/keys/cacert.crt";
+    private static $cainfo = "/usr/keys/cacert.crt";
     /*
      * Use this method to set necessary SSL credentials for cURL reference passed into this method.
      *
@@ -24,7 +24,7 @@ class ssl
         curl_setopt($curl, CURLOPT_SSLKEY, self::$keyFile);
         // The --cert option
         curl_setopt($curl, CURLOPT_SSLCERT, self::$certFile);
-        curl_setopt($curl, CURLOPT_CAINFO, self::$caInfo);
+        curl_setopt($curl, CURLOPT_CAinfo, self::$cainfo);
         // curl_setopt($curl, CURLOPT_CAPATH, '/home/sadm/keys/ssl/');
         return $curl;
     }

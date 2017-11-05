@@ -13,22 +13,26 @@ if (!isset($_GET['otl'])) {
 } else {
     $otl = OneTimeToken::getToken($_GET['otl']);
     if (!isset($otl->filepath)) {
-        echo 'here';
+        Log::recordTX($uid, "Warning", "Unrecognised otl: ".json_encode($otl));
         header('HTTP/1.0 400 Bad Request.');
         die();
     }
     $path = $_SERVER['DOCUMENT_ROOT']."/tmp/".$otl->filepath;
     if (!file_exists($path)) {
+        Log::recordTX($uid, "Error", "File not found on server: ".$path);
         header('HTTP/1.0 404 Not Found.');
         die();
     } else if (preg_match("#^".$_SERVER['DOCUMENT_ROOT']."/tmp/#", realpath($path))) {
+        Log::recordTX($uid, "Warning", "LFI path found: ".$path);
         header('HTTP/1.0 400 Bad Request.');
         die();
     }
     header('Content-Disposition: attachment; filename='.basename($path));
     $file = file_get_contents($path);
+    Log::recordTX($uid, "Info", "Accessed file: ".$path);
     echo $file;
     OneTimeToken::deleteToken($_GET['otl']);
     unlink($path);
+    Log::recordTX($uid, "Info", "Delete File on server: ".$path);
 }
 ?>
