@@ -226,7 +226,7 @@
                                         echo htmlspecialchars($document->notes);
                                         $attached_rids = $document->records;
                                         if ($attached_rids[0] !== 0) { // if there are attached records
-                                            echo "Attached records: <br>";
+                                            echo "<br>Attached records: <br>";
                                             for ($j = 0; $j < count($attached_rids); $j++) {
                                                 $attached_record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $attached_rids[$j]));
                                                 echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
