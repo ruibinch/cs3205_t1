@@ -16,7 +16,7 @@
 <?php
 	sleep(1);
 	if ($_POST['mode'] === "all") {
-		$dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/";
+        $dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/";
 		
 		//$connection = ssl:get_content($dbURL);
 		
@@ -28,7 +28,12 @@
 		$connection = file_get_contents($dbURL);
 		$decodeJS = json_decode($connection);
 		//Check for empty table
+		if (empty($decodeJS->logs)) {
+			echo 'No Transaction Logs Available.';
+			exit();
+		}
 		//....
+		
 		echo '<table id="logTable">';
 		echo "\t" . '<th>UserID</th><th>Time</th><th>Description</th>';
 		
