@@ -20,7 +20,7 @@
     $drugAllergy = false;
 
     // Error messages
-    $userErr = $fnameErr = $lnameErr = $dobErr = $nationalityErr = $ethnicityErr = $phone0Err = $phone1Err = $phone2Err = $addr0Err = $addr1Err = $addr2Err = $zip0Err = $zip1Err = $zip2Err = "";
+    $csrfErr = $userErr = $fnameErr = $lnameErr = $dobErr = $nationalityErr = $ethnicityErr = $phone0Err = $phone1Err = $phone2Err = $addr0Err = $addr1Err = $addr2Err = $zip0Err = $zip1Err = $zip2Err = "";
 
     function sanitise($input) {
       $input = trim($input);
@@ -47,6 +47,15 @@
         $zip0 = sanitise($_POST["input-zipcode0"]);
         $zip1 = sanitise($_POST["input-zipcode1"]);
         $zip2 = sanitise($_POST["input-zipcode2"]);
+        
+        // Check CSRF token
+        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "update-profile" || $csrf->uid != $user_json->uid) {
+            //invalid csrf token
+            Log::recordTX($user_json->uid, "Warning", "Invalid csrf when updating particulars");
+            $hasError = true;
+            $csrfErr = "An error occured, please try again!";
+        }
 
         // Check username
         if (empty($username)) { // Check empty field
@@ -370,8 +379,12 @@
                 <?php if ($settings_save) { ?>
                     <script>alert("Your particulars have been updated!")</script> 
                 <?php } ?>
+                <?php if (!empty($csrfErr)) { ?>
+                    <script>alert($csrfErr)</script> 
+                <?php } ?>
                 <div class="profile-update"><a href="changepass.php" style="text-decoration:none; color:blue">Click here to change password</a>
                 </div>
+                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($user_json->uid, "profile-update");?>>
                 <div class="profile-update">Username: <span class="error-message"><?php echo empty($userErr) ? "" : "*" . $userErr ?></span><br>
                     <input name="input-username" type="text" placeholder="User"
                         value="<?php echo (isset($user_json->username) ? $user_json->username : "" )?>"><br>
