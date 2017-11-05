@@ -59,6 +59,7 @@ if (isset($_SESSION['generateEditStatus']) && $_SESSION['generateEditStatus']) {
 			</table>
 		</div>
 		<input type="hidden" name="action" value="edit1">
+		<input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken(0, "admin_edit1");?>>
 	</form>	
 	<br/>
 </div>

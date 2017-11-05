@@ -214,6 +214,7 @@
 		</table>
 	</div>
 	<input type="hidden" name="action" value="edit2">
+	<input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken(0, "admin_edit2");?>>
 </form>
 
 <div class="contentField" id="loaderDiv2">
