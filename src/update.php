@@ -7,20 +7,17 @@
     $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
-    $user = "User";
-    $first_name = "First Name";
-    $last_name = "Last Name";
-
     $num_phone = count($user_json->phone);
     $num_address = count($user_json->address);
     $settings_save = false;
     $hasError = false;
     
     // Input
-    $username = $fname = $lname = $dob = $phone0 = $phone1 = $phone2 = $addr0 = $addr1 = $addr2 = $zip0 = $zip1 = $zip2 = "";
+    $username = $fname = $lname = $dob = $nationality = $ethnicity = $drugAllergy = $phone0 = $phone1 = $phone2 = $addr0 = $addr1 = $addr2 = $zip0 = $zip1 = $zip2 = "";
+    $drugAllergy = false;
 
     // Error messages
-    $userErr = $fnameErr = $lnameErr = $dobErr = $phone0Err = $phone1Err = $phone2Err = $addr0Err = $addr1Err = $addr2Err = $zip0Err = $zip1Err = $zip2Err = "";
+    $userErr = $fnameErr = $lnameErr = $dobErr = $nationalityErr = $ethnicityErr = $phone0Err = $phone1Err = $phone2Err = $addr0Err = $addr1Err = $addr2Err = $zip0Err = $zip1Err = $zip2Err = "";
 
     function sanitise($input) {
       $input = trim($input);
@@ -35,6 +32,9 @@
         $fname = sanitise($_POST["input-firstname"]);
         $lname = sanitise($_POST["input-lastname"]);
         $dob = sanitise($_POST["input-dob"]);
+        $nationality = sanitise($_POST["input-nationality"]);
+        $ethnicity = sanitise($_POST["input-ethnicity"]);
+        $drugAllergy = sanitise($_POST["input-drugAllergy"]);
         $phone0 = sanitise($_POST["input-phone0"]);
         $phone1 = sanitise($_POST["input-phone1"]);
         $phone2 = sanitise($_POST["input-phone2"]);
@@ -53,10 +53,10 @@
           $hasError = true;
           $userErr = "Invalid username format, please only use alphanumeric characters";
         } else { // Check availability
-          $username_check = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/'. $username));
+          $username_check = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/'. $username));
           if (isset($username_check->uid) && $username_check->uid !== $user_json->uid) {
             $hasError = true;
-            $userErr = "Username unavailable";
+            $userErr = "Username " . $username . " taken";
           }
         }
 
@@ -78,25 +78,46 @@
             $lnameErr = "Invalid first name format, please only use alphabets";
         }
 
-/*
-        // Check DOB
-        if (empty($dob)) { // Check empty field
+        // DOB
+        if (empty($dob)) {
             $hasError = true;
             $dobErr = "Input required";
-        } else (strlen($dob) != 10 OR !preg_match("/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/", $dob)) { // Check date format
+        } if (strlen($dob) != 10 || !preg_match("/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/", $dob)) { // Perform initial format check
             $hasError = true;
             $dobErr = "Invalid date";
-        } else { // Check for leap year
+        } else { // Check cleared. Now to determine state of leap year.
             $year = substr($dob, 0, 4);
             $month = substr($dob, 5, 2);
             $day = substr($dob, 8, 2);
-            if ($month === "02" && $day === "29") {
-                if (!((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)))) { //if not valid year
+            
+            if ($month === "02" && $day === "29") { // If it is feb 29, check for valid year
+                if (!((($year % 4) == 0) && ((($year % 100) != 0) || (($year % 400) == 0)))) { // If not valid year
                     $hasError = true;
                     $dobErr = "Invalid date";
                 }
-            }  
-        } */
+            }
+        }
+        
+        // Check nationality
+        if (empty($nationality)) { //Check empty field
+          $hasError = true;
+          $nationalityErr = "Input required";
+        } else if (preg_match("/[^A-Za-z]/", $nationality)) { // Check nationality format
+            $hasError = true;
+            $nationalityErr = "Invalid nationality format, please only use alphabets";
+        }
+
+        // Check ethnicity
+        if (empty($ethnicity)) { //Check empty field
+          $hasError = true;
+          $ethnicityErr = "Input required";
+        } else if (preg_match("/[^A-Za-z]/", $ethnicity)) { // Check ethnicity format
+            $hasError = true;
+            $ethnicityErr = "Invalid ethnicity format, please only use alphabets";
+        }
+
+        // Drug Allergy
+        $drugAllergy = ($drugAllergy == "1");
 
         // Check phone
         if (empty($phone0)) {
@@ -131,25 +152,25 @@
                 $phone2Err = "Invalid input";
             }
         }
-        
+
         if (empty($addr0) || empty($zip0)) {
             if (empty($addr0) && empty($zip0)) {
-                hasError();
+                $hasError = true;
                 $addr0Err = $zip0Err = "Input required";
             } else if (!empty($addr0)) {
-                hasError();
+                $hasError = true;
                 $addr0 = "Please input address for corresponding zipcode";
             } else {
-                hasError();
+                $hasError = true;
                 $zip0 = "Please input zipcode for corresponding address";
             }
         } else {
             if (isAddressInvalid($addr0)) {
-                hasError();
+                $hasError = true;
                 $addr0Err = "Invalid address";
             }
             if (isZipcodeInvalid($zip0)) {
-                hasError();
+                $hasError = true;
                 $zip0Err = "Invalid input";
 
             }
@@ -157,14 +178,14 @@
 
         if (empty($addr1)) {
             if (!empty($addr2)) {
-                hasError();
+                $hasError = true;
                 $addr1Err = "Input required";
             } else {
                 $addr1 = $addr2 = NULL;
             }
         } else {
             if (isAddressInvalid($addr1)) {
-                hasError();
+                $hasError = true;
                 $addr1Err = "Invalid input";
             }
         }
@@ -173,41 +194,63 @@
             $addr2 = NULL;
         } else {
             if (isContactNumberInvalid($addr2)) {
-                hasError();
+                $hasError = true;
                 $addr2Err = "Invalid input";
             }
         }
 
         if (empty($zip1)) {
             if (!empty($zip2)) {
-                hasError();
+                $hasError = true;
                 $zip1Err = "Input required";
             } else {
-                $zip1 = $zip2 = NULL;
+                $zip1 = $zip2 = 0;
             }
         } else {
             if (isContactNumberInvalid($zip1)) {
-                hasError();
+                $hasError = true;
                 $zip1Err = "Invalid input";
             }
         }
 
         if (empty($zip2)) {
-            $zip2 = NULL;
+            $zip2 = 0;
         } else {
             if (isContactNumberInvalid($zip2)) {
-                hasError();
+                $hasError = true;
                 $zip2Err = "Invalid input";
             }
         }
-        
-        if (!$hasError) {
-            $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->gender, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->nfcid, $user_json->secret);
-            $url = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update';
-            ssl::post_content($url, $particulars_json, array('Content-Type: application/json'));
-            $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
+
+        $zip0 = intval($zip0);
+        $zip1 = intval($zip1);
+        $zip2 = intval($zip2);
+
+        $changed = particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2);
+        if (count($changed) == 0) {
+            $hasError = true;
+            $noChangeErr = "Please update at least one particular";
         }
-        
+
+        if (!$hasError) {
+            $settings_save = true;
+            $changed = particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2);
+            $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->sex, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->secret, $drugAllergy, $ethnicity, $nationality);
+            $url = 'http://172.25.76.76/api/team1/user/update';
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            ssl::setSSL($curl);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $particulars_json);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_exec($ch);
+            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/'.$result->uid));
+        } 
+    }
+
+
+
+    function hasError() {
+        $hasError = true;
     }
 
     function isContactNumberInvalid($number) {
@@ -225,8 +268,32 @@
             return FALSE;
         }
     }
+
+    function isZipcodeInvalid($zipcode) {
+        if (!preg_match("/^[0-9]{6}$/", $zipcode)) {
+            return TRUE;
+        } else {
+            return FALSE;
+        }
+    }
+
+    // C
+    function particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3) {
+        $changed = array();
+        if ($username !== $user_json->username) { array_push($changed, "Username"); }
+        if ($fname !== $user_json->firstname) { array_push($changed, "First Name"); }
+        if ($lname !== $user_json->lastname) { array_push($changed, "Last Name"); }
+        if ($dob !== $user_json->dob) { array_push($changed, "Date of Birth"); }
+        if ($nationality !== $user_json->nationality) { array_push($changed, "Nationality"); }
+        if ($ethnicity !== $user_json->ethnicity) { array_push($changed, "Ethnicity"); }
+        if ($drugAllergy !== $user_json->drugAllergy) { array_push($changed, "Drug Allergy"); }
+        if ($phone1 !== $user_json->phone[0] || $phone2 !== $user_json->phone[1] || $phone3 !== $user_json->phone[2]) { array_push($changed, "Contact Information"); }
+        if ($addr1 !== $user_json->address[0] || $addr2 !== $user_json->address[1] || $addr3 !== $user_json->address[2]) { array_push($changed, "Address"); }
+        if ($zip1 !== $user_json->zipcode[0] || $zip2 !== $user_json->zipcode[1] || $zip3 !== $user_json->zipcode[2]) { array_push($changed, "Zipcode"); }
+        return $changed;
+    }
     
-    function json_array($uid, $username, $password, $salt, $fname, $lname, $nric, $dob, $gender, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3, $qualify, $bloodtype, $nfcid, $secret) {
+    function json_array($uid, $username, $password, $salt, $fname, $lname, $nric, $dob, $sex, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3, $qualify, $bloodtype, $secret, $drugAllergy, $ethnicity, $nationality) {
         $arr = array(
             'uid' => $uid,
             'username' => $username,
@@ -236,26 +303,18 @@
             'lastName' => $lname,
             'nric' => $nric,
             'dob' => $dob,
-            'gender' => $gender,
+            'sex' => $sex,
             'phone' => array($phone1, $phone2, $phone3),
             'address' => array($addr1, $addr2, $addr3),
             'zipcode' => array($zip1, $zip2, $zip3),
             'qualify' => $qualify,
             'bloodtype' => $bloodtype,
-            'nfcid' => $nfcid,
-            'secret' => $secret
+            'secret' => $secret,
+            'drugAllergy' => $drugAllergy,
+            'ethnicity' => $ethnicity,
+            'nationality' => $nationality
         );
         return json_encode($arr);
-    }
-    
-    function update_particulars($uid, $username, $password, $salt, $fname, $lname, $nric, $dob, $gender, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3, $qualify, $bloodtype, $nfcid) {
-        
-        //$change_result = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/'.$uid.'/'.$username.'/'.$password.'/'.$salt.'/'.$fname.'/'.$lname.'/'.$nric.'/'.$dob.'/'.$gender.'/'.$phone1.'/'.$phone2.'/'.$phone3.'/'.$addr1.'/'.$addr2.'/'.$addr3.'/'.$zip1.'/'.$zip2.'/'.$zip3.'/'.$qualify.'/'.$bloodtype.'/'.$nfcid.'/'));
-        
-        
-        //$change_result = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/1/Bob99/$2y$10$rV.EgHEAFwc1NZQTncxdi.HTGK9DNDWkjjQ9cHfDk4aoapDUqhPVm/$2y$10$yLsZ4j4efAU5.4JJzBDgbO/Bobby/Mike/S1234567Z/2000-12-01/M/98989898/97979797/96969696/Kent%20Ridge/PGP/Sentosa%20Cove/555555/544444/533333/0/B+/123/'));
-        
-        //return $change_result->result;
     }
 
 ?>
@@ -273,31 +332,44 @@
         <div class="shifted">
             <h1>Edit your profile</h1>
             <hr style="margin-top:-15px">
-            <form class="profile-form" name="profile-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+            <form class="profile-form" name="profile-form" method="post" action="update.php">
                 <?php if ($settings_save) { ?>
                     <script>alert("Your particulars have been updated!")</script> 
                 <?php } ?>
                 <div class="profile-update"><a href="changepass.php" style="text-decoration:none; color:blue">Click here to change password</a>
                 </div>
                 <div class="profile-update">Username: <span class="error-message"><?php echo empty($userErr) ? "" : "*" . $userErr ?></span><br>
-                    <input name="input-username" type="text" placeholder="<?php echo $user ?>"
+                    <input name="input-username" type="text" placeholder="User"
                         value="<?php echo (isset($user_json->username) ? $user_json->username : "" )?>"><br>
                 </div>
-                <div class="profile-update">Password:<br>
-                    <input name="input-password" type="password" placeholder="Password"><br>
-                </div>
                 <div class="profile-update">First Name: <span class="error-message"><?php echo empty($fnameErr) ? "" : "*" . $fnameErr ?></span><br>
-                    <input name="input-firstname" type="text" placeholder="<?php echo $first_name ?>" 
+                    <input name="input-firstname" type="text" placeholder="First Name" 
                         value="<?php echo (isset($user_json->firstname) ? $user_json->firstname : "" )?>"><br>
                 </div>
                 <div class="profile-update">Last Name: <span class="error-message"><?php echo empty($lnameErr) ? "" : "*" . $lnameErr ?></span><br>
-                    <input name="input-lastname" type="text" placeholder="<?php echo $last_name ?>"
+                    <input name="input-lastname" type="text" placeholder="Last Name"
                         value="<?php echo (isset($user_json->lastname) ? $user_json->lastname : "" )?>"><br>
                 </div>
                 <div class="profile-update">Date of Birth: <span class="error-message"><?php echo empty($dobErr) ? "" : "*" . $dobErr ?></span><br>
                     <input type="date" name="input-dob" 
                         value="<?php echo (isset($user_json->dob) ? $user_json->dob : "" )?>"><br>
                 </div>
+
+                <div class="profile-update">Nationality: <span class="error-message"><?php echo empty($nationalityErr) ? "" : "*" . $nationalityErr ?></span><br>
+                    <input type="text" name="input-nationality" 
+                        value="<?php echo (isset($user_json->nationality) ? $user_json->nationality : "" )?>"><br>
+                </div>
+                <div class="profile-update">Ethnicity: <span class="error-message"><?php echo empty($ethnicityErr) ? "" : "*" . $ethnicityErr ?></span><br>
+                    <input type="text" name="input-ethnicity" 
+                        value="<?php echo (isset($user_json->ethnicity) ? $user_json->ethnicity : "" )?>"><br>
+                </div>
+                <div class="profile-update">Drug Allergy:<br><br><br>
+                    <select name="input-drugAllergy">
+                        <option <?php echo ($user_json->drugAllergy) ? "selected" : ""?> value="1">Yes</option>
+                        <option <?php echo !($user_json->drugAllergy) ? "selected" : ""?> value ="0">No</option>
+                    </select>
+                </div>
+
                 <?php for ($i = 0; $i < $num_phone; $i++) { ?>
                     <div class="profile-update">Phone <?php echo $i === 0 ? "" : $i ?>: <span class="error-message"><?php echo empty(${'phone'.$i.'Err'}) ? "" : "*" . ${'phone'.$i.'Err'} ?></span><br>
                     <input type="text" name="<?php echo 'input-phone'.$i ?>"
