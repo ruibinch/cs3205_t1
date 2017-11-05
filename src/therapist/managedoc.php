@@ -77,12 +77,15 @@
             
             $document_json = json_array($title, $associated_patient, $user_json->uid, $creation_date, $modified_date, $notes, $attached_rids_array);
             $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/document/create';
+            ssl::post_content($url, $document_json, array('Content-Type: application/json'));
+            /*
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
             ssl::setSSL($ch);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $document_json);
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
+            */
             $documents_list = json_decode(file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
