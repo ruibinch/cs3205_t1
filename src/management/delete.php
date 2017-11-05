@@ -15,6 +15,7 @@
 	
 	//Set Navigation Session Variable
 	$_SESSION['latestAction'] = "DELETE";
+	include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php";
 ?>
 
 <h1>Delete User</h1>
@@ -49,7 +50,7 @@
 			</table>
 		</div>
 	<input type="hidden" name="action" value="delete">
-	<input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken(0, "admin_delete");?>>
+	<input type="hidden" name="csrf" value=<?php echo '"' . CSRFToken::generateToken(0, "admin_delete");?>">
 	</form>
 	<br/>
 </div>
@@ -64,7 +65,7 @@
 			echo "\t\t" . '<input type="Submit" value="Confirm Deletion">' . "\n";			
 			echo "\t\t" . '<input type="hidden" name="cfmUserName" value="'. htmlspecialchars($_SESSION['delUserName']) .'">' . "\n";
 			echo "\t\t" . '<input type="hidden" name="action" value="delete2">' . "\n";
-			echo "\t\t" . '<input type="hidden" name="csrf" value=<?php include_once $_SERVER[\'DOCUMENT_ROOT\']."/util/csrf.php"; echo CSRFToken::generateToken(0, "admin_delete2");?>>' . "\n";
+			echo "\t\t" . '<input type="hidden" name="csrf" value="' . CSRFToken::generateToken(0, "admin_delete2") . '">' . "\n";
 			echo "\t" . '</form>' . "\n";
 		} else {
 			echo "\t" . '<h3 class="errorDel">ERROR: username not found.</h3>' . "\n";
