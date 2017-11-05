@@ -8,18 +8,21 @@ $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api
 $user_type = $result->istherapist ? "therapist" : "patient";
 
 if (!isset($_GET['otl'])) {
-    header('400 Bad Request.');
+    header('HTTP/1.0 400 Bad Request.');
     die();
 } else {
     $otl = OneTimeToken::getToken($_GET['otl']);
     if (!isset($otl->filepath)) {
         echo 'here';
-        header('400 Bad Request.');
+        header('HTTP/1.0 400 Bad Request.');
         die();
     }
     $path = $_SERVER['DOCUMENT_ROOT']."/tmp/".$otl->filepath;
     if (!file_exists($path)) {
-        header('404 Not Found.');
+        header('HTTP/1.0 404 Not Found.');
+        die();
+    } else if (preg_match("#^".$_SERVER['DOCUMENT_ROOT']."/tmp/#", realpath($path))) {
+        header('HTTP/1.0 400 Bad Request.');
         die();
     }
     header('Content-Disposition: attachment; filename='.basename($path));

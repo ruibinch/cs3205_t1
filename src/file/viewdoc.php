@@ -98,9 +98,10 @@ if (!isset($_GET['rid'])) {
 }
 ?>
 	</div>
-	<iframe id="display"
-		style="position: fixed; height: 100%; width:100%; left: 250px; right: 0; bottom: 0; overflow: hidden;">
+	<div style="position: absolute; height: 100%; left: 250px; right: 0; top: 0; overflow: auto; margin-left: 0px; margin-right: 0px">
+	<iframe id="display" style="position: absolute; width: 100%; height: 100%">
 	</iframe>
+	</div>
 </div>
 <script type="text/javascript">
 function viewfile(rid) {
