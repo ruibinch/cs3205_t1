@@ -13,6 +13,7 @@
     $settings_save = false;
     $hasError = false;
     $error_arr = array();
+    $post_result = "";
     
     // Input
     $username = $fname = $lname = $dob = $nationality = $ethnicity = $drugAllergy = $phone0 = $phone1 = $phone2 = $addr0 = $addr1 = $addr2 = $zip0 = $zip1 = $zip2 = "";
@@ -269,7 +270,12 @@
             $description = "Updated " . implode(", ", $changed);
             Log::recordTX($user_json->uid, "Info", $description);
             $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update';
-            ssl::post_content($url, $particulars_json, array('Content-Type: application/json'));
+            $post_result = json_decode(ssl::post_content($url, $particulars_json, array('Content-Type: application/json')));
+            if ($post_result->result) {
+                Log::recordTX($user_json->uid, "Info", $description);
+            } else {
+                Log::recordTX($user_json->uid, "Error", "Error occured when updating particulars");
+            }
             $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$result->uid));
         } else {
             Log::recordTX($user_json->uid, "Error", implode(", ", $error_arr));
