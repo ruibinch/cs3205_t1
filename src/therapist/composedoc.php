@@ -43,6 +43,7 @@
             <h1>Compose a document</h1>
             <hr style="margin-top:-15px">
             <form id="documentForm" class="profile-form" name="profile-form" method="post" action="managedoc.php">
+                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "composedoc");?>>
                 <table class="newdoc-table">
                     <tr>
                         <td class="first-col" style="vertical-align:top">Associated Patient:</td>

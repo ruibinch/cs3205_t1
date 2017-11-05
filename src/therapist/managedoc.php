@@ -59,6 +59,15 @@
             $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
+            // get CSRF token
+            $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+            if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "composedoc" || $csrf->uid != $user_json->uid) {
+                //invalid csrf token
+                Log::recordTX($user_json->uid, "Warning", "Invalid csrf when accessing managedoc.php");
+                header('HTTP/1.0 400 Bad Request.');
+                die();
+            }
+
             $current_date = new DateTime();
             $current_date->setTimeZone(new DateTimeZone('Singapore'));
             $associated_patient = sanitise($_POST['document-associated-patient']);
