@@ -38,12 +38,18 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
             mkdir($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid), 0711);
         if (!file_exists($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)))
             mkdir($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent), 0711);
+        if (isset($details->absolutePath)) {
             $filepath = $_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath));
+            //generate one time link
+            $otl = OneTimeToken::generateToken($uid, hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath)), $_GET['csrf'], "file");
+        } else {
+            $filepath = $_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)."/file.json";
+            //generate one time link
+            $otl = OneTimeToken::generateToken($uid, hash("md5", $uid)."/".hash("md5", $filecontent)."/file.json", $_GET['csrf'], "file");
+        }
         $file = fopen($filepath, "w");
         fwrite($file, $filecontent);
         
-        //generate one time link
-        $otl = OneTimeToken::generateToken($uid, hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath)), $_GET['csrf'], "file");
         $fileurl = "/file/access.php?otl=".$otl;
         if (isset($_GET['method']) && $_GET['method'] == download) {
             header('Location: '.$fileurl);
@@ -51,7 +57,9 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         }
         
         //generate html code for diff file types
-        if ($details->type == "Time Series") {
+        if ($details->type == "Heart Rate") {
+            include '../util/display/heartrate.php';
+        } else if ($details->type == "Time Series") {
             include '../util/display/timeseries.php';
         } else if ($details->subtype == "image") {
             include '../util/display/image.php';
