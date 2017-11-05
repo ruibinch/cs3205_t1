@@ -69,7 +69,7 @@
                         <form method="post" action="managet.php">
                             <input name="therapist_search" value="<?php echo $therapist_info->uid ?>" type="hidden">
                             <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                            <td><button class="list-button"><?php echo $therapist_name ?></button></td>
+                            <td><button class="list-button"><?php echo htmlspecialchars($therapist_name) ?></button></td>
                         </form>
                         <?php if (in_array($therapists_list[$i]->uid, $therapists_assigned_ids)) { ?>
                             <td style="text-align:right">Therapist already assigned</td>
@@ -86,7 +86,7 @@
                         <?php } else { ?>
                             <td></td>
                             <td style="text-align:right">
-                                <button id="sendTreatmentReq" name="<?php echo $therapist_name ?>"
+                                <button id="sendTreatmentReq" name="<?php echo htmlspecialchars($therapist_name) ?>"
                                     value="<?php echo $therapist_info->uid ?>">Send Treatment Request</button>
                             </td>
                         <?php } ?>

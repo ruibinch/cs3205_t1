@@ -64,7 +64,7 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-            <h1><?php echo $therapist->firstname . " " . $therapist->lastname ?></h1>
+            <h1><?php echo htmlspecialchars($therapist->firstname . " " . $therapist->lastname) ?></h1>
             <hr style="margin-top:-15px">
             <table width="70%">
                 <th>
@@ -73,23 +73,23 @@
                 </th>
                 <tr>
                     <td>First Name:</td>
-                    <td><?php echo $therapist->firstname ?></td>
+                    <td><?php echo htmlspecialchars($therapist->firstname) ?></td>
                 </tr>
                 <tr>
                     <td>Last Name:</td>
-                    <td><?php echo $therapist->lastname ?></td>
+                    <td><?php echo htmlspecialchars($therapist->lastname) ?></td>
                 </tr>
                 <tr>
                     <td>Sex:</td>
-                    <td><?php if ($therapist->sex === "M") { ?>Male<?php } else { ?>Female<?php } ?></td>
+                    <td><?php echo (htmlspecialchars($therapist->sex) === "M") ? "Male" : "Female" ?></td>
                 </tr>
                 <tr>
                     <td>Ethnicity:</td>
-                    <td><?php if (isset($therapist->ethnicity)) { echo $therapist->ethnicity; } ?></td>
+                    <td><?php echo htmlspecialchars($therapist->ethnicity) ?></td>
                 </tr>
                 <tr>
                     <td>Contact Number:</td>
-                    <td><?php echo $therapist->phone ?></td>
+                    <td><?php echo htmlspecialchars($therapist->phone) ?></td>
                 </tr>
             </table>
 
@@ -135,9 +135,9 @@
                     ?>
                     <tr>
                         <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                        <td><?php echo $record->modifieddate ?></button></td>
-                        <td><?php echo $record->type ?></td>
-                        <td><?php echo $record->title ?></td>
+                        <td><?php echo htmlspecialchars($record->modifieddate) ?></button></td>
+                        <td><?php echo htmlspecialchars($record->type) ?></td>
+                        <td><?php echo htmlspecialchars($record->title) ?></td>
                         <td><input type="checkbox" id="setconsent" value="<?php echo $consent->consentId ?>" <?php echo $checked_status ?>/>
                         <td style="text-align:right">
                             <input type="button" class="details" id="<?php echo $record->rid ?>" value="Details"/>
@@ -160,14 +160,14 @@
                     $document = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $documentId)); ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
-                        <td style="vertical-align:top"><?php echo substr($document->modifieddate, 0, 10); ?></td>
+                        <td style="vertical-align:top"><?php echo htmlspecialchars(substr($document->modifieddate, 0, 10)); ?></td>
                         <td>
                             <details>
-                                <summary><?php echo $document->title ?></summary>
-                                <p><?php echo $document->notes ?></p>
+                                <summary><?php echo htmlspecialchars($document->title) ?></summary>
+                                <p><?php echo htmlspecialchars($document->notes) ?></p>
                             </details>
                         </td>
-                        <td style="vertical-align:top"><?php echo $therapist->firstname . " " . $therapist->lastname ?></td>
+                        <td style="vertical-align:top"><?php echo htmlspecialchars($therapist->firstname . " " . $therapist->lastname) ?></td>
                         <td style="vertical-align:top">-</td>
                     </tr>
                 <?php } ?>

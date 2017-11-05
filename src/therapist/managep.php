@@ -60,7 +60,7 @@
 
         <?php if (in_array($patientId, $patients_ids)) { ?>
             <div class="shifted">
-                <h1><?php echo $patient_json->firstname." ".$patient_json->lastname ?></h1>
+                <h1><?php echo htmlspecialchars($patient_json->firstname . " " . $patient_json->lastname) ?></h1>
                 <hr style="margin-top:-15px">
                 <table width="70%">
                     <th>
@@ -69,48 +69,48 @@
                     </th>
                     <tr>
                         <td>First Name:</td>
-                        <td><?php echo $patient_json->firstname ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->firstname) ?></td>
                     </tr>
                     <tr>
                         <td>Last Name:</td>
-                        <td><?php echo $patient_json->lastname ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->lastname) ?></td>
                     </tr>
                     <tr>
                         <td>Sex:</td>
-                        <td><?php if ($patient_json->sex === "M") { ?>Male<?php } else { ?>Female<?php } ?></td>
+                        <td><?php echo (htmlspecialchars($patient_json->sex) === "M") ? "Male" : "Female" ?></td>
                     </tr>
                     <tr>
                         <td>NRIC:</td>
-                        <td><?php echo $patient_json->nric ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->nric) ?></td>
                     </tr>
                     <tr>
                         <td>Ethnicity:</td>
-                        <td><?php if (isset($patient_json->ethnicity)) { echo $patient_json->ethnicity; } ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->ethnicity) ?></td>
                     </tr>
                     <tr>
                         <td>Date of Birth:</td>
-                        <td><?php echo $patient_json->dob ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->dob) ?></td>
                     </tr>
                     <tr>
                         <td>Blood Type:</td>
-                        <td><?php echo $patient_json->bloodtype ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->bloodtype) ?></td>
                     </tr>
                     <tr>
                         <td>Drug Allergy:</td>
-                        <td><?php if ($patient_json->drugAllergy) {?>Yes<?php } else {?>No<?php } ?></td>
+                        <td><?php echo (htmlspecialchars($patient_json->drugAllergy)) ? "Yes" : "No" ?></td>
                     </tr>
                     <tr></tr>
                     <tr>
                         <td>Primary Contact Number:</td>
-                        <td><?php echo $patient_json->phone[0] ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->phone[0]) ?></td>
                     </tr>
                     <tr>
-                        <td style="vertical-align: top">Secondary Contact Numbers:</td>
+                        <td style="vertical-align:top">Secondary Contact Numbers:</td>
                         <td>
                             <?php if (isset($patient_json->phone[1])) { 
-                                echo $patient_json->phone[1]; ?><br>
+                                echo htmlspecialchars($patient_json->phone[1]); ?><br>
                                 <?php if (isset($patient_json->phone[2])) {
-                                    echo $patient_json->phone[2];
+                                    echo htmlspecialchars($patient_json->phone[2]);
                                 }
                             } else {
                                 echo "-";
@@ -119,15 +119,15 @@
                     </tr>
                     <tr>
                         <td>Primary Address:</td>
-                        <td><?php echo $patient_json->address[0].", ".$patient_json->zipcode[0] ?></td>
+                        <td><?php echo htmlspecialchars($patient_json->address[0].", ".$patient_json->zipcode[0]) ?></td>
                     </tr>
                     <tr>
                         <td style="vertical-align: top">Secondary Addresses:</td>
                         <td>
                             <?php if (isset($patient_json->address[1])) { 
-                                echo $patient_json->address[1].", ".$patient_json->zipcode[1]; ?><br>
+                                echo htmlspecialchars($patient_json->address[1].", ".$patient_json->zipcode[1]) ?><br>
                                 <?php if (isset($patient_json->address[2])) {
-                                    echo $patient_json->address[2].", ".$patient_json->zipcode[2];
+                                    echo htmlspecialchars($patient_json->address[2].", ".$patient_json->zipcode[2]);
                                 }
                             } else {
                                 echo "-";
@@ -150,13 +150,13 @@
                         if (in_array($record->rid, $consents_rids)) { ?>
                             <tr>
                                 <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                                <td><?php echo $record->modifieddate ?></button></td>
-                                <td><?php echo $record->type ?></td>
-                                <td><?php echo $record->title ?></td>
+                                <td><?php echo htmlspecialchars($record->modifieddate) ?></button></td>
+                                <td><?php echo htmlspecialchars($record->type) ?></td>
+                                <td><?php echo htmlspecialchars($record->title) ?></td>
                                 <td class="last-col">
                                     <?php
                                         if ($consents_list_status[$record->rid]) {
-                                            echo "<input type='button' value='Details'"; // TODO - include link
+                                            echo "<input type='button' value='Details' onclick='viewRecord(".$record->rid.")'";
                                         } else {
                                             echo "<input type='button' value='Details' disabled";
                                         }
@@ -168,6 +168,14 @@
                 </table>
             </div>
         <?php } ?>
+
+        <script>
+
+            function viewRecord(rid) {
+                window.location.href = "../file/viewdoc.php?rid=" + rid;
+            }
+
+        </script>
 
   </body>
 </html>

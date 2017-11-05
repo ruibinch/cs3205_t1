@@ -41,7 +41,7 @@
     <body>
         <?php include '../sidebar.php' ?>
         <div class="shifted">
-            <h1>Therapist<?php if ($num_therapists != 1) { ?>s<?php } ?> you are assigned to (<?php echo $num_therapists ?>):</h1>
+            <h1>Therapist<?php if ($num_therapists != 1) { echo "s"; } ?> you are assigned to (<?php echo $num_therapists ?>):</h1>
             <hr style="margin-top:-15px">
 
             <table class="main-table">
@@ -59,8 +59,8 @@
                         <form method="post" action="managet.php">
                             <input name="therapist_search" value="<?php echo $therapist_id ?>" type="hidden">
                             <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                            <td><button class="list-button"><?php echo $therapist_name ?></button></td>
-                            <td><?php echo $therapist_json->phone[0] ?></td>
+                            <td><button class="list-button"><?php echo htmlspecialchars($therapist_name) ?></button></td>
+                            <td><?php echo htmlspecialchars($therapist_json->phone[0]) ?></td>
                         </form>
                         <td class="last-col">
                             <button id="removeTherapist" value="<?php echo $therapists_list[$i]->id ?>">Remove</button>

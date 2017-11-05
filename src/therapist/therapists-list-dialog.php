@@ -57,7 +57,7 @@
     ?>
             <tr>
                 <td><?php echo $i + 1 ?></td>
-                <td><?php echo $therapist->firstname." ".$therapist->lastname ?></td>
+                <td><?php echo htmlspecialchars($therapist->firstname." ".$therapist->lastname) ?></td>
                 <td><input type="checkbox" class="selectDocumentCheckbox" value="<?php echo $therapist->uid ?>" <?php echo hasConsent($therapist->uid, $rid) ?>/></td>
             </tr>
     <?php
