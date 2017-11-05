@@ -2,6 +2,7 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
+    include_once 'util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
@@ -193,7 +194,7 @@
         if (empty($addr2)) {
             $addr2 = NULL;
         } else {
-            if (isContactNumberInvalid($addr2)) {
+            if (isAddressInvalid($addr2)) {
                 $hasError = true;
                 $addr2Err = "Invalid input";
             }
@@ -207,7 +208,7 @@
                 $zip1 = $zip2 = 0;
             }
         } else {
-            if (isContactNumberInvalid($zip1)) {
+            if (isZipcodeInvalid($zip1)) {
                 $hasError = true;
                 $zip1Err = "Invalid input";
             }
@@ -216,7 +217,7 @@
         if (empty($zip2)) {
             $zip2 = 0;
         } else {
-            if (isContactNumberInvalid($zip2)) {
+            if (isZipcodeInvalid($zip2)) {
                 $hasError = true;
                 $zip2Err = "Invalid input";
             }
@@ -229,13 +230,14 @@
         $changed = particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2);
         if (count($changed) == 0) {
             $hasError = true;
-            $noChangeErr = "Please update at least one particular";
         }
 
         if (!$hasError) {
             $settings_save = true;
             $changed = particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2);
             $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->sex, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->secret, $drugAllergy, $ethnicity, $nationality);
+            $description = "Updated " . implode(", ", $changed);
+            Log::recordTX($user_json->uid, "Info", $description);
             $url = 'http://172.25.76.76/api/team1/user/update';
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
@@ -277,7 +279,6 @@
         }
     }
 
-    // C
     function particulars_changed($user_json, $username, $fname, $lname, $dob, $nationality, $ethnicity, $drugAllergy, $phone1, $phone2, $phone3, $addr1, $addr2, $addr3, $zip1, $zip2, $zip3) {
         $changed = array();
         if ($username !== $user_json->username) { array_push($changed, "Username"); }
@@ -378,11 +379,11 @@
                 <?php } ?>
 
                 <?php for ($i = 0; $i < $num_address; $i++) { ?>
-                    <div class="profile-update">Address:  <?php echo $i === 0 ? "" : $i ?><br>
+                    <div class="profile-update">Address <?php echo $i === 0 ? "" : $i ?>: <span class="error-message"><?php echo empty(${'addr'.$i.'Err'}) ? "" : "*" . ${'addr'.$i.'Err'} ?></span><br>
                     <input type="text" name="<?php echo 'input-address'.$i ?>"
                         value="<?php echo (isset($user_json->address) ? $user_json->address[$i] : "" )?>"><br>
                     </div>
-                    <div class="profile-update">Zipcode:  <?php echo $i === 0 ? "" : $i ?><br>
+                    <div class="profile-update">Zipcode <?php echo $i === 0 ? "" : $i ?>: <span class="error-message"><?php echo empty(${'zip'.$i.'Err'}) ? "" : "*" . ${'zip'.$i.'Err'} ?></span><br>
                         <input type="text" name="<?php echo 'input-zipcode'.$i ?>"
                             value="<?php echo (isset($user_json->zipcode) ? $user_json->zipcode[$i] : "" )?>"><br>
                     </div>
