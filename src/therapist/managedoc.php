@@ -23,6 +23,8 @@
         }
     }
 
+    $num_shared_documents = count($shared_documents_list);
+
     function sanitise($input) {
         $input = trim($input);
         $input = stripcslashes($input);
