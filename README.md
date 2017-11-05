@@ -6,3 +6,5 @@ This project comprises of 2 main components - the healthcare system and the mana
 The 2 groups of users for the healthcare system are patients and therapists. Patients can send treatment requests to therapists and view their records. Therapists can be assigned to patients, view their records and write documents regarding the patients.
 
 The management console is used by the administrator to add users into the healthcare system database.
+
+Our web server can be found at the following link: https://cs3205-1.comp.nus.edu.sg/
