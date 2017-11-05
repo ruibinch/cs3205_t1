@@ -873,7 +873,9 @@
 		$decodeDel = json_decode($resultDel);		
 		
 		if (isset($decodeDel->uid)) {
-			$validForDeletion = TRUE;
+			if (!($decodeDel->uid === -1 || $decodeDel->uid === 0)) {   //ignore uid 0 or -1. Not for manipulation.
+				$validForDeletion = TRUE;
+			}
 		}
 		
 		if ($validForDeletion) {
@@ -966,7 +968,7 @@
 		$result = json_decode($connection);
 		
 		//value received, php include 2nd form if user exists...
-		if (isset($result->uid)) {
+		if (isset($result->uid) && !(($result->uid === 0 || $result->uid === -1))) {  //ignore uid 0 or -1. Not for manipulation.
 			$_SESSION['editUserID'] = $result->uid;
 			include "edit-form.php";
 		} else {
