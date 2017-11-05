@@ -17,13 +17,11 @@
 	sleep(1);
 	if ($_POST['mode'] === "all") {
         $dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/";
-		
+		$connection = ssl::get_content($dbURL);
 		if ($connection === FALSE) {
 			echo "Database connection failed. Try again later.";
 			exit();
 		}
-		
-		$connection = ssl::get_content($dbURL);
 		$decodeJS = json_decode($connection);
 		//Check for empty table
 		if (empty($decodeJS->logs)) {
