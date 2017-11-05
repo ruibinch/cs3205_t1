@@ -4,7 +4,7 @@ include_once 'ssl.php';
 class OneTimeToken
 {
 
-    private static $serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
+    private static $serverurl;
 
     /*
      * @param $uid
@@ -13,6 +13,7 @@ class OneTimeToken
      */
     static function generateToken($uid, $filePath, $CSRFToken, $type)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $string = bin2hex(random_bytes(20));
         $data = (object) null;
         $data->uid = $uid;
@@ -33,6 +34,7 @@ class OneTimeToken
      */
     static function deleteToken($token)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $result = self::getToken($token);
         if (isset($result->result) && ! ($result->result))
             return false;
@@ -50,6 +52,7 @@ class OneTimeToken
      */
     static function getToken($token)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/otl/" . $token));
         return $result;
     }
