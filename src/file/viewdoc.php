@@ -2,6 +2,7 @@
 include_once '../util/jwt.php';
 include_once '../util/csrf.php';
 include_once '../util/ssl.php';
+include_once '../util/logger.php';
 $result = WebToken::verifyToken($_COOKIE["jwt"]);
 $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $result->uid));
 $user_type = $result->istherapist ? "therapist" : "patient";
@@ -54,10 +55,24 @@ li a:hover {
 		style="position: fixed; width: 250px; height: 95%; left: 0; bottom: 0; overflow: scroll;">
 <?php
 Log::recordTX($uid, "Info", "Opened file viewer");
-$listOfConsents = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/" . $uid))->consents;
-$listOfOwned = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/all/".$uid))->records;
-$rids = [];
+// Get all file to be listed in file viewer
+$resultOfConsents = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/" . $uid));
+$resultOfOwned = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/all/".$uid));
+if (!isset($resultOfConsents->consents)) {
+    $listOfConsents = array();
+    Log::recordTX($uid, "Error", "Wrong uid passed to api/team1/consent/user/ in viewdoc.php: ".$uid);
+} else {
+    $listOfConsents = $resultOfConsents->consents;
+}
+if (!isset($resultOfOwned->records)) {
+    $listOfConsents = array();
+    Log::recordTX($uid, "Error", "Wrong uid passed to api/team1/record/all/ in viewdoc.php: ".$uid);
+} else {
+    $listOfOwned = $resultOfOwned->records;
+}
+
 if (!isset($_GET['rid'])) {
+    // Default: display all listed files
     foreach ($listOfConsents as $consent) {
         if ($consent->status) {
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/" . $consent->rid));
@@ -77,6 +92,7 @@ if (!isset($_GET['rid'])) {
         echo "</ul>";
     }
 } else {
+    // Display only one file
     $rid = $_GET['rid'];
     foreach ($listOfConsents as $consent) {
         if ($consent->status && $consent->rid == $rid) {
