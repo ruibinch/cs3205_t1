@@ -158,3 +158,26 @@ div#errorDiv {
 div#loaderDiv2 {
 	display: none;
 }
+
+tr#LogWarning {
+	background-color: #fff34c;
+}
+
+tr#LogError {
+	background-color: #fc4b4b;
+}
+
+tr#LogInfo {
+	background-color: #42f445;
+}
+
+table#logTable{
+	color: black;
+	text-align: center;
+	width: 100%;
+}
+
+th {
+	color: white;
+	background-color: black;
+}

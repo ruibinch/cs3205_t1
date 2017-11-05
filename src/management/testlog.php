@@ -14,9 +14,9 @@
 	//Values: Info, Warning, Error
 	*/
 		
-	$uid = 1;
-	$classification = "Info";
-	$description = "PATIENT: Suspected Hacking Attempt";	
+	$uid = 2;
+	$classification = "Error";
+	$description = "PATIENT: Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. Server messed up. ";	
 	
 	Log::recordTX($uid, $classification, $description);
 ?>

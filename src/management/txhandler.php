@@ -2,6 +2,7 @@
 	//txhandler.php: helper script to retreive info from DB
 		
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/ssl.php';
 	
 	// TODO: change the dummy key here to the real key
 	WebToken::verifyToken($_COOKIE["jwt"]);	
@@ -15,10 +16,25 @@
 <?php
 	sleep(1);
 	if ($_POST['mode'] === "all") {
-		echo "All";
-	}
-	
-	if ($_POST['mode'] === "warn") {
-		echo "Warn";
+		$dbURL = "http://cs3205-4-i.comp.nus.edu.sg/api/team1/log/";
+		
+		//$connection = ssl:get_content($dbURL);
+		
+		if ($connection === FALSE) {
+			echo "Database connection failed. Try again later.";
+			exit();
+		}
+		
+		$connection = file_get_contents($dbURL);
+		$decodeJS = json_decode($connection);
+		//Check for empty table
+		//....
+		echo '<table id="logTable">';
+		echo "\t" . '<th>UserID</th><th>Time</th><th>Description</th>';
+		
+		foreach ($decodeJS->logs as &$value) {
+			echo "\t" . '<tr id="Log' . $value->classification . '"><td>' . $value->uid . '</td><td>' . $value->time . '</td><td>' . $value->description . '</td></tr>';
+		}
+		echo '</table>';
 	}
 ?>
