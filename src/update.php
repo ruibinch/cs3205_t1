@@ -12,6 +12,7 @@
     $num_address = count($user_json->address);
     $settings_save = false;
     $hasError = false;
+    $error_arr = array();
     
     // Input
     $username = $fname = $lname = $dob = $nationality = $ethnicity = $drugAllergy = $phone0 = $phone1 = $phone2 = $addr0 = $addr1 = $addr2 = $zip0 = $zip1 = $zip2 = "";
@@ -61,6 +62,22 @@
           }
         }
 
+        // Check username
+        if (empty($username)) { // Check empty field
+          $hasError = true;
+          $userErr = "Input required";
+        } else if (preg_match("/[^A-Za-z0-9]/", $username)) { // Check username format
+          $hasError = true;
+          $userErr = "Invalid username format, please only use alphanumeric characters";
+          array_push($error_arr, "Invalid Username: " . $username);
+        } else { // Check availability
+          $username_check = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/'. $username));
+          if (isset($username_check->uid) && $username_check->uid !== $user_json->uid) {
+            $hasError = true;
+            $userErr = "Username " . $username . " taken";
+          }
+        }
+
         // Check first name
         if (empty($fname)) { //Check empty field
           $hasError = true;
@@ -68,6 +85,7 @@
         } else if (preg_match("/[^A-Za-z]/", $fname)) { // Check firstname format
             $hasError = true;
             $fnameErr = "Invalid first name format, please only use alphabets";
+            array_push($error_arr, "Invalid First Name: " . $fname);
         }
 
         // Check last name
@@ -77,6 +95,7 @@
         } else if (preg_match("/[^A-Za-z]/", $lname)) { // Check last name format
             $hasError = true;
             $lnameErr = "Invalid first name format, please only use alphabets";
+            array_push($error_arr, "Invalid Last Name: " . $lname);
         }
 
         // DOB
@@ -86,6 +105,7 @@
         } if (strlen($dob) != 10 || !preg_match("/^\d{4}[\-\/\s]?((((0[13578])|(1[02]))[\-\/\s]?(([0-2][0-9])|(3[01])))|(((0[469])|(11))[\-\/\s]?(([0-2][0-9])|(30)))|(02[\-\/\s]?[0-2][0-9]))$/", $dob)) { // Perform initial format check
             $hasError = true;
             $dobErr = "Invalid date";
+            array_push($error_arr, "Invalid DOB: " . $dob);
         } else { // Check cleared. Now to determine state of leap year.
             $year = substr($dob, 0, 4);
             $month = substr($dob, 5, 2);
@@ -106,6 +126,7 @@
         } else if (preg_match("/[^A-Za-z]/", $nationality)) { // Check nationality format
             $hasError = true;
             $nationalityErr = "Invalid nationality format, please only use alphabets";
+            array_push($error_arr, "Invalid Nationality: " . $nationality);
         }
 
         // Check ethnicity
@@ -115,6 +136,7 @@
         } else if (preg_match("/[^A-Za-z]/", $ethnicity)) { // Check ethnicity format
             $hasError = true;
             $ethnicityErr = "Invalid ethnicity format, please only use alphabets";
+            array_push($error_arr, "Invalid Ethnicity: " . $ethnicity);
         }
 
         // Drug Allergy
@@ -128,6 +150,7 @@
             if (isContactNumberInvalid($phone0)) {
                 $hasError = true;
                 $phone0Err = "Invalid input";
+                array_push($error_arr, "Invalid Phone0: " . $phone0);
             }
         }
 
@@ -142,6 +165,7 @@
             if (isContactNumberInvalid($phone1)) {
                 $hasError = true;
                 $phone1Err = "Invalid input";
+                array_push($error_arr, "Invalid Phone1: " . $phone1);
             }
         }
 
@@ -151,6 +175,7 @@
             if (isContactNumberInvalid($phone2)) {
                 $hasError = true;
                 $phone2Err = "Invalid input";
+                array_push($error_arr, "Invalid Phone2: " . $phone2);
             }
         }
 
@@ -169,11 +194,12 @@
             if (isAddressInvalid($addr0)) {
                 $hasError = true;
                 $addr0Err = "Invalid address";
+                array_push($error_arr, "Invalid Address0: " . $addr0);
             }
             if (isZipcodeInvalid($zip0)) {
                 $hasError = true;
                 $zip0Err = "Invalid input";
-
+                array_push($error_arr, "Invalid Zipcode0: " . $zip0);
             }
         }
 
@@ -188,6 +214,7 @@
             if (isAddressInvalid($addr1)) {
                 $hasError = true;
                 $addr1Err = "Invalid input";
+                array_push($error_arr, "Invalid Address1: " . $addr1);
             }
         }
 
@@ -197,6 +224,7 @@
             if (isAddressInvalid($addr2)) {
                 $hasError = true;
                 $addr2Err = "Invalid input";
+                array_push($error_arr, "Invalid Address2: " . $addr2);
             }
         }
 
@@ -211,6 +239,7 @@
             if (isZipcodeInvalid($zip1)) {
                 $hasError = true;
                 $zip1Err = "Invalid input";
+                array_push($error_arr, "Invalid Zipcode1: " . $zip1);
             }
         }
 
@@ -220,6 +249,7 @@
             if (isZipcodeInvalid($zip2)) {
                 $hasError = true;
                 $zip2Err = "Invalid input";
+                array_push($error_arr, "Invalid Zipcode2: " . $zip2);
             }
         }
 
@@ -241,7 +271,9 @@
             $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update';
             ssl::post_content($url, $particulars_json, array('Content-Type: application/json'));
             $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$result->uid));
-        } 
+        } else {
+            Log::recordTX($user_json->uid, "Error", implode(", ", $error_arr));
+        }
     }
 
 
