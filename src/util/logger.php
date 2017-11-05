@@ -4,7 +4,7 @@
 class Log {
 	static function recordTX($uid, $classification, $description) {
 		$dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/create";		
-		$timeStamp = time();
+		$timeStamp = round(microtime(true) * 1000);
 		
 		$logToDB = array(
 			"uid" => $uid,
