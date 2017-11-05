@@ -239,12 +239,7 @@
             $description = "Updated " . implode(", ", $changed);
             Log::recordTX($user_json->uid, "Info", $description);
             $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update';
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            ssl::setSSL($curl);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $particulars_json);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-            curl_exec($ch);
+            ssl::post_content($url, $particulars_json, array('Content-Type: application/json'));
             $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$result->uid));
         } 
     }
