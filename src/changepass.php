@@ -2,6 +2,7 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
+    include_once 'util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
@@ -57,7 +58,7 @@
             $salted = substr($hashedpass, 0, 29);
             $hashedpass = hash('SHA256', $hashedpass);
             //ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/'.$user_json->username.'/'.$hashedpass.'/'.$salt.'/');
-            
+            Log::recordTX($user_json->uid, "Info", "Updated password");
             $pass_json = json_array($user_json->username, $hashedpass, $salted);
             $url = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update/password';
             ssl::post_content($url, $pass_json, array('Content-Type: application/json'));
