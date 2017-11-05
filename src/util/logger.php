@@ -1,5 +1,6 @@
 <?php
 	//logger.php: Handler to send transaction logs to DB
+	include_once 'ssl.php';
 	
 class Log {
 	static function recordTX($uid, $classification, $description) {
