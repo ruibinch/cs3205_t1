@@ -2,6 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
+    include_once '../util/logging.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
     $patient_id = $result->uid;
 
@@ -154,6 +155,7 @@
                                             "consentSettings": consentSettings }
                                 }).done(function(response) {
                                     if (response == 1) {
+					<?php Log::recordTX($patient_id, "Info", "Sent treatment request") ?>;
                                         $('#acknowledgementDialog')
                                             .data('message', "Treatment request sent")
                                             .dialog('open');
