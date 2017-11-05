@@ -54,6 +54,7 @@
 
             // delete document
             $delete_document = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/delete/'.$rid."/".$user_json->uid));
+            Log:: recordTx($user_json->uid, "Info", "Deleted a document");
             $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
@@ -86,6 +87,11 @@
             curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
             curl_exec($ch);
             */
+            if (empty($associated_patient)) {
+                Log::recordTX($user_json->uid, "Info", "Composed a new document with no associated patient");
+            } else {
+                Log::recordTX($user_json->uid, "Info", "Composed a new document associated with patient ". $associated_patient);
+            }
             $documents_list = json_decode(file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
@@ -157,7 +163,7 @@
         <div class="shifted">
         <h1>You have <?php echo $num_documents + $num_shared_documents ?> document<?php if ($num_documents + $num_shared_documents != 1) { ?>s<?php } ?>.</h1>  
             <hr style="margin-top:-15px">
-            <details>
+            <details open>
                 <summary><b>Your Notes (<?php echo $num_documents ?>)</b></summary>
                 <table class="main-table">
                 <tr>
@@ -264,7 +270,7 @@
                 </table>
             </details>
             <br>
-            <details>
+            <details open>
                 <summary><b>Other Therapists' Notes (<?php echo $num_shared_documents ?>)</b></summary>
                 <table class="main-table">
                     <tr>
