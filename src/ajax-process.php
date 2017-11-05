@@ -86,7 +86,6 @@
     }
 
     function processLogin() {
-        $dummy_key = "dummykey";
         
         if ($_SESSION['login_system'] === "hcsystem") {
             include_once 'util/jwt.php';
@@ -100,7 +99,7 @@
             }
             
             //TODO: change the dummy key here to the real key; change $secure to true
-            setcookie("jwt", WebToken::getToken($user_json->uid, $user_type === "therapist", $dummy_key), 
+            setcookie("jwt", WebToken::getToken($user_json->uid, $user_type === "therapist"), 
                     time()+3600, "/", null, true, true);
             return "main.php";
             //exit();
@@ -111,7 +110,7 @@
             $decode = $_SESSION['user_json'];
             if (isset($decode->username)) {
                 //TODO: change the dummy key here to the real key
-                setcookie("jwt", WebToken::getToken($decode->admin_id, $dummy_key),time()+3600, "/", null, true, true);
+                setcookie("jwt", WebToken::getToken($decode->admin_id),time()+3600, "/", null, true, true);
                 $_SESSION['loggedin'] = $decode->username;
                 return "management/console.php";
                 //header("location: management/console.php");
