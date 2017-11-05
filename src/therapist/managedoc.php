@@ -226,16 +226,16 @@
                         </td>
                         <td style="vertical-align:top">
                             <?php 
-                                if (isset($patient->firstname) && isset($patient->lastname)) { 
-                                    echo $patient->firstname . " " . $patient->lastname; 
-                                } else {
+                                if (strcmp($record->patientId, "0") == 0) {
                                     echo "-";
+                                } else if (isset($patient->firstname) && isset($patient->lastname)) { 
+                                    echo $patient->firstname . " " . $patient->lastname; 
                                 }
                             ?>
                         </td>
                         <td style="vertical-align:top">
                             <?php
-                                if (!isset($patient->uid)) { // if document has no associated patient
+                                if (strcmp($record->patientId, "0") == 0) { // if document has no associated patient
                                     echo "-";
                                 } else {
                                     $shared_with_patient = "No";
