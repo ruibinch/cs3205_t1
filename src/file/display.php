@@ -21,7 +21,7 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         die();
     } else {
         $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_GET['csrf']));
-        if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewdoc") {
+        if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewdoc" || $csrf->uid != $uid) {
             //invalid csrf token
             Log::recordTX($uid, "Warning", "Invalid csrf when accessing display.php");
             header('HTTP/1.0 400 Bad Request.');

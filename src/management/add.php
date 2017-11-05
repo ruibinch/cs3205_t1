@@ -214,6 +214,7 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 	<form class="container" method="post" action="validate.php">
 		<div class="left">
 			<h2><br/>Stage 1: Patient or Therapist<span class="required">*</span></h2>
+			<input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken(0, "admin_add");?>>
 			<input type="radio" name="usertype" value="Patient" <?php if ($_SESSION['type'] === "Patient") echo "checked";?> required>Patient&emsp;&emsp;&emsp;
 			<input type="radio" name="usertype" value="Therapist" <?php if ($_SESSION['type'] === "Therapist") echo "checked";?> required>Therapist
 			<h2>Stage 2: Account Details</h2>

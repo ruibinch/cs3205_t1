@@ -843,7 +843,16 @@
 		echo "Go home, you are drunk.";
 		exit();
 	}
-	
+	if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+	    //get csrf token
+	    $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+	    if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "admin_".$_POST['action'] || $csrf->uid != 0) {
+	        //invalid csrf token
+	        Log::recordTX(0, "Warning", "Invalid csrf when accessing validate.php");
+	        header('HTTP/1.0 400 Bad Request.');
+	        die();
+	    }
+	}
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete") {
 		
 		//Navigation Session Check
