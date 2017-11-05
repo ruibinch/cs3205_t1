@@ -1,6 +1,6 @@
 <?php
 	//logger.php: Handler to send transaction logs to DB
-	include_once 'ssl.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/ssl.php';
 	
 class Log {
 	static function recordTX($uid, $classification, $description) {
@@ -18,7 +18,7 @@ class Log {
 		$logToDB_json = json_encode($logToDB);
 				
 		//Establish connection to DB server and get result.
-		@ssl::post_content($dbURL, $LogToDB_json, array('Content-Type: application/json', 'Content-Length: ' . strlen($LogToDB_json)));
+		@ssl::post_content($dbURL, $logToDB_json, array('Content-Type: application/json', 'Content-Length: ' . strlen($logToDB_json)));
 				
 		//Ignore Result.
 	}
