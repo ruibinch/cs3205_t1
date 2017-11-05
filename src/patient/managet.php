@@ -27,6 +27,11 @@
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }
+    if (isset($records_list)) {
+        $num_records = count($records_list);
+    } else {
+        $num_records = 0;
+    }
 
     $documents_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/owner/' . $therapistId . '/' . $result->uid));
     if (isset($documents_list_json->consents)) {
@@ -117,7 +122,8 @@
                     <th>Consent Given</th>
                     <th style="text-align:right">Actions</th>
                 </tr>
-                <?php for ($i = 0; $i < count($records_list); $i++) {   
+                
+                <?php for ($i = 0; $i < $num_records; $i++) {   
                     $record = $records_list[$i];
                     // Get the corresponding consent between the therapist and this specific record
                     $consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/record/' . $record->rid));
@@ -127,7 +133,7 @@
                             $consent = $consents[$j];
                         }
                     }
-                    
+
                     $checked_status = "";
                     if ($consent->status) {
                         $checked_status = "checked";
@@ -140,7 +146,7 @@
                         <td><?php echo htmlspecialchars($record->title) ?></td>
                         <td><input type="checkbox" id="setconsent" value="<?php echo $consent->consentId ?>" <?php echo $checked_status ?>/>
                         <td style="text-align:right">
-                            <input type="button" class="details" id="<?php echo $record->rid ?>" value="Details"/>
+                            <input type="button" onclick="viewRecord('<?php echo $record->rid ?>')" value="Details"/>
                         </td>
                     </tr>
                 <?php } ?>
@@ -249,6 +255,9 @@
                     consentChanges[consentId] = !consentChanges[consentId]; // toggle
                 });
 
+                function viewRecord(rid) {
+                    window.location.href = "../file/viewdoc.php?rid=" + rid;
+                }
             });
 
         </script>

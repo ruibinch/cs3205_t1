@@ -199,7 +199,7 @@
                                             for ($j = 0; $j < count($attached_rids); $j++) {
                                                 $attached_record = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/' . $attached_rids[$j]));
                                                 if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
-                                                    echo ($j+1) . ". <a href='#'><u>" . $attached_record->title . "</u></a><br>"; 
+                                                    echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
                                                 } else {
                                                     echo ($j+1) . ". " . $attached_record->title . "<br>";
                                                 }
@@ -292,7 +292,7 @@
                                                 for ($j = 0; $j < count($attached_rids); $j++) {
                                                     $attached_record = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/' . $attached_rids[$j]));
                                                     if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
-                                                        echo ($j+1) . ". <a href='#'><u>" . $attached_record->title . "</u></a><br>"; 
+                                                        echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
                                                     } else {
                                                         echo ($j+1) . ". " . $attached_record->title . "<br>";
                                                     }
