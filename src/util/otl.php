@@ -23,8 +23,8 @@ class OneTimeToken
         $data->csrf = $CSRFToken;
         $header = ['Content-Type: application/json'];
         $result = json_decode(ssl::post_content(self::$serverurl . "api/team1/otl/create/", json_encode($data), $header));
-        //if (!isset($result->result) || $result->result != 1)
-            //return self::generateToken($uid, $filePath, $CSRFToken, $type);
+        if (!isset($result->result) || $result->result != 1)
+            return self::generateToken($uid, $filePath, $CSRFToken, $type);
         return $string;
     }
 

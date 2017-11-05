@@ -92,7 +92,7 @@
             } else {
                 Log::recordTX($user_json->uid, "Info", "Composed a new document associated with patient ". $associated_patient);
             }
-            $documents_list = json_decode(file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
+            $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
             // create a corresponding consent between this document and the associated patient
