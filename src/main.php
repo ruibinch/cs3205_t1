@@ -329,7 +329,7 @@
             $(document).on('click', '#treatmentReqDetails', function() {
                 $('#treatmentReqDialog')
                     .data('treatmentId', $(this).val())
-                    .dialog('option', 'title', "Treatment Request from " + $(this).attr('name'));
+                    .dialog('option', 'title', "Treatment Request from " + $(this).attr('name'))
                     .dialog('open');
             });
 
