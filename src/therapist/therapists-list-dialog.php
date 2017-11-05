@@ -15,18 +15,18 @@
     }
 
     if ($patientId === "0") {
-        $therapist_list = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/therapists"))->users;
+        $therapist_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/therapists"))->users;
     } else {
-        $therapist_list = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/patient/".$patientId."/true"))->treatments;
+        $therapist_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/treatment/patient/".$patientId."/true"))->treatments;
     }
 
     function getUser($uid) {
-        return json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/".$uid));
+        return json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/".$uid));
     }
 
     function hasConsent($uid, $rid) {
         $hasConsent = "";
-        $consent_array = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/".$uid));
+        $consent_array = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/".$uid));
         if (!isset($consent_array->result)) {
             $consent_array = $consent_array->consents;
             foreach ($consent_array AS $consent_elem) {

@@ -314,14 +314,14 @@
             $consent_string = getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner);
             if ($therapist->isChecked) {
                 if (strcmp($consent_string, "-1") == 0) { // Consent doesn't exist
-                    $result = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
+                    $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
                     $consent_json = json_decode(getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner));
-                    $result = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/update/".$consent_json->consentId));
+                    $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
                     array_push($t_array, $therapist->therapist." consent created");
                 } else {
                     $consent_json = json_decode($consent_string);
                     if (!$consent_json->status) {
-                        $result = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/update/".$consent_json->consentId));
+                        $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
                         array_push($t_array, $therapist->therapist." consent toggled to true");
                     }
                 }
@@ -329,7 +329,7 @@
                 if (strcmp($consent_string, "-1") !== 0) { // If consent exist
                     $consent_json = json_decode($consent_string);
                     if ($consent_json->status) {
-                        $result = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/update/".$consent_json->consentId));
+                        $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
                         array_push($t_array, $therapist->therapist." consent toggled to false");
                     }
                 }
@@ -340,12 +340,12 @@
 
     function getConsentJson($uid, $rid, $tid) {
         $consentId = "-1"; // Consent doesn't exist
-        $consent_array = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/owner/".$tid."/".$uid));
+        $consent_array = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/owner/".$tid."/".$uid));
         if (!isset($consent_array->result)) {
             $consent_array = $consent_array->consents;
             foreach ($consent_array AS $consent_elem) {
                 if (strcmp($consent_elem->rid, $rid) == 0) {
-                    $consentId = ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/".$consent_elem->consentId);
+                    $consentId = ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/".$consent_elem->consentId);
                 }
             }
         }

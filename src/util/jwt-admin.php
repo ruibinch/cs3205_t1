@@ -7,7 +7,7 @@ include_once $_SERVER['DOCUMENT_ROOT'].'/util/ssl.php';
 class WebToken
 {
 
-    private static $serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
+    private static $serverurl;
 
     /*
      * @param $admin_id
@@ -15,6 +15,7 @@ class WebToken
      */
     static function getToken($admin_id)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['admin'];
         if (self::refreshSecret($admin_id)) {
             $secret = json_decode(ssl::get_content(self::$serverurl . "api/team1/admin/secret/" . $admin_id))->secret;
@@ -37,6 +38,7 @@ class WebToken
      */
     static function verifyToken($token)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['admin'];
         if ($token) {
             try {
@@ -81,6 +83,7 @@ class WebToken
      */
     static function refreshSecret($admin_id)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $secret = self::getSecret($admin_id);
         $string = bin2hex(random_bytes(20));
         while ($secret && strcmp($secret, $string) == 0)
@@ -94,6 +97,7 @@ class WebToken
 
     static function getSecret($admin_id)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/admin/secret/" . $admin_id));
         if (isset($result->secret))
             return $result->secret;

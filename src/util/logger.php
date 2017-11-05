@@ -3,7 +3,7 @@
 	
 class Log {
 	static function recordTX($uid, $classification, $description) {
-		$dbURL = "http://cs3205-4-i.comp.nus.edu.sg/api/team1/log/create";		
+		$dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/create";		
 		$timeStamp = time();
 		
 		$logToDB = array(

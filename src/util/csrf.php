@@ -5,7 +5,7 @@ include_once 'ssl.php';
 class CSRFToken
 {
 
-    private static $serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
+    private static $serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
 
     /*
      * @param $uid

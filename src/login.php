@@ -18,7 +18,6 @@
             $loginSystem = "Management Console";
         }
     }
-
 ?>
 
 <html>

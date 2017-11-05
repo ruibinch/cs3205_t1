@@ -3,7 +3,7 @@ require '../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
 include_once 'jwt.php';
 
-$serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
+$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
 
 // test secret
 $result = WebToken::getSecret(7);

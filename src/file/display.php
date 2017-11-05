@@ -14,12 +14,12 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
     die();
 } else {
     $rid = $_GET['rid'];
-    if (!json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/check/".$uid."/".$rid))->result) {
+    if (!json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/check/".$uid."/".$rid))->result) {
         //No access to this file
         header('HTTP/1.0 400 Bad Request.');
         die();
     } else {
-        $csrf = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/csrf/".$_GET['csrf']));
+        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_GET['csrf']));
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewdoc") {
             //invalid csrf token
             echo json_encode($csrf);
@@ -32,8 +32,8 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         setcookie("vcsrf", $csrftoken, time()+3600);
         
         //download file
-        $filecontent = ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/".$rid);
-        $details = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/".$rid));
+        $filecontent = ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/get/".$rid);
+        $details = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/".$rid));
         if (!file_exists($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)))
             mkdir($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid), 0711);
         if (!file_exists($_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)))

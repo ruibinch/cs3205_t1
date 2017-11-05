@@ -5,7 +5,7 @@ include_once 'ssl.php';
 * This component tests the curl method on ssl.php
 */
 echo "Testing curl\n";
-$url = "https://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/bob99";
+$url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/username/bob99";
 echo "URL : ".$url."\n";
 // Initialise cURL
 $curl = curl_init();
@@ -26,7 +26,7 @@ echo "\n\n";
 * This component tests the get_content method on ssl.php
 */
 echo "Testing get_content\n";
-$url = "https://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/bob99";
+$url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/username/bob99";
 echo "URL : ".$url."\n";
 // Initialise cURL
 $curl = ssl::get_content($url);
@@ -38,7 +38,7 @@ echo "\n\n";
 * This component tests the curl method on ssl.php WITH basic auth included.
 */
 echo "Testing curl WITH basic auth\n";
-$url = "https://cs3205-4-i.comp.nus.edu.sg/test/api/team1/user/username/bob99";
+$url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."test/api/team1/user/username/bob99";
 echo "URL : ".$url."\n";
 // Initialise cURL
 $curl = curl_init();

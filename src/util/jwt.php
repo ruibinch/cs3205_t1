@@ -6,14 +6,15 @@ include_once 'ssl.php';
 class WebToken
 {
 
-    private static $serverurl = "http://cs3205-4-i.comp.nus.edu.sg/";
-
+    private static $serverurl;
+    
     /*
      * @param $uid
      * @param $key - secret key
      */
     static function getToken($uid, $istherapist)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         if (self::refreshSecret($uid)) {
             $secret = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $uid))->secret;
             $token = array(
@@ -37,6 +38,7 @@ class WebToken
      */
     static function verifyToken($token)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         if ($token) {
             try {
                 $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['normal'];
@@ -81,11 +83,12 @@ class WebToken
      */
     static function refreshSecret($uid)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $secret = self::getSecret($uid);
         $string = bin2hex(random_bytes(20));
         while ($secret && strcmp($secret, $string) == 0)
             $string = bin2hex(random_bytes(20));
-        $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/set/" . $uid . "/" . $string));
+            $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/set/" . $uid . "/" . $string));
         if ($result->result == 1)
             return true;
         else
@@ -94,6 +97,7 @@ class WebToken
 
     static function getSecret($uid)
     {
+        self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $uid));
         if (isset($result->secret))
             return $result->secret;

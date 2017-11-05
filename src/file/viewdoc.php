@@ -49,14 +49,14 @@ setcookie("vcsrf", $csrftoken, time()+3600);
 		style="position: fixed; width: 12%; height: 95%; left: 0; bottom: 0; overflow: scroll;">
 		<ul style="width: 100%" class="menu_ul">
 <?php
-$listOfConsents = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/" . $uid))->consents;
-$listOfOwned = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/".$uid))->records;
+$listOfConsents = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/" . $uid))->consents;
+$listOfOwned = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/all/".$uid))->records;
 $rids = [];
 if (!isset($_GET['rid'])) {
     foreach ($listOfConsents as $consent) {
         if ($consent->status) {
-            $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
-            $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
+            $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/" . $consent->rid));
+            $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/" . $detail->uid));
             echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
         }
     }
@@ -67,8 +67,8 @@ if (!isset($_GET['rid'])) {
     $rid = $_GET['rid'];
     foreach ($listOfConsents as $consent) {
         if ($consent->status && $consent->rid == $rid) {
-            $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
-            $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
+            $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/" . $consent->rid));
+            $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/" . $detail->uid));
             echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
         }
     }
