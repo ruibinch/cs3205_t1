@@ -2,7 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     // Gets the list of therapists assigned to the specified patient
     $therapists_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/patient/' . $result->uid . '/true'));

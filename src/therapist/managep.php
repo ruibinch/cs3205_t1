@@ -2,7 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
     $user_type = $result->istherapist ? "therapist" : "patient";
     
     if (isset($_POST['patient_search'])) {
