@@ -1,8 +1,8 @@
 <?php
 	//validate.php: Checks submitted form values and react accordingly.
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/ssl.php';
 	
-	// TODO: change the dummy key here to the real key
 	WebToken::verifyToken($_COOKIE["jwt"]);
 	
 	session_start();	
@@ -128,7 +128,7 @@
 		
 		//Check whether username exists in DB.
 		if (!isset($_SESSION['usernameErr']) || !$usernameErr) {
-			$result = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['username']);
+			$result = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['username']);
 			
 			if ($result === FALSE) {
 				if ($isAdd) {
@@ -855,7 +855,7 @@
 		
 		//Attempt to retrieve user from database
 		$validForDeletion = FALSE;
-		$resultDel = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['username']);
+		$resultDel = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['username']);
 		
 		if ($resultDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -898,7 +898,7 @@
 		
 		//Simple validation to ensure that it is really the selected user.
 		//Also helps if multiple queried delete tabs are opened. Delete will fail if different users are queried.
-		$cfmDel = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['cfmUserName']);
+		$cfmDel = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['cfmUserName']);
 		
 		if ($cfmDel === FALSE) {
 			failedDatabaseConnection('delete');
@@ -912,7 +912,7 @@
 		
 		if ($readyToDelete) {
 			//Perform User Deletion
-			$resultDel2 = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/delete/' 
+			$resultDel2 = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/delete/' 
 				. $_SESSION['delUserID']);		
 				
 			if ($resultDel2 === FALSE) {
@@ -948,7 +948,7 @@
 		sleep(1);
 				
 		//Double-check from DB
-		$connection = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['editUserName']);
+		$connection = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/username/' . $_POST['editUserName']);
 		
 		if ($connection === FALSE) {
 			failedDatabaseConnection('edit');
@@ -989,7 +989,7 @@
 		if ($errorsPresent === "NO") {
 			
 			//Retrieve Current info Again
-			$connection = @file_get_contents(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $_SESSION['editUserID']);
+			$connection = @ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $_SESSION['editUserID']);
 			
 			if ($connection === FALSE) {
 				failedDatabaseConnection('edit');
@@ -1241,17 +1241,10 @@
 				);
 				
 				$updateToDB_json = json_encode($updateToDB);
-				$ch = curl_init(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update');
-				curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-				curl_setopt($ch, CURLOPT_POSTFIELDS, $updateToDB_json);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-					'Content-Type: application/json',
-					'Content-Length: ' . strlen($updateToDB_json))
-				);
-				
+								
 				//Establish connection to DB server and get result.
-				$connectionEdit = @curl_exec($ch);
+				$connectionEdit = @ssl::post_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update', 
+										$updateToDB_json, array('Content-Type: application/json', 'Content-Length: ' . strlen($updateToDB_json)));
 			
 				if ($connectionEdit === FALSE) {
 					failedDatabaseConnection('edit');
@@ -1465,19 +1458,12 @@
 				"secret"		=> "someSecretLUL",		//Stub. Will update this.
 				"nfcid"			=> NULL					//Stub(?)
 			);
-			
+						
 			$addToDB_json = json_encode($addToDB);
-			$ch = curl_init(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/create');
-			curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "POST");
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $addToDB_json);
-			curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-			curl_setopt($ch, CURLOPT_HTTPHEADER, array(
-				'Content-Type: application/json',
-				'Content-Length: ' . strlen($addToDB_json))
-			);
-			
+						
 			//Establish connection to DB server and get result.
-			$connectionAdd = @curl_exec($ch);
+			$connectionAdd = @ssl::post_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/create', 
+										$addToDB_json, array('Content-Type: application/json', 'Content-Length: ' . strlen($addToDB_json)));
 			
 			if ($connectionAdd === FALSE) {
 				failedDatabaseConnection('add');
@@ -1491,8 +1477,7 @@
 			
 			if ($decodeAdd->result == 1) {
 				$_SESSION['addUserSuccess'] = TRUE;
-			}
-						
+			}		
 			header("location: console.php?navi=add");
 			exit();			
 		}

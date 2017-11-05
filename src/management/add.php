@@ -380,14 +380,3 @@ if (isset($_SESSION['generateAddStatus']) && $_SESSION['generateAddStatus']) {
 		<input type="hidden" name="action" value="add">
 	</form>
 </div>
-
-<?php
-/*
-<div>
-	<h2>Batch Adding:</h2>
-	This section is a stub. It is intended for administrators to batch add by uploading a file. Exact implementation details are not confirmed.
-	<br/><br/>
-	Upload file here: Stub..
-</div>
-*/
-?>
