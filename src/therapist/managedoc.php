@@ -77,8 +77,13 @@
             
             $document_json = json_array($title, $associated_patient, $user_json->uid, $creation_date, $modified_date, $notes, $attached_rids_array);
             $url = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/document/create';
-            ssl::get_content($url);
-            $documents_list = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/'.$user_json->uid))->records;
+            $ch = curl_init($url);
+            curl_setopt($ch, CURLOPT_POST, 1);
+            ssl::setSSL($ch);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, $document_json);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+            curl_exec($ch);
+            $documents_list = json_decode(file_get_contents('http://172.25.76.76/api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
 
             // create a corresponding consent between this document and the associated patient
