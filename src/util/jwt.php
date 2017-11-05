@@ -58,7 +58,7 @@ class WebToken
                         /*
                          * Possile cause: logout, login somewhere else, change psw
                          */
-                        Log::recordTX($decoded->data->uid, "Warning", "Outdated admin jwt");
+                        Log::recordTX($decoded->data->uid, "Warning", "Outdated user jwt");
                         header("Location: /login.php?error=2");
                         die();
                     }
