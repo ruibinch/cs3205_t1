@@ -15,7 +15,7 @@
     $currentpass = $pass = $cfmpass = $hashedpass = $salt =  "";
 
     // Error messages
-    $currentpassErr = $passErr = $cfmpassErr = "";
+    $csrfErr = $currentpassErr = $passErr = $cfmpassErr = "";
 
     function sanitise($input) {
       $input = trim($input);
@@ -29,6 +29,14 @@
         $currentpass = sanitise($_POST['input-current-pass']);
         $pass = sanitise($_POST["input-pass"]);
         $cfmpass = sanitise($_POST["input-cfmpass"]);
+        
+        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "update-password" || $csrf->uid != $user_json->uid) {
+            //invalid csrf token
+            Log::recordTX($user_json->uid, "Warning", "Invalid csrf when updating particulars");
+            $hasError = true;
+            $csrfErr = "An error occured, please try again!";
+        }
         
         if (empty($currentpass)) {
             $hasError = true;
@@ -104,11 +112,15 @@
         <div class="shifted">
             <h1>Change your password</h1>
             <hr style="margin-top:-15px">
+            <?php if(!empty($csrfErr)) { ?>
+                <script>alert(<?php echo $csrfErr ?></script>
+            <?php } ?>
             <?php //echo $currentpass."<br>".$user_json->password."<br>".$user_json->salt."<br>".$hashedpass ."<br>".$salt ?>
             <form class="profile-form" name="profile-form" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
                 <?php if ($settings_save) { ?>
                     <script>alert("Your password has been updated!")</script> 
                 <?php } ?>
+                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($user_json->uid, "update-password");?>>
                 <div class="profile-update">Current Password: <span class="error-message"><?php echo empty($currentpassErr) ? "" : "*" . $currentpassErr ?></span><br>
                     <input name="input-current-pass" type="password" placeholder=""
                         value=""><br>
