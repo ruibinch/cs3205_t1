@@ -57,8 +57,11 @@
     <body>
         <?php include '../sidebar.php' ?>
         <div class="shifted">
-            <h1>View Record<?php if ($num_records != 1) { ?>s<?php } ?> (<?php echo $num_records ?>):</h1>
-            <hr style="margin-top:-15px">
+            <h1>
+                View Record<?php if ($num_records != 1) { ?>s<?php } ?> (<?php echo htmlspecialchars($num_records) ?>):
+                <button id="viewAllRecords" class="login-btn" style="width:20%; float:right">View All Records</button>
+            </h1>
+            <hr style="margin-top:-5px">
 
             <table class="main-table"   >
                 <tr>
@@ -71,10 +74,10 @@
                 <?php for ($i = 0; $i < $num_records; $i++) {   
                     $record = $records_list[$i]; ?>
                     <tr>
-                        <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                        <td><?php echo $record->modifieddate ?></button></td>
-                        <td><?php echo $record->type ?></td>
-                        <td><?php echo $record->title ?></td>
+                        <td class="first-col"><?php echo htmlspecialchars(($i + 1)) . "." ?></td>
+                        <td><?php echo htmlspecialchars($record->modifieddate) ?></button></td>
+                        <td><?php echo htmlspecialchars($record->type) ?></td>
+                        <td><?php echo htmlspecialchars($record->title) ?></td>
                         <td style="text-align:right">
                             <input type="button" class="details" id="<?php echo $record->rid ?>" value="Details"/>
                             <input type="button" class="consent" id="<?php echo $record->rid ?>" value="Consent"/>
@@ -151,6 +154,13 @@
                     }
                 });
 
+                $('#viewAllRecords').click(function() {
+                    window.location.href = "../file/viewdoc.php";
+                });
+
+                $(document).on('click', 'input:button.details', function() {
+                    window.location.href = "../file/viewdoc.php?rid=" + $(this).attr('id');
+                });
 
                 $(document).on('click', 'input:button.consent', function() {
                     consentChanges = []; // reset array each type a new consent dialog window is opened

@@ -33,7 +33,7 @@
                 }
                 
                 echo "<tr>";
-                echo "<td style='text-align:center'>" . $therapist_name . "</td>";
+                echo "<td style='text-align:center'>" . htmlspecialchars($therapist_name) . "</td>";
                 echo "<td style='text-align:center'><input type='checkbox' class='setconsent' value='" . $consent->consentId . "' " . $checked_status . "/></td>";
                 echo "</tr>";
             }

@@ -123,7 +123,7 @@
 <body>
     <?php include 'sidebar.php' ?>
     <div class="shifted">
-        <h1>Welcome, <?php echo (isset($user_json->firstname) ? $user_json->firstname : $user) ?></h1>
+        <h1>Welcome, <?php echo (isset($user_json->firstname) ? htmlspecialchars($user_json->firstname) : $user) ?></h1>
         <hr style="margin-top: -15px">
         
         <div class="tab">
@@ -139,16 +139,16 @@
         </div>
 
         <div id="Notifications" class="tabcontent" style="display: block;">
-            <h3>You have <?php echo $num_notifications ?> notification<?php if ($num_notifications != 1) { ?>s<?php } ?>.</h3>
+            <h3>You have <?php echo htmlspecialchars($num_notifications) ?> notification<?php if ($num_notifications != 1) { ?>s<?php } ?>.</h3>
             <table class="main-table">
                 <?php
                     if ($user_type === "therapist" && isset($treatment_reqs)) {
-                        for ($i = 0; $i < count($treatment_reqs); $i ++) {
+                        for ($i = 0; $i < count($treatment_reqs); $i++) {
                             $patient_json = getJsonFromUid($treatment_reqs[$i]->patientId); 
                             $patient_name = $patient_json->firstname . " " . $patient_json->lastname;
                     ?>
                     <tr>
-                        <td><?php echo "Treatment request from " . $patient_name ?></td>
+                        <td><?php echo "Treatment request from " . htmlspecialchars($patient_name) ?></td>
                         <td class="last-col"><button id="treatmentReqDetails"
                                 value="<?php echo $treatment_reqs[$i]->id ?>">Details</button></td>
                     </tr>
@@ -156,10 +156,11 @@
                         }
                     } else if ($user_type === "patient" && isset($treatment_pending)) {
                         for ($i = 0; $i < count($treatment_pending); $i ++) {
-                            $therapist_json = getJsonFromUid($treatment_pending[$i]->therapistId); 
+                            $therapist_json = getJsonFromUid($treatment_pending[$i]->therapistId);
+                            $therapist_name = $therapist_json->firstname . " " . $therapist_json->lastname;
                     ?>
                     <tr>
-                        <td><?php echo "Treatment request pending approval from ".$therapist_json->firstname." ".$therapist_json->lastname ?></td>
+                        <td><?php echo "Treatment request pending approval from " . htmlspecialchars($therapist_name) ?></td>
                     </tr>
                 <?php
                         }
@@ -174,10 +175,11 @@
                 <?php
                     for ($i = 0; $i < $num_therapists; $i ++) {
                         $therapist_json = getJsonFromUid($therapists_list[$i]->therapistId);
+                        $therapist_name = $therapist_json->firstname . " " . $therapist_json->lastname;
                     ?>
                     <tr>
                         <td class="first-col"><?php echo ($i + 1)."." ?></td>
-                        <td><?php echo $therapist_json->firstname." ".$therapist_json->lastname ?></td>
+                        <td><?php echo htmlspecialchars($therapist_name) ?></td>
                     </tr>
                 <?php } ?>
             </table>
@@ -189,10 +191,11 @@
                 <?php
                     for ($i = 0; $i < $num_patients; $i ++) {
                         $patient_json = getJsonFromUid($patients_list[$i]->patientId);
+                        $patient_name = $patient_json->firstname . " " . $patient_json->lastname;
                     ?>
                     <tr>
                         <td class="first-col"><?php echo ($i + 1)."." ?></td>
-                        <td><?php echo $patient_json->firstname." ".$patient_json->lastname ?></td>
+                        <td><?php echo htmlspecialchars($patient_name) ?></td>
                     </tr>
                 <?php } ?>
             </table>
@@ -215,14 +218,14 @@
                     $therapist = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/public/' . $document->therapistId)); ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
-                        <td style="vertical-align:top"><?php echo substr($document->modifieddate, 0, 10); ?></td>
+                        <td style="vertical-align:top"><?php echo htmlspecialchars(substr($document->modifieddate, 0, 10)); ?></td>
                         <td>
                             <details>
-                                <summary><?php echo $document->title ?></summary>
-                                <p><?php echo $document->notes ?></p>
+                                <summary><?php echo htmlspecialchars($document->title) ?></summary>
+                                <p><?php echo htmlspecialchars($document->notes) ?></p>
                             </details>
                         </td>
-                        <td style="vertical-align:top"><?php echo $therapist->firstname . " " . $therapist->lastname ?></td>
+                        <td style="vertical-align:top"><?php echo htmlspecialchars($therapist->firstname . " " . $therapist->lastname) ?></td>
                         <td style="vertical-align:top">-</td>
                     </tr>
                 <?php } ?>

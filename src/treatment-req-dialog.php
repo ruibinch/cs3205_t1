@@ -14,11 +14,11 @@
 <table width="50%" style="margin-left:20px">
     <tr>
         <td width="25%">Sex:</td>
-        <td><?php if ($patient->sex === "M") { echo "Male"; } else { echo "Female"; } ?></td>
+        <td><?php echo ($patient->sex === "M") ? "Male" : "Female" ?></td>
     </tr>
     <tr>
         <td width="25%">Phone:</td>
-        <td><?php echo $patient->phone ?></td>
+        <td><?php echo htmlspecialchars($patient->phone) ?></td>
     </tr>
 </table>
 <br/><br/><br/>

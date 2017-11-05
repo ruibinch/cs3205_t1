@@ -35,7 +35,7 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-            <h1>Patient<?php if ($num_patients != 1) { ?>s<?php } ?> you are assigned to (<?php echo $num_patients ?>):</h1>
+            <h1>Patient<?php if ($num_patients != 1) { echo "s"; } ?> you are assigned to (<?php echo $num_patients ?>):</h1>
             <hr style="margin-top:-15px">
             <table class="main-table">
                 <tr>
@@ -51,9 +51,9 @@
                         <input name="patient_search" value="<?php echo $patients_list[$i]->patientId ?>" type="hidden">
                         <tr>
                             <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                            <td><button class="list-button"><?php echo $patient_name ?></button></td>
-                            <td><?php echo $patient_json->phone[0] ?></td>
-                            <td><?php echo $patient_json->dob ?></td>
+                            <td><button class="list-button"><?php echo htmlspecialchars($patient_name) ?></button></td>
+                            <td><?php echo htmlspecialchars($patient_json->phone[0]) ?></td>
+                            <td><?php echo htmlspecialchars($patient_json->dob) ?></td>
                         </tr>
                     </form>
                 <?php } ?>

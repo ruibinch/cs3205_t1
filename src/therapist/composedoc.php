@@ -53,7 +53,7 @@
                                     $patient = getUserFromUid($patients_list[$i]->patientId); ?>
                                     <option value="<?php echo $patient->uid ?>">
                                         <?php
-                                            echo $patient->firstname." ".$patient->lastname;
+                                            echo htmlspecialchars($patient->firstname . " " . $patient->lastname);
                                         ?>
                                     </option>
                                 <?php } ?>

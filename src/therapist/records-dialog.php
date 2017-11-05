@@ -58,9 +58,9 @@
             ?>
             <tr>
                 <td class="first-col"><?php echo ($i + 1) . "." ?></td>
-                <td><?php echo $record->modifieddate ?></button></td>
-                <td><?php echo $record->type ?></td>
-                <td><?php echo $record->title ?></td>
+                <td><?php echo htmlspecialchars($record->modifieddate) ?></button></td>
+                <td><?php echo htmlspecialchars($record->type) ?></td>
+                <td><?php echo htmlspecialchars($record->title) ?></td>
                 <td><input type="button" value="Details"/></td>;
                 <td><input type="checkbox" class="selectRecordCheckbox" value="<?php echo $record->rid ?>" <?php echo $checked_status ?>/></td>
             </tr>
