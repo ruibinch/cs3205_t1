@@ -4,7 +4,7 @@
 	crossorigin="anonymous"></script>
 <div id="chart"></div>
 <script>
-Plotly.d3.json('<?php $fileurl?>', function(json){
+Plotly.d3.json('<?php echo htmlspecialchars($fileurl)?>', function(json){
 	var multix = Number(json[json["x_axis"]]["multiplier"]);
 	var x;
 	if (json.hasOwnProperty('sessionTime')) {

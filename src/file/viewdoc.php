@@ -18,36 +18,40 @@ setcookie("vcsrf", $csrftoken, time()+3600);
 	crossorigin="anonymous"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.min.js"></script>
 <style type="text/css">
-.menu_ul {
-	list-style-type: none;
-	margin: 0;
-	padding: 0;
-	width: 200px;
-	background-color: #f1f1f1;
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    background-color: #f1f1f1;
 }
 
-.menu_li_a {
-	display: block;
-	color: #000;
-	padding: 8px 16px;
-	text-decoration: none;
+li {
+    float: left;
 }
 
-/* Change the link color on hover */
-.menu_li_a:hover {
-	background-color: #555;
-	color: white;
+li a {
+    display: block;
+    color: #000;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    height: 82px;
+}
+
+li a:hover {
+    background-color: #999;
+    color: white;
 }
 </style>
 </head>
 <div id="window" style="">
 	<div id="header"
-		style="position: fixed; width: 12%; height: 5%; left: 0; top: 0; overflow: hidden;">
-<a href='/main.php' class='menu_li_a'>Back to main</a>
+		style="position: fixed; width: 250px; height: 5%; left: 0; top: 0; overflow: hidden;"><ul><li>
+<a href='/main.php' style='text-align: center; width: 100%'>BACK TO MAIN</a></li></ul>
 </div>
 	<div id="menu"
-		style="position: fixed; width: 12%; height: 95%; left: 0; bottom: 0; overflow: scroll;">
-		<ul style="width: 100%" class="menu_ul">
+		style="position: fixed; width: 250px; height: 95%; left: 0; bottom: 0; overflow: scroll;">
 <?php
 $listOfConsents = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/user/" . $uid))->consents;
 $listOfOwned = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/all/".$uid))->records;
@@ -56,12 +60,20 @@ if (!isset($_GET['rid'])) {
     foreach ($listOfConsents as $consent) {
         if ($consent->status) {
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/" . $consent->rid));
+            if (isset($detail->result))
+                continue;
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/" . $detail->uid));
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+            echo "<ul>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a></li>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.png' height=40 width=40></a></li>";
+            echo "</ul>";
         }
     }
     foreach ($listOfOwned as $owned) {
-        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+        echo "<ul>";
+        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a></li>";
+        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.png' height=40 width=40></a></li>";
+        echo "</ul>";
     }
 } else {
     $rid = $_GET['rid'];
@@ -69,19 +81,25 @@ if (!isset($_GET['rid'])) {
         if ($consent->status && $consent->rid == $rid) {
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/record/" . $consent->rid));
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/" . $detail->uid));
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+            echo "<ul>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a></li>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.png' height=40 width=40></a></li>";
+            echo "</ul>";
         }
     }
     foreach ($listOfOwned as $owned) {
-        if ($owned->rid == $rid)
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+        if ($owned->rid == $rid) {
+            echo "<ul>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a></li>";
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.png' height=40 width=40></a></li>";
+            echo "</ul>";
+        }
     }
 }
 ?>
-</ul>
 	</div>
 	<iframe id="display"
-		style="position: fixed; width: 88%; height: 100%; right: 0; bottom: 0; overflow: hidden;">
+		style="position: fixed; height: 100%; width:100%; left: 250px; right: 0; bottom: 0; overflow: hidden;">
 	</iframe>
 </div>
 <script type="text/javascript">

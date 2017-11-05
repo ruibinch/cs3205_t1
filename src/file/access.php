@@ -13,6 +13,7 @@ if (!isset($_GET['otl'])) {
 } else {
     $otl = OneTimeToken::getToken($_GET['otl']);
     if (!isset($otl->filepath)) {
+        echo 'here';
         header('400 Bad Request.');
         die();
     }
