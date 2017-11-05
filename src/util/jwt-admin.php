@@ -2,6 +2,8 @@
 require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
 
+include_once $_SERVER['DOCUMENT_ROOT'].'/util/ssl.php';
+
 class WebToken
 {
 
@@ -11,8 +13,9 @@ class WebToken
      * @param $admin_id
      * @param $key - secret key
      */
-    static function getToken($admin_id, $key)
+    static function getToken($admin_id)
     {
+        $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['admin'];
         if (self::refreshSecret($admin_id)) {
             $secret = json_decode(ssl::get_content(self::$serverurl . "api/team1/admin/secret/" . $admin_id))->secret;
             $token = array(
@@ -32,8 +35,9 @@ class WebToken
      * @param $token - token found in cookie
      * @param $key - secret key
      */
-    static function verifyToken($token, $key)
+    static function verifyToken($token)
     {
+        $key = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['admin'];
         if ($token) {
             try {
                 $decoded = JWT::decode($token, $key, array(
