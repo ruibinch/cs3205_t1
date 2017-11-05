@@ -279,14 +279,14 @@
             $description = "Updated " . implode(", ", $changed);
             Log::recordTX($user_json->uid, "Info", $description);
             $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/update';
-            $post_result = json_decode(ssl::post_content($url, $particulars_json, array('Content-Type: application/json')));
+            $post_result = json_decode(ssl::post_content($url, $particulars_json, array('Content-Type: application/json', 'Authorization: dGVhbTE6dGVhbTFMb3Zlc0Nvcmdp')));
             if ($post_result->result) {
                 Log::recordTX($user_json->uid, "Info", $description);
             } else {
                 Log::recordTX($user_json->uid, "Error", "Error occured when updating particulars");
             }
             $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$result->uid));
-        } else {
+        } else if ($hasError && count($error_arr) !== 0) {
             Log::recordTX($user_json->uid, "Error", implode(", ", $error_arr));
         }
     }
@@ -384,7 +384,7 @@
                 <?php } ?>
                 <div class="profile-update"><a href="changepass.php" style="text-decoration:none; color:blue">Click here to change password</a>
                 </div>
-                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($user_json->uid, "profile-update");?>>
+                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($user_json->uid, "update-profile");?>>
                 <div class="profile-update">Username: <span class="error-message"><?php echo empty($userErr) ? "" : "*" . $userErr ?></span><br>
                     <input name="input-username" type="text" placeholder="User"
                         value="<?php echo (isset($user_json->username) ? $user_json->username : "" )?>"><br>
