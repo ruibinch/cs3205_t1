@@ -25,13 +25,13 @@
     }
 
     function hasConsent($uid, $rid) {
-        $hasConsent = false;
+        $hasConsent = "";
         $consent_array = json_decode(ssl::get_content("http://172.25.76.76/api/team1/consent/user/".$uid));
         if (!isset($consent_array->result)) {
             $consent_array = $consent_array->consents;
             foreach ($consent_array AS $consent_elem) {
                 if (strcmp($consent_elem->rid, $rid) == 0 && $consent_elem->status) {
-                    $hasConsent = true;
+                    $hasConsent = "checked";
                 }
             }
         }
@@ -58,7 +58,7 @@
             <tr>
                 <td><?php echo $i + 1 ?></td>
                 <td><?php echo $therapist->firstname." ".$therapist->lastname ?></td>
-                <td><input type="checkbox" class="selectDocumentCheckbox" value="<?php echo $therapist->uid ?>" <?php echo hasConsent($therapist->uid, $rid, $therapistId) ?>/></td>
+                <td><input type="checkbox" class="selectDocumentCheckbox" value="<?php echo $therapist->uid ?>" <?php echo hasConsent($therapist->uid, $rid) ?>/></td>
             </tr>
     <?php
             $i++;
