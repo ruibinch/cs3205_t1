@@ -2,9 +2,7 @@
 
 <?php
 	/* 
-		TODO:
-			-Transaction
-			-CSRF
+		NOTE: CSRF NOT IMPLEMENTED.
 	*/
 	
 	//console.php: management console's main page.
