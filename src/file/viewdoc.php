@@ -52,17 +52,31 @@ setcookie("vcsrf", $csrftoken, time()+3600);
 $listOfConsents = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/" . $uid))->consents;
 $listOfOwned = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/".$uid))->records;
 $rids = [];
-foreach ($listOfConsents as $consent) {
-    if ($consent->status) {
-        $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
-        $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
-        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+if (!isset($_GET['rid'])) {
+    foreach ($listOfConsents as $consent) {
+        if ($consent->status) {
+            $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
+            $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+        }
+    }
+    foreach ($listOfOwned as $owned) {
+        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+    }
+} else {
+    $rid = $_GET['rid'];
+    foreach ($listOfConsents as $consent) {
+        if ($consent->status && $consent->rid == $rid) {
+            $detail = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/" . $consent->rid));
+            $owner = json_decode(ssl::get_content("http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/" . $detail->uid));
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$consent->rid.")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . $detail->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$consent->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
+        }
+    }
+    foreach ($listOfOwned as $owned) {
+        if ($owned->rid == $rid)
+            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
     }
 }
-foreach ($listOfOwned as $owned) {
-    echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(".$owned->rid.")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . $owned->modifieddate . "</small></a><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(".$owned->rid.")'><img src='download.jpg' style='height:20%; width:20%'></a></li>";
-}
-
 ?>
 </ul>
 	</div>
