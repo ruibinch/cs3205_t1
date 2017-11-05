@@ -149,7 +149,7 @@
                     ?>
                     <tr>
                         <td><?php echo "Treatment request from " . htmlspecialchars($patient_name) ?></td>
-                        <td class="last-col"><button id="treatmentReqDetails"
+                        <td class="last-col"><button id="treatmentReqDetails" name="<?php echo $patient_name ?>"
                                 value="<?php echo $treatment_reqs[$i]->id ?>">Details</button></td>
                     </tr>
                 <?php
@@ -329,7 +329,7 @@
             $(document).on('click', '#treatmentReqDetails', function() {
                 $('#treatmentReqDialog')
                     .data('treatmentId', $(this).val())
-                    .dialog('option', 'title', "Treatment Request from <?php if (isset($patient_name)) echo $patient_name ?>")
+                    .dialog('option', 'title', "Treatment Request from " + $(this).attr('name'));
                     .dialog('open');
             });
 
