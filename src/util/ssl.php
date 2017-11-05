@@ -24,7 +24,7 @@ class ssl
         curl_setopt($curl, CURLOPT_SSLKEY, self::$keyFile);
         // The --cert option
         curl_setopt($curl, CURLOPT_SSLCERT, self::$certFile);
-        curl_setopt($curl, CURLOPT_CAinfo, self::$cainfo);
+        curl_setopt($curl, CURLOPT_CAINFO, self::$cainfo);
         // curl_setopt($curl, CURLOPT_CAPATH, '/home/sadm/keys/ssl/');
         return $curl;
     }
