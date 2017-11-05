@@ -19,13 +19,13 @@
 
     // TODO: change the dummy key here to the real key
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
-    $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     if ($user_type === "patient") {
         $user = "Patient";
         // Populate notifications list; TODO this part
-        $treatment_pending_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/patient/' . $user_json->uid . '/false'));
+        $treatment_pending_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/patient/' . $user_json->uid . '/false'));
         if (isset($treatment_pending_json->treatments)) {
             $treatment_pending = $treatment_pending_json->treatments;
         }
@@ -36,7 +36,7 @@
         }
         
         // Populate therapist list
-        $therapists_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/patient/' . $user_json->uid . '/true'));
+        $therapists_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/patient/' . $user_json->uid . '/true'));
         if (isset($therapists_list_json->treatments)) {
             $therapists_list = $therapists_list_json->treatments;
         }
@@ -47,7 +47,7 @@
         }
 
         // Populate documents list
-        $documents_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/' . $result->uid . '/true'));
+        $documents_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/' . $result->uid . '/true'));
         if (isset($documents_list_json->consents)) {
             $documents_list = $documents_list_json->consents;
         }
@@ -61,7 +61,7 @@
             $documents_list_filtered = array();
             for ($i = 0; $i < $num_documents; $i++) {
                 $consent = $documents_list[$i];
-                $record_details = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/' . $consent->rid));
+                $record_details = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $consent->rid));
                 if (isset($record_details->subtype)) {
                     if ($record_details->subtype === "document") {
                         array_push($documents_list_filtered, $consent);
@@ -74,7 +74,7 @@
     } else if ($user_type === "therapist") {
         $user = "Therapist";
         // Populate notifications list; TODO - include notifications for documents
-        $treatment_reqs_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/therapist/' . $user_json->uid . '/false'));
+        $treatment_reqs_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/therapist/' . $user_json->uid . '/false'));
         if (isset($treatment_reqs_json->treatments)) { // there are pending treatment requests
             $treatment_reqs = $treatment_reqs_json->treatments;
         }
@@ -85,7 +85,7 @@
         }
         
         // Populate patients list
-        $patients_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/therapist/' . $user_json->uid . '/true'));
+        $patients_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/therapist/' . $user_json->uid . '/true'));
         if (isset($patients_list_json->treatments)) {
             $patients_list = $patients_list_json->treatments;
         }
@@ -99,7 +99,7 @@
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid)
     {
-        $user_json_tmp = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $uid));
+        $user_json_tmp = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $uid));
         return $user_json_tmp;
     }
 
@@ -214,8 +214,8 @@
                 </tr>
                 <?php for ($i = 0; $i < $num_documents; $i++) {
                     $documentId = $documents_list[$i]->rid;
-                    $document = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $documentId));
-                    $therapist = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/public/' . $document->therapistId)); ?>
+                    $document = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/get/' . $documentId));
+                    $therapist = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/public/' . $document->therapistId)); ?>
                     <tr>
                         <td class="first-col" style="vertical-align:top"><?php echo ($i + 1)."." ?></td>
                         <td style="vertical-align:top"><?php echo htmlspecialchars(substr($document->modifieddate, 0, 10)); ?></td>

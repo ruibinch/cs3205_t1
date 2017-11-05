@@ -4,7 +4,7 @@ include_once '../util/otl.php';
 include_once '../util/ssl.php';
 $result = WebToken::verifyToken($_COOKIE["jwt"]);
 $uid = $result->uid;
-$user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $uid));
+$user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $uid));
 $user_type = $result->istherapist ? "therapist" : "patient";
 
 if (!isset($_GET['otl'])) {

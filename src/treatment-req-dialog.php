@@ -6,8 +6,8 @@
         $treatmentId = $_POST['treatmentId'];
     }
 
-    $treatment = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/' . $treatmentId));
-    $patient = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/public/' . $treatment->patientId));
+    $treatment = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/' . $treatmentId));
+    $patient = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/public/' . $treatment->patientId));
 
 ?>
 

@@ -5,7 +5,7 @@
     include_once 'util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
-    $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     $num_phone = count($user_json->phone);

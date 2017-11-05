@@ -16,7 +16,7 @@
 <?php
 	sleep(1);
 	if ($_POST['mode'] === "all") {
-		$dbURL = "http://cs3205-4-i.comp.nus.edu.sg/api/team1/log/";
+		$dbURL = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/log/";
 		
 		//$connection = ssl:get_content($dbURL);
 		

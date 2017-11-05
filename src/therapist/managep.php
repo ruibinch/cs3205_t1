@@ -8,11 +8,11 @@
     if (isset($_POST['patient_search'])) {
         $patientId = $_POST['patient_search'];
     }
-    $patient_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $patientId));
+    $patient_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $patientId));
 
     // Verify that the patient is indeed assigned to the therapist
     // Serves as a check against the manipulation of the POST data from patients.php
-    $patients_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/therapist/' . $result->uid . '/true'));
+    $patients_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/therapist/' . $result->uid . '/true'));
     $patients_ids = array();
     if (isset($patients_list_json->treatments)) {
         $patients_list = $patients_list_json->treatments;
@@ -22,7 +22,7 @@
     }
     
     // Gets the list of consents associated with this therapist
-    $consents_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/' . $result->uid));
+    $consents_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/' . $result->uid));
     $consents_list_status = array();
     $consents_rids = array();
     if (isset($consents_list_json->consents)) {
@@ -35,7 +35,7 @@
     }
 
     // Gets the list of records assigned to the specified patient
-    $records_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/' . $patientId));
+    $records_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/' . $patientId));
     if (isset($records_list_json->records)) {
         $records_list = $records_list_json->records;
     }

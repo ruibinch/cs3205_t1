@@ -4,19 +4,19 @@
     include_once '../util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
-    $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
     
-    $documents_list = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/'.$user_json->uid))->records;
+    $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
     $num_documents = count($documents_list);
 
     $shared_documents_list = array();
 
-    if (isset(json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/'.$user_json->uid))->consents)) {
-        $consented_documents_list = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/'.$user_json->uid))->consents;
+    if (isset(json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/'.$user_json->uid))->consents)) {
+        $consented_documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/'.$user_json->uid))->consents;
         $shared_documents_list = array();
         foreach($consented_documents_list AS $consented_document) {
-            $shared_document = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/'.$consented_document->rid));
+            $shared_document = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/'.$consented_document->rid));
             if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0 && $consented_document->status) {
                 array_push($shared_documents_list, get_record($consented_document->rid));
             }
@@ -35,26 +35,26 @@
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if (isset($_POST['action'])) {
             $rid = $_POST['rid'];
-            $record = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $rid));
+            $record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/get/' . $rid));
             $patientId = $record->patientId;
             $therapistId = $record->therapistId;
 
             // delete consent related to the document, if itexists
             if ($therapistId != 0) {
-                $consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/owner/' . $therapistId . '/' . $patientId));
+                $consents_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/owner/' . $therapistId . '/' . $patientId));
                 if (isset($consents_json->consents)) {
                     $consents_list = $consents_json->consents;
                     for ($j = 0; $j < count($consents_list); $j++) {
                         if ($consents_list[$j]->rid === $rid) {
-                            $delete_consent = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/delete/' . $consents_list[$j]->consentId));
+                            $delete_consent = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/delete/' . $consents_list[$j]->consentId));
                         }
                     }
                 }
             }
 
             // delete document
-            $delete_document = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/delete/'.$rid."/".$user_json->uid));
-            $documents_list = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/all/'.$user_json->uid))->records;
+            $delete_document = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/delete/'.$rid."/".$user_json->uid));
+            $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
             $current_date = new DateTime();
@@ -76,7 +76,7 @@
             $modified_date = $creation_date;
             
             $document_json = json_array($title, $associated_patient, $user_json->uid, $creation_date, $modified_date, $notes, $attached_rids_array);
-            $url = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/document/create';
+            $url = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/document/create';
             $ch = curl_init($url);
             curl_setopt($ch, CURLOPT_POST, 1);
             ssl::setSSL($ch);
@@ -89,19 +89,19 @@
             // create a corresponding consent between this document and the associated patient
             $added_document = $documents_list[count($documents_list)-1];
             $added_document_rid = $added_document->rid;
-            $associated_patient_id = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $added_document_rid))->patientId;
+            $associated_patient_id = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/get/' . $added_document_rid))->patientId;
             if ($associated_patient_id != 0) { // if there is an associated patient
-                $response = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/create/' . $associated_patient_id . '/' . $added_document_rid));
+                $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/create/' . $associated_patient_id . '/' . $added_document_rid));
                 
                 // if option to allow patient to view is set, update the consent status to true
                 if ($allow_patient_viewdoc === "on") {
-                    $consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/record/' . $added_document_rid));
+                    $consents_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/record/' . $added_document_rid));
                     if (isset($consents_json->consents)) {
                         $consents = $consents_json->consents;
                         for ($i = 0; $i < count($consents); $i++) {
                             if ($consents[$i]->uid === $associated_patient_id) {
                                 $consentId = $consents[$i]->consentId;
-                                $response = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/update/' . $consentId));
+                                $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/update/' . $consentId));
                             }
                         }
                     }
@@ -124,11 +124,11 @@
     }
 
     function get_record($rid) {
-        return json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/get/' . $rid));
+        return json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/get/' . $rid));
     }
 
     function getJsonFromUid($uid) {
-        $user_json_tmp = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/'.$uid));
+        $user_json_tmp = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/'.$uid));
         return $user_json_tmp;
     }
 
@@ -174,7 +174,7 @@
                             continue;
                         } else {
                             $patient = getJsonFromUid($record->patientId);
-                            $consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
+                            $consents_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/owner/' . $result->uid . '/' . $record->patientId));
                             
                 ?>
                     <tr>
@@ -187,7 +187,7 @@
                                 <p><?php echo $record->notes; ?></p>
                                 <p>
                                     <?php 
-                                        $therapist_consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/' . $result->uid . '/true'));
+                                        $therapist_consents_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/' . $result->uid . '/true'));
                                         if (isset($therapist_consents_json->consents)) {
                                             $records_viewable_by_therapist = $therapist_consents_json->consents;
                                         }
@@ -202,7 +202,7 @@
                                         if ($attached_rids[0] !== 0) { // if there are attached records
                                             echo "Attached records: <br>";
                                             for ($j = 0; $j < count($attached_rids); $j++) {
-                                                $attached_record = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/' . $attached_rids[$j]));
+                                                $attached_record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $attached_rids[$j]));
                                                 if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
                                                     echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
                                                 } else {
@@ -280,7 +280,7 @@
                                     <p><?php echo $shared_documents_list[$i]->notes ?></p>
                                     <p>
                                         <?php 
-                                            $therapist_consents_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/consent/user/' . $user_json->uid . '/true'));
+                                            $therapist_consents_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/' . $user_json->uid . '/true'));
                                             if (isset($therapist_consents_json->consents)) {
                                                 $records_viewable_by_therapist = $therapist_consents_json->consents;
                                             }
@@ -295,7 +295,7 @@
                                             if ($attached_rids[0] !== 0) { // if there are attached records
                                                 echo "Attached records: <br>";
                                                 for ($j = 0; $j < count($attached_rids); $j++) {
-                                                    $attached_record = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/record/' . $attached_rids[$j]));
+                                                    $attached_record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $attached_rids[$j]));
                                                     if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
                                                         echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
                                                     } else {
