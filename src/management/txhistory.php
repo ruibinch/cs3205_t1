@@ -13,7 +13,6 @@
 		exit();
 	}
 ?>
-
 <h1>Transaction History</h1>
 
 <form id="showAll">
@@ -55,3 +54,4 @@
 		});
 	});
 </script>
+

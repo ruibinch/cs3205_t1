@@ -31,9 +31,7 @@
 		if (empty($decodeJS->logs)) {
 			echo 'No Transaction Logs Available.';
 			exit();
-		}
-		//....
-		
+		}		
 		echo '<table id="logTable">';
 		echo "\t" . '<th>UserID</th><th>Time</th><th>Description</th>';
 		
