@@ -2,7 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    include_once '../util/logging.php'
+    include_once '../util/logging.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     $user_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $result->uid));
