@@ -149,10 +149,10 @@
         <?php include '../sidebar.php' ?>
 
         <div class="shifted">
-        <h1>You have <?php echo $num_documents ?> document<?php if ($num_documents != 1) { ?>s<?php } ?>.</h1>  
+        <h1>You have <?php echo $num_documents + $num_shared_documents ?> document<?php if ($num_documents + $num_shared_documents != 1) { ?>s<?php } ?>.</h1>  
             <hr style="margin-top:-15px">
             <details>
-                <summary><b>Your Notes</b></summary>
+                <summary><b>Your Notes (<?php echo $num_documents ?>)</b></summary>
                 <table class="main-table">
                 <tr>
                     <th class="first-col">S/N</th>
@@ -259,7 +259,7 @@
             </details>
             <br>
             <details>
-                <summary><b>Other Therapists' Notes</b></summary>
+                <summary><b>Other Therapists' Notes (<?php echo $num_shared_documents ?>)</b></summary>
                 <table class="main-table">
                     <tr>
                         <th class="first-col">S/N</th>
