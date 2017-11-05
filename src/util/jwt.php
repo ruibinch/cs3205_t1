@@ -1,7 +1,7 @@
 <?php
 require __DIR__ . '/../composer/vendor/autoload.php';
 use \Firebase\JWT\JWT;
-include 'ssl.php';
+include_once 'ssl.php';
 
 class WebToken
 {
