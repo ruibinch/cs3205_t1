@@ -5,7 +5,7 @@
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
     
     // Gets the list of patients under the specified therapist
-    $patients_list_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/treatment/therapist/' . $result->uid . '/true'));
+    $patients_list_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/treatment/therapist/' . $result->uid . '/true'));
     if (isset($patients_list_json->treatments)) {
         $patients_list = $patients_list_json->treatments;
     }
@@ -18,7 +18,7 @@
 
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid) {
-        $user_json_tmp = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $uid));
+        $user_json_tmp = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $uid));
         return $user_json_tmp;
     }
 

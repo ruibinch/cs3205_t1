@@ -11,7 +11,7 @@
     session_start();
 
 	//DB Login..
-	$result = @file_get_contents('http://172.25.76.76/api/team1/admin/' . $_POST['username']);
+	$result = @file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/admin/' . $_POST['username']);
 	
 	if ($result === FALSE) {
 		header("location: ../index.php");

@@ -4,7 +4,7 @@
     include_once 'util/jwt.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"], "dummykey");
 
-    $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+    $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
     $user_type = $result->istherapist ? "therapist" : "patient";
 
     $user = "User";
@@ -53,7 +53,7 @@
           $hasError = true;
           $userErr = "Invalid username format, please only use alphanumeric characters";
         } else { // Check availability
-          $username_check = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/username/'. $username));
+          $username_check = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/username/'. $username));
           if (isset($username_check->uid) && $username_check->uid !== $user_json->uid) {
             $hasError = true;
             $userErr = "Username unavailable";
@@ -203,13 +203,9 @@
         
         if (!$hasError) {
             $particulars_json = json_array($user_json->uid, $username, $user_json->password, $user_json->salt, $fname, $lname, $user_json->nric, $dob, $user_json->gender, $phone0, $phone1, $phone2, $addr0, $addr1, $addr2, $zip0, $zip1, $zip2, $user_json->qualify, $user_json->bloodtype, $user_json->nfcid, $user_json->secret);
-            $url = 'http://172.25.76.76/api/team1/user/update';
-            $ch = curl_init($url);
-            curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS, $particulars_json);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
-            curl_exec($ch);
-            $user_json = json_decode(ssl::get_content('http://172.25.76.76/api/team1/user/uid/' . $result->uid));
+            $url = 'http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/update';
+            ssl::post_content($url, $particulars_json, array('Content-Type: application/json'));
+            $user_json = json_decode(ssl::get_content('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $result->uid));
         }
         
     }

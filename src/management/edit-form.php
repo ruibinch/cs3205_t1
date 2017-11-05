@@ -16,7 +16,7 @@
 
 <?php
 	//Valid uid set as session variable previously. Will now retreieve current user info.
-	$connection = file_get_contents('http://172.25.76.76/api/team1/user/uid/' . $_SESSION['editUserID']);
+	$connection = file_get_contents('http://cs3205-4-i.comp.nus.edu.sg/api/team1/user/uid/' . $_SESSION['editUserID']);
 	
 	//IF database connection failed
 	if ($connection === FALSE) {
