@@ -35,7 +35,7 @@ class ssl
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         self::setSSL($curl);
-        $headers = ['Authorization: dGVhbTE6dGVhbTFMb3Zlc0Nvcmdp'];
+        $headers = ['Authorization: dGVhbTE6MHRlYW0xTG92ZXNDb3JnaW4wTW9SMw=='];
         curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
         return curl_exec($curl);
     }
@@ -47,7 +47,7 @@ class ssl
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($curl, CURLOPT_POST, 1);
         curl_setopt($curl, CURLOPT_POSTFIELDS, $data);
-        array_push($header, 'Authorization: dGVhbTE6dGVhbTFMb3Zlc0Nvcmdp');
+        array_push($header, 'Authorization: dGVhbTE6MHRlYW0xTG92ZXNDb3JnaW4wTW9SMw==');
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
         self::setSSL($curl);
         return curl_exec($curl);

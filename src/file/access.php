@@ -22,11 +22,13 @@ if (!isset($_GET['otl'])) {
         Log::recordTX($uid, "Error", "File not found on server: ".$path);
         header('HTTP/1.0 404 Not Found.');
         die();
-    } else if (preg_match("#^".$_SERVER['DOCUMENT_ROOT']."/tmp/#", realpath($path))) {
+    } else if (!preg_match("#^".$_SERVER['DOCUMENT_ROOT']."/tmp/#", realpath($path))) {
         Log::recordTX($uid, "Error", "LFI path detected: ".$path);
         header('HTTP/1.0 400 Bad Request.');
         die();
     }
+    if ($otl->datatype == "video")
+        header('Content-Type: video/mp4');
     header('Content-Disposition: attachment; filename='.basename($path));
     $file = file_get_contents($path);
     Log::recordTX($uid, "Info", "Accessed file: ".$path);

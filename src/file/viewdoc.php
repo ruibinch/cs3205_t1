@@ -84,14 +84,14 @@ if (! isset($_GET['rid'])) {
                 continue;
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/user/uid/" . $detail->uid));
             echo "<ul>";
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";
+            echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";
             echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(" . htmlentities($consent->rid) . ")'><img src='download.png' height=40 width=40></a></li>";
             echo "</ul>";
         }
     }
     foreach ($listOfOwned as $owned) {
         echo "<ul>";
-        echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($owned->rid) . ")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . htmlentities($owned->modifieddate) . "</small></a></li>";
+        echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($owned->rid) . ")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . htmlentities($owned->modifieddate) . "</small></a></li>";
         echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(" . htmlentities($owned->rid) . ")'><img src='download.png' height=40 width=40></a></li>";
         echo "</ul>";
     }
@@ -103,7 +103,7 @@ if (! isset($_GET['rid'])) {
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/record/" . $consent->rid));
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/user/uid/" . $detail->uid));
             echo "<ul>";
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";
+            echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";
             echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(" . htmlentities($consent->rid) . ")'><img src='download.png' height=40 width=40></a></li>";
             echo "</ul>";
         }
@@ -111,7 +111,7 @@ if (! isset($_GET['rid'])) {
     foreach ($listOfOwned as $owned) {
         if ($owned->rid == $rid) {
             echo "<ul>";
-            echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($owned->rid) . ")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . htmlentities($owned->modifieddate) . "</small></a></li>";
+            echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($owned->rid) . ")'><strong>" . htmlentities($owned->title) . "</strong><br><small>" . htmlentities($owned->modifieddate) . "</small></a></li>";
             echo "<li style='text-align: center;'><a class='menu_li_a' href='javascript:void(0)' onclick='downloadfile(" . htmlentities($owned->rid) . ")'><img src='download.png' height=40 width=40></a></li>";
             echo "</ul>";
         }

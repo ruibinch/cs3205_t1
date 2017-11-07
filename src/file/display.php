@@ -48,7 +48,7 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
         if (isset($details->absolutePath)) {
             $filepath = $_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath));
             //generate one time link
-            $otl = OneTimeToken::generateToken($uid, hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath)), $_GET['csrf'], "file");
+            $otl = OneTimeToken::generateToken($uid, hash("md5", $uid)."/".hash("md5", $filecontent)."/".urlencode(basename($details->absolutePath)), $_GET['csrf'], isset($details->subtype) ? $details->subtype : "file");
         } else {
             $filepath = $_SERVER['DOCUMENT_ROOT']."/tmp/".hash("md5", $uid)."/".hash("md5", $filecontent)."/file.json";
             //generate one time link

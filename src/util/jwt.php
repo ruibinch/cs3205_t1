@@ -50,7 +50,7 @@ class WebToken
                 ));
                 if ($decoded->exp < time()) {
                     Log::recordTX($decoded->data->uid, "Warning", "Expired user jwt");
-                    header("Location: /login.php?error=1");
+                    header("Location: /login.php");
                     die();
                 } else {
                     $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/user/secret/" . $decoded->data->uid));
@@ -59,7 +59,7 @@ class WebToken
                          * Possile cause: logout, login somewhere else, change psw
                          */
                         Log::recordTX($decoded->data->uid, "Warning", "Outdated user jwt");
-                        header("Location: /login.php?error=2");
+                        header("Location: /login.php");
                         die();
                     }
                     return $decoded->data;
@@ -70,7 +70,7 @@ class WebToken
                  * The signature cannot be verified.
                  */
                 Log::recordTX(-1, "Warning", "Unrecognised user jwt");
-                header("Location: /login.php?error=3");
+                header("Location: /login.php");
                 die();
             }
         } else {
@@ -78,7 +78,7 @@ class WebToken
              * Token is not present.
              */
             Log::recordTX(-1, "Warning", "Missing user jwt");
-            header("Location: /login.php?error=4");
+            header("Location: /login.php");
             die();
         }
     }

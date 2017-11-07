@@ -8,11 +8,11 @@ Plotly.d3.json('<?php echo htmlspecialchars($fileurl)?>', function(json){
 	var multix = Number(json[json["x_axis"]]["multiplier"]);
 	var x;
 	if (json.hasOwnProperty('sessionTime')) {
-		x = json[json["x_axis"]]["values"].map(function(f){
+		x = json[json["x_axis"]]["value"].map(function(f){
     		return new Date(f + json["sessionTime"]);
     	});
 	} else {
-    	x = json[json["x_axis"]]["values"].map(function(f){
+    	x = json[json["x_axis"]]["value"].map(function(f){
     		return f * multix;
     	});
 	}
@@ -20,7 +20,7 @@ Plotly.d3.json('<?php echo htmlspecialchars($fileurl)?>', function(json){
 		var multi = Number(json[json["y_axis"]]["multiplier"]);
 		return {
 			x: x,
-			y: e["values"].map(function(f){
+			y: e["value"].map(function(f){
 				return f * multi;
 			}),
 			name: e["name"],
