@@ -80,8 +80,10 @@
             if (strcmp($sha_check_char, $user_pwhash) === 0) {
                 return processLogin();
             } else {
-                return "login.php?err=1";
+                return "login.php";
             }
+        } else {
+            return "login.php";
         }
     }
 
@@ -93,7 +95,7 @@
             $user_type = $_SESSION['user_type'];
 
             if ($user_type === "therapist" && $user_json->qualify !== 1) {
-                return "login.php?err=1";
+                return "login.php";
                 //header("location: ../login.php?err=1");
                 //die();
             }
@@ -125,7 +127,7 @@
                 );
                 }
                 session_destroy();
-                return "login.php?to=console&err=1";
+                return "login.php?to=console";
                 //header("Location: login.php?to=console&err=1");
                 //exit();
             }
