@@ -310,7 +310,7 @@
                                                 }
                                             }
 
-                                            $attached_rids = $record->records;
+                                            $attached_rids = $shared_documents_list[$i]->records;
                                             if ($attached_rids[0] !== 0) { // if there are attached records
                                                 echo "Attached records: <br>";
                                                 for ($j = 0; $j < count($attached_rids); $j++) {
