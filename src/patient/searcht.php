@@ -2,7 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    include_once '../util/logging.php';
+    include_once '../util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
     $patient_id = $result->uid;
 
