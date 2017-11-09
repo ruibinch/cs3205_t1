@@ -32,7 +32,7 @@
 		echo "\t" . '<th>UserID</th><th>Time</th><th>Description</th>';
 		
 		foreach ($decodeJS->logs as &$value) {
-			echo "\t" . '<tr id="Log' . $value->classification . '"><td>' . $value->uid . '</td><td>' . $value->time . '</td><td>' . $value->description . '</td></tr>';
+			echo "\t" . '<tr id="Log' . $value->classification . '"><td>' . $value->uid . '</td><td>' . $value->time . '</td><td>' . htmlspecialchars($value->description) . '</td></tr>';
 		}
 		echo '</table>';
 	}
