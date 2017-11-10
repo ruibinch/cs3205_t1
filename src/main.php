@@ -325,7 +325,7 @@
                                         .data('message', "Treatment request rejected")
                                         .dialog('open');
                                 } else {
-					<?php Log::recordTX($user_json->uid, "Info", "Error when rejecting treatment request") ?>;
+					<?php Log::recordTX($user_json->uid, "Error", "Error when rejecting treatment request") ?>;
                                     $('#acknowledgementDialog')
                                         .data('message', "Error in processing treatment request")
                                         .dialog('open');
