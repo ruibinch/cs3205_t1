@@ -26,8 +26,9 @@
             $response = array('challenge' => $challenge, 'salt' => $user_json->salt);
         } else { // user does not exist
             $secret = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['secret'];
-            $options = [ 'salt' => $secret ];
-            $fake_salt = substr(password_hash($input_username, PASSWORD_DEFAULT), 0, 29); // to prevent timing attacks
+            $hex_digest = hash("sha256", $input_username . $secret);
+            $bin_digest = hexToBinary($hex_digest);
+            $fake_salt = "$2y$10$" . toBase64($bin_digest);
             $response = array('challenge' => $challenge, 'salt' => $fake_salt);
         }
 
@@ -185,6 +186,21 @@
             $input_hex = $input_hex . chr($value_dec);
         }
         return $input_hex;
+    }
+
+    // reads in a 256-bit string and returns 22 base64-chars
+    function toBase64($bin_string) {
+        $output = "";
+        $index_table = array("A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z",
+                            "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z",
+                            "0", "1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "/");
+
+        for ($i = 0; $i < 22; $i++) {
+            $bin_value = base_convert(substr($bin_string, $i*6, 6), 2, 10);
+            $output .= $index_table[$bin_value];
+        }
+        
+        return $output;
     }
 
 ?>
