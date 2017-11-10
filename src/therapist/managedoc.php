@@ -401,7 +401,7 @@
                                 type: "POST",
                                 url: "../ajax-process.php",
                                 data: { "therapistArray": therapistArray,
-                                        "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "shareDocument");?> }
+                                        "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "shareDocument");?>" }
                             }).done(function(response) {
                                 alert(response);
                             });

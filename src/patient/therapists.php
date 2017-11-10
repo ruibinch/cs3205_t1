@@ -112,7 +112,7 @@
                             type: "POST",
                             url: "../ajax-process.php",
                             data: { "removeTreatmentId": $(this).val(),
-                                    "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "removeTherapist");?> }
+                                    "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "removeTherapist");?>" }
                         }).done(function(response) {
                             <?php Log::recordTX($result->uid, "Info", "Removed therapist"); ?>;
 			        if (response == 1) {

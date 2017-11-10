@@ -152,7 +152,7 @@
                                     url: "../ajax-process.php",
                                     data: { "therapistId": $(this).data('therapistId'),
                                             "consentSettings": consentSettings,
-                                            "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "createTreatmentReq");?> }
+                                            "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "createTreatmentReq");?>" }
                                 }).done(function(response) {
                                     if (response == 1) {
 					                    <?php Log::recordTX($patient_id, "Info", "Sent treatment request") ?>;

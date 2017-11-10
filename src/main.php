@@ -292,7 +292,7 @@
                                 type: "POST",
                                 url: "ajax-process.php",
                                 data: { "acceptTreatmentId": $(this).data('treatmentId'),
-                                        "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "acceptTreatmentReq");?> }
+                                        "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "acceptTreatmentReq");?>" }
                             }).done(function(response) {
                                 if (response == 1) {
                                     $('#acknowledgementDialog')
@@ -314,7 +314,7 @@
                                 type: "POST",
                                 url: "ajax-process.php",
                                 data: { "rejectTreatmentId": $(this).data('treatmentId'),
-                                        "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "rejectTreatmentReq");?> }
+                                        "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "rejectTreatmentReq");?>" }
                             }).done(function(response) {
                                 if (response == 1) {
                                     $('#acknowledgementDialog')

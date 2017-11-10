@@ -235,7 +235,7 @@
                                 "currentConsentSetting": $('#currentConsent').is(':checked'),
                                 "futureConsentSetting": $('#futureConsent').is(':checked'),
                                 "consentChanges": consentChanges,
-                                "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "updateConsentSettings");?> }
+                                "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "updateConsentSettings");?>" }
                     }).done(function(response) {
                         if (response) {
                             $('#acknowledgementDialog')

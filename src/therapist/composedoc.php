@@ -128,7 +128,7 @@
                                     type: "POST",
                                     url: "../ajax-process.php",
                                     data: { "attachRecords": attachRecordsList,
-                                            "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "attachRecords");?> }
+                                            "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "attachRecords");?>" }
                                 }).done(function(response) {
                                     $('#attachedRecordsTable').html(response);
 
