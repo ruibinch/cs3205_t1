@@ -150,12 +150,12 @@
                                 $.ajax({
                                     type: "POST",
                                     url: "../ajax-process.php",
-                                    data: { "patientId": $(this).data('patientId'), 
-                                            "therapistId": $(this).data('therapistId'),
-                                            "consentSettings": consentSettings }
+                                    data: { "therapistId": $(this).data('therapistId'),
+                                            "consentSettings": consentSettings,
+                                            "csrf": <?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "createTreatmentReq");?> }
                                 }).done(function(response) {
                                     if (response == 1) {
-					<?php Log::recordTX($patient_id, "Info", "Sent treatment request") ?>;
+					                    <?php Log::recordTX($patient_id, "Info", "Sent treatment request") ?>;
                                         $('#acknowledgementDialog')
                                             .data('message', "Treatment request sent")
                                             .dialog('open');
