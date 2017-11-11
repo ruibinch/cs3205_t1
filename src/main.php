@@ -2,7 +2,6 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
-    include_once 'util/logger.php';
     ini_set("allow_url_fopen", 1); // allow connection to DB server
 
     /*
@@ -296,12 +295,10 @@
                                         "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "acceptTreatmentReq");?>" }
                             }).done(function(response) {
                                 if (response == 1) {
-				    <?php Log::recordTX($user_json->uid, "Info", "Treatment request accepted") ?>;
                                     $('#acknowledgementDialog')
                                         .data('message', "Treatment request accepted")
                                         .dialog('open');
                                 } else {
-				   <?php Log::recordTX($user_json->uid, "Error", "Error when accepting treatment request") ?>;
                                     $('#acknowledgementDialog')
                                         .data('message', "Error in processing treatment request")
                                         .dialog('open');
@@ -320,12 +317,10 @@
                                         "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "rejectTreatmentReq");?>" }
                             }).done(function(response) {
                                 if (response == 1) {
-				<?php Log::recordTX($user_json->uid, "Info", "Treatment request rejected") ?>;
                                     $('#acknowledgementDialog')
                                         .data('message', "Treatment request rejected")
                                         .dialog('open');
                                 } else {
-					<?php Log::recordTX($user_json->uid, "Error", "Error when rejecting treatment request") ?>;
                                     $('#acknowledgementDialog')
                                         .data('message', "Error in processing treatment request")
                                         .dialog('open');

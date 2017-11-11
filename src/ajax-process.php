@@ -2,6 +2,7 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
+	include_once 'util/logger.php';
 
     $jwt_result = WebToken::verifyToken($_COOKIE["jwt"]);
 
@@ -93,21 +94,35 @@
         return $response->result;
     }
 
-    //TODO: add CSRF validation
     function acceptTreatmentReq($treatmentId) {
         createConsentPermissions($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/' . $treatmentId));
+		if ($response->result == 1) {
+			Log::recordTX($user_json->uid, "Info", "Treatment request accepted");
+		} else {
+			Log::recordTX($user_json->uid, "Error", "Error when accepting treatment request");
+		}
         return $response->result;
     }
 
     function rejectTreatmentReq($treatmentId) {
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
+		if ($response->result == 1) {
+			Log::recordTX($user_json->uid, "Info", "Treatment request rejected");
+		} else {
+			Log::recordTX($user_json->uid, "Error", "Error when rejecting treatment request");
+		}
         return $response->result;
     }
 
     function removeTreatmentReq($treatmentId) {
         removeAdditionalElements($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
+		if ($response->result == 1) {
+			Log::recordTX($result->uid, "Info", "Removed therapist");
+		} else {
+			Log::recordTX($result->uid, "Error", "Error in removing therapist");
+		}
         return $response->result;
     }
 
