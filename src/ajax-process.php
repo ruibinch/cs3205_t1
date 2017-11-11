@@ -91,6 +91,11 @@
     function createTreatmentReq($patientId, $therapistId, $consentSettings) {
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/create/' 
                                 . $patientId . '/' . $therapistId . '/' . $consentSettings[0] . '/' . $consentSettings[1]));
+		if ($response->result == 1) {
+			Log::recordTX($patient_id, "Info", "Sent treatment request");
+		} else {
+			Log::recordTX($patient_id, "Error", "Error when sending treatment request");
+		}
         return $response->result;
     }
 
@@ -225,7 +230,13 @@
 
         $consent_settings = array('id' => $treatmentId, 'currentConsent' => $currentConsent, 'futureConsent' => $futureConsent);
         $consent_settings_json = json_encode($consent_settings);
-        return ssl::post_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/consentsetting', $consent_settings_json, array('Content-Type: application/json'));
+		$result = ssl::post_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/consentsetting', $consent_settings_json, array('Content-Type: application/json'));
+		if ($result) {
+			Log::recordTX($result->uid, "Info", "Updated consent settings");
+		} else {
+			Log::recordTX($result->uid, "Error", "Error when updating consent settings");
+		}
+        return $result;
     }
 
     // Sets all the consents between the patient and the therapist to true
