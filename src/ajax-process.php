@@ -92,9 +92,9 @@
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/create/' 
                                 . $patientId . '/' . $therapistId . '/' . $consentSettings[0] . '/' . $consentSettings[1]));
 		if ($response->result == 1) {
-			Log::recordTX($patient_id, "Info", "Sent treatment request");
+			Log::recordTX($patientId, "Info", "Sent treatment request");
 		} else {
-			Log::recordTX($patient_id, "Error", "Error when sending treatment request");
+			Log::recordTX($patientId, "Error", "Error when sending treatment request");
 		}
         return $response->result;
     }
@@ -103,9 +103,9 @@
         createConsentPermissions($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/' . $treatmentId));
 		if ($response->result == 1) {
-			Log::recordTX($user_json->uid, "Info", "Treatment request accepted");
+			Log::recordTX($jwt_result->uid, "Info", "Treatment request accepted");
 		} else {
-			Log::recordTX($user_json->uid, "Error", "Error when accepting treatment request");
+			Log::recordTX($jwt_result->uid, "Error", "Error when accepting treatment request");
 		}
         return $response->result;
     }
@@ -113,9 +113,9 @@
     function rejectTreatmentReq($treatmentId) {
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
 		if ($response->result == 1) {
-			Log::recordTX($user_json->uid, "Info", "Treatment request rejected");
+			Log::recordTX($jwt_result->uid, "Info", "Treatment request rejected");
 		} else {
-			Log::recordTX($user_json->uid, "Error", "Error when rejecting treatment request");
+			Log::recordTX($jwt_result->uid, "Error", "Error when rejecting treatment request");
 		}
         return $response->result;
     }
@@ -124,9 +124,9 @@
         removeAdditionalElements($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
 		if ($response->result == 1) {
-			Log::recordTX($result->uid, "Info", "Removed therapist");
+			Log::recordTX($jwt_result->uid, "Info", "Removed therapist");
 		} else {
-			Log::recordTX($result->uid, "Error", "Error in removing therapist");
+			Log::recordTX($jwt_result->uid, "Error", "Error in removing therapist");
 		}
         return $response->result;
     }
@@ -232,9 +232,9 @@
         $consent_settings_json = json_encode($consent_settings);
 		$result = ssl::post_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/consentsetting', $consent_settings_json, array('Content-Type: application/json'));
 		if ($result) {
-			Log::recordTX($result->uid, "Info", "Updated consent settings");
+			Log::recordTX($jwt_result->uid, "Info", "Updated consent settings");
 		} else {
-			Log::recordTX($result->uid, "Error", "Error when updating consent settings");
+			Log::recordTX($jwt_result->uid, "Error", "Error when updating consent settings");
 		}
         return $result;
     }
