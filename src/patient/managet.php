@@ -2,7 +2,6 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    include_once '../util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
     $user_type = $result->istherapist ? "therapist" : "patient";
 
@@ -239,12 +238,10 @@
                                 "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "updateConsentSettings");?>" }
                     }).done(function(response) {
                         if (response) {
-                            <?php Log::recordTX($result->uid, "Info", "Updated consent settings") ?>;
                             $('#acknowledgementDialog')
                                 .data('message', "Consent settings updated")
                                 .dialog('open');
                         } else {
-                            <?php Log::recordTX($result->uid, "Error", "Error when updating consent settings") ?>;
                             $('#acknowledgementDialog')
                                 .data('message', "Error in updating consent settings")
                                 .dialog('open');
