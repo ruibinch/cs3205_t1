@@ -100,6 +100,7 @@
     }
 
     function acceptTreatmentReq($treatmentId) {
+	global $jwt_result;
         createConsentPermissions($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/update/' . $treatmentId));
 		if ($response->result == 1) {
@@ -111,6 +112,7 @@
     }
 
     function rejectTreatmentReq($treatmentId) {
+	global $jwt_result;
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
 		if ($response->result == 1) {
 			Log::recordTX($jwt_result->uid, "Info", "Treatment request rejected");
@@ -121,6 +123,7 @@
     }
 
     function removeTreatmentReq($treatmentId) {
+	global $jwt_result;
         removeAdditionalElements($treatmentId);
         $response = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/treatment/delete/' . $treatmentId));
 		if ($response->result == 1) {
@@ -224,6 +227,7 @@
 
     // Updates the current and future consent status flags
     function updateDefaultConsentSettings($treatmentId, $currentConsent, $futureConsent) {
+	global $jwt_result;
         if ($currentConsent === "true") {
             setAllConsentsToTrue($treatmentId);
         }
@@ -283,6 +287,7 @@
     }
 
     function shareDocumentsWithTherapists($therapist_array) {
+	global $jwt_result;
         $t_array = array();
         foreach($therapist_array AS $therapist) {
             $therapist = json_decode($therapist);
@@ -292,12 +297,18 @@
                     $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/create/".$therapist->therapist."/".$therapist->rid));
                     $consent_json = json_decode(getConsentJson($therapist->therapist, $therapist->rid, $therapist->owner));
                     $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
-                    array_push($t_array, $therapist->therapist." consent created");
+                    if (!$result->result) {
+	    		Log::recordTX($jwt_result->uid, "Error", "Error when sharing document with " . $therapist->therapist);
+  		    }
+		    array_push($t_array, $therapist->therapist." consent created");
                 } else {
                     $consent_json = json_decode($consent_string);
                     if (!$consent_json->status) {
                         $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
-                        array_push($t_array, $therapist->therapist." consent toggled to true");
+                        if (!$result->result) {
+	    			Log::recordTX($jwt_result->uid, "Error", "Error when sharing document with " . $therapist->therapist);
+  		    	}
+			array_push($t_array, $therapist->therapist." consent toggled to true");
                     }
                 }
             } else {
@@ -305,11 +316,15 @@
                     $consent_json = json_decode($consent_string);
                     if ($consent_json->status) {
                         $result = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/update/".$consent_json->consentId));
-                        array_push($t_array, $therapist->therapist." consent toggled to false");
+                        if (!$result->result) {
+	    			Log::recordTX($jwt_result->uid, "Error", "Error when sharing document with " . $therapist->therapist);
+  		    	}
+			array_push($t_array, $therapist->therapist." consent toggled to false");
                     }
                 }
             }
         }
+	Log::recordTX($jwt_result->uid, "Info", "Toggled document sharing consent for rid " . $document_id . " for uids " . implode(", ", $therapist_ids));
         return json_encode($t_array);
     }
 
