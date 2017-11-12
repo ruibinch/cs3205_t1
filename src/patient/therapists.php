@@ -2,7 +2,6 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
-    include_once '../util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     // Gets the list of therapists assigned to the specified patient
@@ -114,7 +113,6 @@
                             data: { "removeTreatmentId": $(this).val(),
                                     "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "removeTherapist");?>" }
                         }).done(function(response) {
-                            <?php Log::recordTX($result->uid, "Info", "Removed therapist"); ?>;
 			        if (response == 1) {
                                 $('#acknowledgementDialog')
                                     .data('message', "Therapist removed")
