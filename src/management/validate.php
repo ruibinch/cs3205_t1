@@ -851,7 +851,10 @@
 	        Log::recordTX(0, "Warning", "Invalid csrf when accessing validate.php");
 	        header('HTTP/1.0 400 Bad Request.');
 	        die();
-	    }
+	    } else {
+			//delete token after usage.
+			CSRFToken::deleteToken($_POST['csrf']);
+		}
 	}
 	if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['action'] === "delete") {
 		
