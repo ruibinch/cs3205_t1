@@ -2,6 +2,7 @@
 
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
+    include_once '../util/csrf.php';
     include_once '../util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
@@ -67,6 +68,7 @@
                 header('HTTP/1.0 400 Bad Request.');
                 die();
             }
+            CSRFToken::deleteToken($_POST['csrf']);
 
             $current_date = new DateTime();
             $current_date->setTimeZone(new DateTimeZone('Singapore'));

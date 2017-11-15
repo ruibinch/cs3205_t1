@@ -2,6 +2,7 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
+    include_once 'util/csrf.php';
 	include_once 'util/logger.php';
 
     $jwt_result = WebToken::verifyToken($_COOKIE["jwt"]);
@@ -14,6 +15,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo createTreatmentReq($jwt_result->uid, $_POST['therapistId'], $_POST['consentSettings']);
     } else if (isset($_POST['acceptTreatmentId'])) {
         $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
@@ -22,6 +24,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo acceptTreatmentReq($_POST['acceptTreatmentId']);
     } else if (isset($_POST['rejectTreatmentId'])) {
         $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
@@ -30,6 +33,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo rejectTreatmentReq($_POST['rejectTreatmentId']);
     } else if (isset($_POST['removeTreatmentId'])) {
         $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
@@ -38,6 +42,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo removeTreatmentReq($_POST['removeTreatmentId']);
     }
 
@@ -49,6 +54,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         updateConsentStatus($_POST['consentChanges']);
     }
     if (isset($_POST['treatmentId']) && isset($_POST['currentConsentSetting']) && isset($_POST['futureConsentSetting'])) {
@@ -58,6 +64,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo updateDefaultConsentSettings($_POST['treatmentId'], $_POST['currentConsentSetting'], $_POST['futureConsentSetting']);
     }
 
@@ -69,6 +76,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo displayAttachedRecords($_POST['attachRecords']);
     }
 
@@ -80,6 +88,7 @@
             header('HTTP/1.0 400 Bad Request.');
             die();
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         echo shareDocumentsWithTherapists($_POST['therapistArray']);
     }
 

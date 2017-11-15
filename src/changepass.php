@@ -2,6 +2,7 @@
 
     include_once 'util/ssl.php';
     include_once 'util/jwt.php';
+    include_once 'util/csrf.php';
     include_once 'util/logger.php';
     $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
@@ -37,6 +38,7 @@
             $hasError = true;
             $csrfErr = "An error occured, please try again!";
         }
+        CSRFToken::deleteToken($_POST['csrf']);
         
         if (empty($currentpass)) {
             $hasError = true;
@@ -120,7 +122,7 @@
                 <?php if ($settings_save) { ?>
                     <script>alert("Your password has been updated!")</script> 
                 <?php } ?>
-                <input type="hidden" name="csrf" value=<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($user_json->uid, "update-password");?>>
+                <input type="hidden" name="csrf" value="<?php echo CSRFToken::generateToken($user_json->uid, "update-password");?>">
                 <div class="profile-update">Current Password: <span class="error-message"><?php echo empty($currentpassErr) ? "" : "*" . $currentpassErr ?></span><br>
                     <input name="input-current-pass" type="password" placeholder=""
                         value=""><br>
