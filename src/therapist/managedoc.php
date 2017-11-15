@@ -425,6 +425,7 @@
                             "patientId": $(this).data('patientId'), 
                             "therapistId": $(this).data('therapistId'),
                             "rid": $(this).data('rid')
+                            "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "viewTherapistsListDialog");?>"
                         }
                     );
                 }

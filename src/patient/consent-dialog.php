@@ -1,11 +1,22 @@
 <?php
 
     include_once '../util/ssl.php';
+    include_once '../util/jwt.php';
+    include_once '../util/csrf.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     if (isset($_POST['recordId'])) {
         $recordId = $_POST['recordId'];
     }
 
+    $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+    if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewConsentDialog" || $csrf->uid != $jwt_result->uid) {
+        Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when viewing consent dialog");
+        header('HTTP/1.0 400 Bad Request.');
+        die();
+    }
+    CSRFToken::deleteToken($_POST['csrf']);
+    
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid) {
         $user_json_tmp = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $uid));

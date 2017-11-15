@@ -1,6 +1,9 @@
 <?php
 
     include_once '../util/ssl.php';
+    include_once '../util/jwt.php';
+    include_once '../util/csrf.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     if (isset($_POST['patientId'])) {
         $patientId = $_POST['patientId'];
@@ -11,6 +14,14 @@
     if (isset($_POST['attachRecordsList'])) {
         $attached_records_list = $_POST['attachRecordsList'];
     }
+
+    $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+    if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewRecordsDialog" || $csrf->uid != $jwt_result->uid) {
+        Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when viewing records dialog");
+        header('HTTP/1.0 400 Bad Request.');
+        die();
+    }
+    CSRFToken::deleteToken($_POST['csrf']);
 
     // Gets the list of consents associated with this therapist
     $consents_list_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/' . $therapistId));

@@ -154,6 +154,7 @@
                                 "patientId": $(this).data('patientId'), 
                                 "therapistId": $(this).data('therapistId'),
                                 "attachRecordsList": $(this).data('attachRecordsList')
+                                "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "viewRecordsDialog");?>"
                             }
                         );
                     }

@@ -135,7 +135,8 @@
                                 $.ajax({
                                     type: "POST",
                                     url: "../ajax-process.php",
-                                    data: { "consentChanges": consentChanges }
+                                    data: { "consentChanges": consentChanges,
+                                            "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "updateConsentSettings");?>" }
                                 });
                                 $(this).dialog('close');
                                 $('#acknowledgementDialog').dialog('open');
@@ -149,7 +150,10 @@
                     open: function(event, ui) {
                         $(this).load(
                             'consent-dialog.php', 
-                            { "recordId": $(this).data('recordId') },
+                            { 
+                                "recordId": $(this).data('recordId'),
+                                "csrf": "<?php include_once $_SERVER['DOCUMENT_ROOT']."/util/csrf.php"; echo CSRFToken::generateToken($result->uid, "viewConsentDialog");?>"  
+                            }
                         );
                     }
                 });

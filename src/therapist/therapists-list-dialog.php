@@ -1,6 +1,8 @@
 <?php
     include_once '../util/ssl.php';
     include_once '../util/jwt.php';
+    include_once '../util/csrf.php';
+    $result = WebToken::verifyToken($_COOKIE["jwt"]);
 
     $patientId = $therapistId = $rid = "";
 
@@ -13,6 +15,14 @@
     if (isset($_POST['rid'])) {
         $rid = $_POST['rid'];
     }
+
+    $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+    if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewTherapistsListDialog" || $csrf->uid != $jwt_result->uid) {
+        Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when viewing therapist list dialog");
+        header('HTTP/1.0 400 Bad Request.');
+        die();
+    }
+    CSRFToken::deleteToken($_POST['csrf']);
 
     if ($patientId === "0") {
         $therapist_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/therapists"))->users;
