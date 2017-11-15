@@ -9,7 +9,7 @@
         $recordId = $_POST['recordId'];
     }
 
-    $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+    $csrf = CSRFToken::getToken($_POST['csrf']);
     if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewConsentDialog" || $csrf->uid != $result->uid) {
         Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when viewing consent dialog");
         header('HTTP/1.0 400 Bad Request.');
