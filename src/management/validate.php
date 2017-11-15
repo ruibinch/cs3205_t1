@@ -1005,6 +1005,7 @@
 			//Retrieve Current info Again
 		    if (strpos($_SESSION['editUserID'], '/') !== false) {
 		        Log::recordTX($uid, "Error", "Unrecognised uid: " . $_SESSION['editUserID']);
+				unset($_SESSION['editUserID']);
 		        header('HTTP/1.0 400 Bad Request.');
 		        die();
 		    }
@@ -1278,6 +1279,8 @@
 				if ($decodeEdit->result == 1) {
 					$_SESSION['editUserSuccess'] = TRUE;
 				}
+				
+				unset($_SESSION['editUserID']);
 				echo "<script>window.location = 'console.php?navi=edit'</script>";
 				exit();	
 			}
