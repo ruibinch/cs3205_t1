@@ -31,7 +31,7 @@
         $pass = sanitise($_POST["input-pass"]);
         $cfmpass = sanitise($_POST["input-cfmpass"]);
         
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "update-password" || $csrf->uid != $user_json->uid) {
             //invalid csrf token
             Log::recordTX($user_json->uid, "Warning", "Invalid csrf when updating particulars");

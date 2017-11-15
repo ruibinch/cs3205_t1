@@ -14,13 +14,18 @@ if (!isset($_GET['rid']) || !isset($_GET['csrf'])) {
     die();
 } else {
     $rid = $_GET['rid'];
+    if (strpos($rid, '/') !== false) {
+        Log::recordTX($uid, "Error", "Unrecognised rid: ".$rid);
+        header('HTTP/1.0 400 Bad Request.');
+        die();
+    }
     if (!json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/check/".$uid."/".$rid))->result) {
         //No access to this file
         Log::recordTX($uid, "Warning", "Trying to access unprivilaged file: ".$rid);
         header('HTTP/1.0 400 Bad Request.');
         die();
     } else {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_GET['csrf']));
+        $csrf = CSRFToken::getToken($_GET['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "viewdoc" || $csrf->uid != $uid) {
             //invalid csrf token
             Log::recordTX($uid, "Warning", "Invalid csrf when accessing display.php");

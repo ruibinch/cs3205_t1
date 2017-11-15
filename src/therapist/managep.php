@@ -7,6 +7,11 @@
     
     if (isset($_POST['patient_search'])) {
         $patientId = $_POST['patient_search'];
+        if (strpos($patientid, '/') !== false) {
+            Log::recordTX($uid, "Error", "Unrecognised uid: " . $patientid);
+            header('HTTP/1.0 400 Bad Request.');
+            die();
+        }
     }
     $patient_json = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $patientId));
 
