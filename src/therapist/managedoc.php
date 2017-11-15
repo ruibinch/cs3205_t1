@@ -18,6 +18,10 @@
         $consented_documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/consent/user/'.$user_json->uid))->consents;
         $shared_documents_list = array();
         foreach($consented_documents_list AS $consented_document) {
+            if (strpos($consented_document->rid, '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised rid: " . $consented_document->rid);
+                continue;
+            }
             $shared_document = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/'.$consented_document->rid));
             if (strcmp($shared_document->type, "File") == 0 && strcmp($shared_document->subtype, "document") == 0 && $consented_document->status) {
                 array_push($shared_documents_list, get_record($consented_document->rid));
@@ -60,8 +64,13 @@
             $documents_list = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/all/'.$user_json->uid))->records;
             $num_documents = count($documents_list);
         } else {
+            if (strpos($_POST['csrf'], '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised csrf token: ".json_encode($token));
+                header('HTTP/1.0 400 Bad Request.');
+                die();
+            }
             // get CSRF token
-            $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+            $csrf = CSRFToken::getToken($_POST['csrf']);
             if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "composedoc" || $csrf->uid != $user_json->uid) {
                 //invalid csrf token
                 Log::recordTX($user_json->uid, "Warning", "Invalid csrf when accessing managedoc.php");
@@ -223,6 +232,10 @@
                                         if ($attached_rids[0] !== 0) { // if there are attached records
                                             echo "Attached records: <br>";
                                             for ($j = 0; $j < count($attached_rids); $j++) {
+                                                if (strpos($attached_rids[$j], '/') !== false) {
+                                                    Log::recordTX($uid, "Error", "Unrecognised rid: " . $consented_document->rid);
+                                                    continue;
+                                                }
                                                 $attached_record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $attached_rids[$j]));
                                                 if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
                                                     echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 
@@ -316,6 +329,10 @@
                                             if ($attached_rids[0] !== 0) { // if there are attached records
                                                 echo "Attached records: <br>";
                                                 for ($j = 0; $j < count($attached_rids); $j++) {
+                                                    if (strpos($attached_rids[$j], '/') !== false) {
+                                                        Log::recordTX($uid, "Error", "Unrecognised rid: " . $consented_document->rid);
+                                                        continue;
+                                                    }
                                                     $attached_record = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/record/' . $attached_rids[$j]));
                                                     if (in_array($attached_rids[$j], $rids_viewable_by_therapist)) {
                                                         echo ($j+1) . ". <a href='../file/viewdoc.php?rid=" . $attached_rids[$j] . "'><u>" . $attached_record->title . "</u></a><br>"; 

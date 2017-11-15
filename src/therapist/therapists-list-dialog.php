@@ -31,6 +31,10 @@
     }
 
     function getUser($uid) {
+        if (strpos($uid, '/') !== false) {
+            Log::recordTX($uid, "Error", "Unrecognised uid: " . $uid);
+            return;
+        }
         return json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/user/uid/".$uid));
     }
 

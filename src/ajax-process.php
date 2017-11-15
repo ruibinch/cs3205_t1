@@ -9,7 +9,7 @@
 
     // Treatment relations
     if (isset($_POST['therapistId']) && isset($_POST['consentSettings'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "createTreatmentReq" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when creating treatment request");
             header('HTTP/1.0 400 Bad Request.');
@@ -18,7 +18,7 @@
         CSRFToken::deleteToken($_POST['csrf']);
         echo createTreatmentReq($jwt_result->uid, $_POST['therapistId'], $_POST['consentSettings']);
     } else if (isset($_POST['acceptTreatmentId'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "acceptTreatmentReq" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when accepting treatment request");
             header('HTTP/1.0 400 Bad Request.');
@@ -27,7 +27,7 @@
         CSRFToken::deleteToken($_POST['csrf']);
         echo acceptTreatmentReq($_POST['acceptTreatmentId']);
     } else if (isset($_POST['rejectTreatmentId'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "rejectTreatmentReq" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when rejecting treatment request");
             header('HTTP/1.0 400 Bad Request.');
@@ -36,7 +36,7 @@
         CSRFToken::deleteToken($_POST['csrf']);
         echo rejectTreatmentReq($_POST['rejectTreatmentId']);
     } else if (isset($_POST['removeTreatmentId'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "removeTherapist" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when removing therapist");
             header('HTTP/1.0 400 Bad Request.');
@@ -48,7 +48,7 @@
 
     // Consent relations
     if (isset($_POST['consentChanges'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "updateConsentSettings" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when updating consent settings");
             header('HTTP/1.0 400 Bad Request.');
@@ -58,7 +58,7 @@
         updateConsentStatus($_POST['consentChanges']);
     }
     if (isset($_POST['treatmentId']) && isset($_POST['currentConsentSetting']) && isset($_POST['futureConsentSetting'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "updateConsentSettings" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when updating consent settings");
             header('HTTP/1.0 400 Bad Request.');
@@ -70,7 +70,7 @@
 
     // Misc
     if (isset($_POST['attachRecords'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "attachRecords" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when attaching records to document");
             header('HTTP/1.0 400 Bad Request.');
@@ -82,7 +82,7 @@
 
     // Document Sharing
     if (isset($_POST['therapistArray'])) {
-        $csrf = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/csrf/".$_POST['csrf']));
+        $csrf = CSRFToken::getToken($_POST['csrf']);
         if (isset($csrf->result) || $csrf->expiry < time() || $csrf->description != "shareDocument" || $csrf->uid != $jwt_result->uid) {
             Log::recordTX($jwt_result->uid, "Warning", "Invalid csrf when sharing document");
             header('HTTP/1.0 400 Bad Request.');
@@ -344,6 +344,10 @@
             $consent_array = $consent_array->consents;
             foreach ($consent_array AS $consent_elem) {
                 if (strcmp($consent_elem->rid, $rid) == 0) {
+                    if (strpos($consent_elem->consentId, '/') !== false) {
+                        Log::recordTX($uid, "Error", "Unrecognised consent id: " . $consent_elem->consentId);
+                        continue;
+                    }
                     $consentId = ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4']."api/team1/consent/".$consent_elem->consentId);
                 }
             }

@@ -79,9 +79,18 @@ if (! isset($_GET['rid'])) {
     // Default: display all listed files
     foreach ($listOfConsents as $consent) {
         if ($consent->status) {
+            if (strpos($consent->rid, '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised rid: " . $consent->rid);
+                continue;
+            }
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/record/" . $consent->rid));
             if (isset($detail->result))
                 continue;
+            
+            if (strpos($detail->uid, '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised uid: " . $detail->uid);
+                continue;
+            }
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/user/uid/" . $detail->uid));
             echo "<ul>";
             echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";
@@ -100,7 +109,15 @@ if (! isset($_GET['rid'])) {
     $rid = $_GET['rid'];
     foreach ($listOfConsents as $consent) {
         if ($consent->status && $consent->rid == $rid) {
+            if (strpos($consent->rid, '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised rid: " . $consent->rid);
+                continue;
+            }
             $detail = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/record/" . $consent->rid));
+            if (strpos($detail->uid, '/') !== false) {
+                Log::recordTX($uid, "Error", "Unrecognised uid: " . $detail->uid);
+                continue;
+            }
             $owner = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT'] . "/../misc.ini")['server4'] . "api/team1/user/uid/" . $detail->uid));
             echo "<ul>";
             echo "<li style='text-align: center; width=150px; word-wrap: break-word;'><a class='menu_li_a' href='javascript:void(0)' onclick='viewfile(" . htmlentities($consent->rid) . ")'><strong>" . htmlentities($detail->title) . "</strong><br>" . htmlentities($owner->firstname) . " " . htmlentities($owner->lastname) . "<br><small>" . htmlentities($detail->modifieddate) . "</small></a></li>";

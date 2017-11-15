@@ -46,6 +46,11 @@ class CSRFToken
      */
     static function getToken($token)
     {
+        if (strpos($token, '/') !== false) {
+            Log::recordTX($uid, "Error", "Unrecognised csrf token: ".json_encode($token));
+            header('HTTP/1.0 400 Bad Request.');
+            die();
+        }
         self::$serverurl = parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'];
         $result = json_decode(ssl::get_content(self::$serverurl . "api/team1/csrf/" . $token));
         return $result;

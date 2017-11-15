@@ -19,6 +19,11 @@
     
     // Retrieves the user JSON object based on the uid
     function getJsonFromUid($uid) {
+        if (strpos($uid, '/') !== false) {
+            Log::recordTX($uid, "Error", "Unrecognised uid: " . $uid);
+            header('HTTP/1.0 400 Bad Request.');
+            die();
+        }
         $user_json_tmp = json_decode(ssl::get_content(parse_ini_file($_SERVER['DOCUMENT_ROOT']."/../misc.ini")['server4'].'api/team1/user/uid/' . $uid));
         return $user_json_tmp;
     }
