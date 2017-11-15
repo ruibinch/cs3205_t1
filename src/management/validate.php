@@ -2,6 +2,7 @@
 	//validate.php: Checks submitted form values and react accordingly.
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/jwt-admin.php';
 	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/ssl.php';
+	include_once $_SERVER["DOCUMENT_ROOT"] . '/util/csrf.php';
 	
 	WebToken::verifyToken($_COOKIE["jwt"]);
 	
